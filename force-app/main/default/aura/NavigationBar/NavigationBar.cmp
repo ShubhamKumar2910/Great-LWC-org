@@ -1,0 +1,95 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId" 
+		controller="CustomToolBarController">
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler event="c:NavigationMenuButtonEvent" action="{!c.handleMenuItemSelect}"/>
+    <aura:handler event="c:NavigationBarEvent" action="{!c.handleMenuSelect}"/>
+    <lightning:navigation aura:id="navService" />
+    <aura:attribute name="pageReference" type="Object"/>
+    <aura:attribute name="visibilityResult" type="GenericInterface"/>
+    <aura:attribute name="currentUserDetails" type="GenericInterface"/><!-- type="CustomToolBarController.CurrentUserDetail" />-->
+    <aura:attribute type="String[]" name="coverageSubMenuValues" default="[]" />
+    <aura:attribute type="String[]" name="contactSubMenuValues" default="[]" />
+    <aura:attribute type="String[]" name="bulkUpdateSubMenuValues" default="[]" />
+    <aura:attribute type="String[]" name="callReportMenuValues" default="[]" />
+    
+    <aura:method name="openPage" action="{!c.openPage}"> 
+        <aura:attribute name="strURL" type="String"/> 
+    </aura:method>
+    
+    <aura:method name="openTab" action="{!c.openTab}"> 
+        <aura:attribute name="tabName" type="String"/> 
+    </aura:method>
+    
+    
+    <div class="slds-button-group," role="group">
+        <div class="slds-align_absolute-center">
+            
+            <!--
+            <lightning:button label="{!$Label.c.New_Event_Create_Call_Report}" variant="brand" 
+                    iconName="utility:edit_form" iconposition="left" onclick="{!c.openNewEvent}"/>
+            -->
+            <c:NavigationMenuButton aura:id="CallReport"
+                label="Create Call Report" 
+                menuURL="/lightning/n/Event_Call_Report"
+                items="{!v.callReportMenuValues}"
+                iconName="utility:edit_form"
+                iconposition="left"/>   
+            
+            <span>&nbsp;</span>
+            
+            <c:NavigationMenuButton label="{!$Label.c.Contact_Options}" 
+            		menuURL="/lightning/n/Contact_Locator"
+                    items="{!v.contactSubMenuValues}"
+                    iconName="utility:people"
+                    iconposition="left"/>
+                    
+            <span>&nbsp;</span>
+            
+            <!-- Coverage Changes : Start -->
+            <aura:if isTrue="{!or(v.currentUserDetails.showCoverageButton, v.currentUserDetails.showUploadBulkMenuButton)}">
+
+                <c:NavigationMenuButton aura:id="coveragedropDown" label="{!$Label.c.Label_My_Coverage}" 
+                      menuURL="/lightning/n/Coverage"
+                      items="{!v.coverageSubMenuValues}"
+                      iconName="utility:desktop"
+                      iconposition="left"
+                 />
+                 
+                <span>&nbsp;</span>
+                
+          	</aura:if>
+           
+           <aura:if isTrue="{!v.currentUserDetails.isETradingEnablementUser}"> 
+				
+				<lightning:button label="eTrading Enablement" variant="brand"  
+	            	iconName="utility:adduser" iconposition="left" 
+	          		onclick="{!c.openEEnablement}" />
+	          	
+	          	<span>&nbsp;</span>
+	          		
+           </aura:if>  
+           
+          <!-- <aura:if isTrue="{!v.currentUserDetails.isMiFID_ResearchAdmin}"> 
+				
+	          	<c:NavigationMenuButton label="Bulk Uploads" 
+            		menuURL="/lightning/n/MiFID_II_Flags_Bulk_Update"
+                    items="{!v.bulkUpdateSubMenuValues}"
+                    iconName="utility:upload"
+                    iconposition="left"/>
+
+           </aura:if> -->
+            <!-- Change - JIRA 2960   Sagar-->
+            <aura:if isTrue="{!greaterthan(v.bulkUpdateSubMenuValues.length,0)}"> 
+                <c:NavigationMenuButton aura:id="bulkupload"
+                                        label="Bulk Uploads" 
+                                        menuURL="/lightning/n/MiFID_II_Flags_Bulk_Update"
+                                        items="{!v.bulkUpdateSubMenuValues}"
+                                        iconName="utility:upload"
+                                        iconposition="left"/>   
+            </aura:if>
+            <span>&nbsp;</span>           
+        </div>
+    </div>
+     
+</aura:component>

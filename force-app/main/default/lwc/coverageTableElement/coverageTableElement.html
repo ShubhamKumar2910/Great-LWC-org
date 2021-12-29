@@ -1,0 +1,56 @@
+<template>
+    <template if:true={wrapperObject}>
+        <div if:true={isFieldText} class="slds-truncate" title={fieldValue}>
+            <div if:false={isTextURL} class="" title={fieldValue}>
+                <lightning-formatted-text value={fieldValue}></lightning-formatted-text>
+            </div>
+            <div if:true={isTextURL} class="" title={fieldValue}>
+                <a href={accountRecordPageURL} target="_blank"><lightning-formatted-text value={fieldValue}></lightning-formatted-text></a>
+            </div>
+        </div>
+        <div if:true={isFieldNumber} class="slds-truncate" title={fieldValue}>
+            <lightning-formatted-number value={fieldValue}></lightning-formatted-number>
+        </div>
+        <div if:true={isFieldDate} class="slds-truncate" title={fieldValue}>
+            <lightning-formatted-date-time value={fieldValue}></lightning-formatted-date-time>
+        </div>
+        <div if:true={isFieldStatus} class="">
+            <div if:true={isStatusApproved} class="" title={fieldValue}>
+                <lightning-badge label={fieldValue} class="slds-theme--success"></lightning-badge>
+            </div>
+            <div if:true={isStatusPending} class="" title={fieldValue}>
+                <a href={pendingCvgRequestsURL}><lightning-badge label={fieldValue} class="slds-theme--warning"></lightning-badge></a>
+
+            </div>
+            <div if:true={isStatusMissing} class="" title={fieldValue}>
+                <lightning-badge label={fieldValue}></lightning-badge>
+            </div>
+        </div>
+        <div if:true={isFieldCheckbox} class="">
+            <lightning-input type="checkbox" variant="label-hidden" disabled checked={fieldValue}></lightning-input>
+        </div>
+        <div if:true={isFieldInfo} class="">
+            <!--template if:true={hasComments}>
+                <lightning-helptext class="slds-m-left_x-small" content={wrapperObject.Comments}></lightning-helptext>
+            </template-->
+            <template if:true={isClientLevelRG}>
+                <!--lightning-button label="Details" title="Details" variant="base" icon-name="utility:chevronright" icon-position="right" class="slds-m-left_x-small" onclick={callRGCovDetailView}></lightning-button-->
+                <!--Use custom label and use same label for drill down title on coverageViewWrapper-->
+                <lightning-button-menu alternative-text="Show menu" menu-alignment="right" onselect={callRMandPODDrillDownView}>
+                    <lightning-menu-item value="rmonly" label={rmDrillDown} icon-name="utility:arrow_bottom"></lightning-menu-item>
+                    <lightning-menu-item value="rmallproducts" label={rmAndProductDrillDown} icon-name="utility:rules"></lightning-menu-item>
+                    <lightning-menu-item value="rmwithcurrentproduct" label={productDrillDown} icon-name="utility:richtextindent" disabled={hasNoProducts}></lightning-menu-item>
+                    <lightning-menu-item value="podonly" label={podDrillDown} icon-name="utility:arrow_bottom"></lightning-menu-item>
+                    <lightning-menu-item value="podallproducts" label={podAndProductDrillDown} icon-name="utility:rules"></lightning-menu-item>
+                </lightning-button-menu>
+            </template>
+            <template if:true={isClientLevelRM}>
+                <!--lightning-button label="Details" title="Details" variant="base" icon-name="utility:chevronright" icon-position="right" class="slds-m-left_x-small" onclick={callRGCovDetailView}></lightning-button-->
+                <lightning-button-menu alternative-text="Show menu" menu-alignment="right" onselect={callPODDrillDownView}>
+                    <lightning-menu-item value="podonly" label={podDrillDown} icon-name="utility:arrow_bottom"></lightning-menu-item>
+                    <lightning-menu-item value="podallproducts" label={podAndProductDrillDown} icon-name="utility:rules"></lightning-menu-item>
+                </lightning-button-menu>
+            </template>
+        </div>
+    </template>
+</template>

@@ -1,0 +1,49 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,force:hasRecordId" access="global" >
+    
+    <aura:attribute name="data" type="Object[]" description="Items to approve" access="global"/>
+    <aura:attribute name="visible" type="boolean" description="sorter visible or not" default="true" />
+    <aura:attribute name="items" type="Object[]" description="sort menu items" access="global"/>
+    <aura:attribute name="apiNames" type="string[]" description="sort menu items" access="global"/>
+    <aura:attribute name="items_" type="Object[]" description="sort menu items" access="global"/>
+    <aura:attribute name="sortedBy" type="string" default="" description="sort menu items" access="global"/>
+    <aura:attribute name="sortedDirection" type="string" default="asc" description="sort menu items" access="global"/>
+    <aura:attribute name="labels" type="string[]" default="" description="sort menu items" access="global"/>
+    <aura:attribute name="depnedentFieldMap" type="map" description="store controller(key)--> dependent(values) picklist value as a map." />
+    
+    <aura:handler name="init" value="{! this }" action="{!c.doInit}"/>
+    <aura:registerEvent name="onSort" type="c:MobileSortChangeItemEvent" /> 
+    
+    <aura:method name="sortDefaults" action="{!c.sortDefaultParams}" > 
+    </aura:method>
+    
+    <aura:if isTrue="{!v.visible}">
+     <div aura:id="sortItems" onfocusout="{!c.hideSortItems}" class="slds-dropdown-trigger slds-dropdown-trigger_click slds-button_last">
+        <lightning:buttonIcon onclick="{!c.sort}"   class="slds-button slds-button_icon slds-button_icon-border-filled headerIcon" iconName="utility:sort" variant="container" alternativeText="sort"/>
+       <div class="slds-dropdown slds-dropdown_right">
+           <ul class="slds-dropdown__list" role="menu">
+               <aura:iteration items="{!v.items}" var="item" indexVar="j">
+                   <li class="{!'slds-dropdown__item ' + (item.selected ? 'slds-is-selected' : '')}" 
+                       role="presentation" onclick="{!c.handleSelection}" data-value="{!item.value}" data-label="{!item.sortOrder}" data-selected="{!item.selected}">
+                        <a href="javascript:void(0);" role="menuitemcheckbox" aria-checked="true" tabindex="{!j}" >                           
+                            <span class="slds-media__figure" style="margin-right:0px;">  
+                                <aura:if isTrue="{!equals(item.sortOrder,'asc')}" >
+                                    <lightning:icon size="xx-small" class="slds-icon slds-icon--selected slds-icon--x-small slds-icon-text-default slds-m-right--x-small" iconName="utility:arrowup"/>
+                                </aura:if>
+                                <aura:if isTrue="{!equals(item.sortOrder,'desc')}" >
+                                    <lightning:icon size="xx-small" class="slds-icon slds-icon--selected slds-icon--x-small slds-icon-text-default slds-m-right--x-small" iconName="utility:arrowdown"/>
+                                </aura:if>
+                                <aura:if isTrue="{!equals(item.sortOrder,'none')}" >
+                                    <lightning:icon size="xx-small" class="slds-icon slds-icon--selected slds-icon--x-small slds-icon-text-default slds-m-right--x-small"/>
+                                </aura:if>
+                            </span>
+                            <span class="slds-media__body">
+                                 <span class="slds-truncate" title="Product">{!item.value}</span>
+                            </span>
+                        </a>
+                    </li>
+                </aura:iteration>
+                </ul>
+            </div>
+    </div>
+    </aura:if>
+</aura:component>

@@ -1,0 +1,25 @@
+<aura:component implements="lightning:homeTemplate" description="For Wave Dashboard">
+    <aura:attribute name="left" type="Aura.Component[]" />
+    <aura:attribute name="bottomLeft" type="Aura.Component[]" />
+    <aura:attribute name="bottomRight" type="Aura.Component[]" />
+    <aura:attribute name="bottomMiddle" type="Aura.Component[]" />
+    <div>
+        <lightning:layout horizontalAlign="auto">
+            <lightning:layoutItem flexibility="auto" class="slds-m-right_small">
+                {!v.left}
+            </lightning:layoutItem>
+        </lightning:layout>
+        <br/>
+        <lightning:layout horizontalAlign="auto">
+            <lightning:layoutItem flexibility="shrink" class="slds-m-right_small" size="4">
+                {!v.bottomLeft}
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="shrink" class="slds-m-right_small" size="4">
+                {!v.bottomMiddle}
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="shrink" class="slds-m-right_small" size="4">
+                {!v.bottomRight}
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+</aura:component>

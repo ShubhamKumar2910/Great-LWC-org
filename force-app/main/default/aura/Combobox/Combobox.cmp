@@ -1,0 +1,125 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId"
+				controller="ComboboxController"
+				access="global">
+    
+
+    <aura:attribute name="isUserScrolled" type="Boolean" default="false" access="global"/>
+    <aura:attribute name="label" type="String" default="Search" access="global"/>
+    <aura:attribute name="placeholder" type="String" default="" access="global"/>
+    <aura:attribute name="searchText" type="String" default="" access="global"/>
+    <aura:attribute name="items" type="ComboboxListItemWrapper[]" access="global"/>
+    <aura:attribute name="selectedItems" type="ComboboxListItemWrapper[]" access="global"/>
+    <aura:attribute name="sObjectAPIName" type="String"  description="The API name of the SObject to search" access="global"/>
+    <aura:attribute name="query" type="String" description="The search string to find." access="global"/>
+    <aura:attribute name="recordId" type="String" access="global"/>
+    <aura:attribute name="disabled" type="boolean" default="false"/>
+    <aura:attribute name="preSelectedId" type="String" default="" access="global"/>
+    <aura:attribute name="showFilterData" type="Boolean" default="false" />
+    <aura:attribute name="showDiv" type="Boolean" default="true" />
+    <aura:attribute name="withSharing" type="Boolean" default="false" access="global"/>
+    <aura:attribute name="isPodAccount" type="Boolean" default="false" access="global"/>
+    <aura:method name="clear" action="{!c.clear}" access="PUBLIC"/> 
+    <aura:method name="search" action="{!c.search}"/>
+    <aura:method name="hideItems" action="{!c.hideItems}"/>
+    <aura:method name="showItems" action="{!c.showItems}"/>
+    <aura:method name="reset" action="{!c.reset}" access="PUBLIC"/>
+    <aura:method name="reinitialise" action="{!c.reinitialise}" access="PUBLIC"/>
+
+    <aura:registerEvent name="updateEvent" type="c:ComboboxChangeEvent"/>
+    <aura:registerEvent name="clearIdEvent" type="c:ComboboxClearIdEvent"/>  
+    <aura:registerEvent name="selectedEvent" type="c:ComboboxUpdateEvent"/>
+    
+	<aura:handler name="init" value="{!this}" action="{!c.init}" />
+
+	<div aura:id="combobox-div" class="slds-lookup" data-select="single" data-scope="multiple" data-typeahead="true">
+		<div class="slds-form-element">
+			<label class="slds-form-element__label" for="lookup">{!v.label}</label>
+           <div class="slds-form-element__control">
+				<div class="slds-combobox_container slds-has-inline-listbox">
+					<div aura:id="comboBox" class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click" aria-expanded="false" aria-haspopup="listbox" role="combobox" >
+                        <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                            <div aura:id="lookup-pill" class="slds-hide">
+                                <ul>
+                                    <aura:iteration items="{!v.items}" var="item" indexVar="i">
+                                        <li>
+                                            <button data-index="{!i}" data-value="{!item}" onclick="{!c.clear}" class="slds-button slds-button_icon slds-input__icon slds-input__icon_right" title="Remove selected option">
+                                                <lightning:icon iconName="utility:close" class="slds-button__icon" size="x-small"/>
+                                                <span class="slds-assistive-text">Remove selected option</span>
+                                            </button>
+                                        </li>
+                                    </aura:iteration>
+                                </ul>
+                            </div>
+                            <!--<lightning:input type="search" 
+                                             label="{!v.label}" 
+                                             value="{!v.searchText}"
+                                             name="comboboxInput"
+                                             onfocus="{!c.showItems}"
+                                             onchange="{!c.search}"
+                                             onblur="{!c.hideItems}"
+                                                 placeholder="{!v.placeholder}"
+                                                 disabled="{!v.disabled}"
+                                                 />-->
+                                   <ui:inputText aura:id="lookup"
+                                              value="{!v.searchText}" 
+                                              class="slds-input slds-combobox__input" 
+                                              updateOn="keyup"
+                                              focus="{!c.showItems}"
+                                              keyup="{!c.search}"
+                                              blur="{!c.hideItems}"
+                                              placeholder="{!v.placeholder}"
+                                              disabled="{!v.disabled}"  
+                                              />
+                            
+                            <!-- blur="{!c.hideItems}"
+                                               -->                              
+                        </div>                        
+                        <div aura:id="combolist" id="listbox-unique-id" role="listbox" >
+                            <ul aura:id="combolist-items" onmouseenter="{!c.OnDivEnter}"  onmouseleave="{!c.OnDivleave}"  class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid" role="presentation">
+                                <aura:if isTrue="{!$Browser.formFactor == 'DESKTOP'}" >
+                                	<aura:iteration items="{!v.items}" var="item"  indexVar="index">
+                                        <li role="presentation" class="slds-listbox__item">
+                                            <a id="{!globalId + '_id_' + item.value}" data-value="{!item.value}" data-index="{!index}" role="option" onclick="{!c.select}">
+                                                <div id="listbox-option-unique-id-01" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                    <span class="slds-media__figure">
+                                                        <lightning:icon iconName="{!item.icon}" size="small"/>
+                                                    </span>
+                                                    <span class="slds-media__body">
+                                                        <span class="slds-listbox__option-text slds-listbox__option-text_entity">{!item.label}</span>
+                                                        <span class="slds-listbox__option-meta slds-listbox__option-meta_entity">{!item.metaLabel}</span>
+                                                    </span>
+                                                </div>
+                                            </a>
+                                        </li> 
+                                    </aura:iteration>
+                                    
+                                    <aura:set attribute="else">
+                                    	<ui:scrollerWrapper class="scrollerSize" >
+                                            <aura:iteration items="{!v.items}" var="item"  indexVar="index">
+                                                <li role="presentation" class="slds-listbox__item">
+                                                    <a id="{!globalId + '_id_' + item.value}" data-value="{!item.value}" data-index="{!index}" role="option" onclick="{!c.select}">
+                                                        <div id="listbox-option-unique-id-01" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                            <span class="slds-media__figure">
+                                                                <lightning:icon iconName="{!item.icon}" size="small"/>
+                                                            </span>
+                                                            <span class="slds-media__body">
+                                                                <span class="slds-listbox__option-text slds-listbox__option-text_entity">{!item.label}</span>
+                                                                <span class="slds-listbox__option-meta slds-listbox__option-meta_entity">{!item.metaLabel}</span>
+                                                            </span>
+                                                        </div>
+                                                    </a>
+                                                </li> 
+                                            </aura:iteration>
+                                		</ui:scrollerWrapper>    
+                                    </aura:set>
+                                              
+                                </aura:if>
+                            </ul>
+                        </div>                        
+					</div>
+				</div>
+            </div>
+        </div>
+    </div>
+
+</aura:component>

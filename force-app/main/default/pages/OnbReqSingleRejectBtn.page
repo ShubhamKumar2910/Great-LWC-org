@@ -1,0 +1,16 @@
+<apex:page standardController="Onboarding_Request__c" standardStylesheets="false" sidebar="false" docType="html-5.0"
+        action="{!initializeRejectAction}" extensions="OnbReqSingleApprovalController" lightningStylesheets="true">
+    
+        <apex:slds />
+        <div class="slds-text-heading_medium slds-text-align_center">
+            <apex:outputText value="Update Client Onboarding Request" />
+        </div>
+        <br/>
+    
+        <flow:interview name="Update_Client_Pre_Onboarding_Request" finishLocation="{!finishLocation}" buttonLocation="bottom" >
+            <apex:param name="OnbReqIdList" value="{!selectedOnbReqIds}" />
+            <apex:param name="actionPerformed" value="{!action}" />
+            <apex:param name="source" value="{!source}" />
+        </flow:interview>
+
+</apex:page>

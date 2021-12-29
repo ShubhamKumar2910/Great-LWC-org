@@ -1,0 +1,19 @@
+.THIS .wrapLookupPills{
+        display: inline-block;
+    overflow-y: auto;
+    max-height: 56px;
+    width: 100%;
+}
+
+.THIS .input--numberfield {
+    border: none;
+    color: transparent;
+    text-shadow: 0 0 0 gray;
+    text-align: center;
+
+}
+
+.THIS .listPadding {
+    padding: .5rem;
+    line-height: 1.5;
+}

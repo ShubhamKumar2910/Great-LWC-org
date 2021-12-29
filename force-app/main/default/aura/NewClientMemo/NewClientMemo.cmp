@@ -1,0 +1,13 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"
+                 access="global"
+                 >
+   <aura:attribute name="recordId" type="String"/>
+   <aura:attribute name="isJapanFIUser" type="Boolean" default="false"/>
+
+	<aura:handler name="init" value="{!this}" action="{!c.init}" />
+
+
+   <!-- <c:NewRecordRecordTypeSelect sObject="Event" RecordTypes="Standard_Event" RecordTypesOverrides="Standard_Event" ComponentOverrides="EventCallReport" defaultRecordType="Standard_Event" fromRecordId="{!v.recordId}"/> -->
+
+    
+</aura:component>

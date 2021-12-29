@@ -1,0 +1,231 @@
+<template>
+
+    <!-- Note -->
+    <template if:true={isRecordNew}>
+        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error infoSectionTextAlignment" role="alert" style="white-space: normal;">
+            <span class="slds-assistive-text">Info</span>
+            <span class="slds-icon_container slds-icon-utility-info slds-m-right_x-small">
+                <lightning-icon icon-name="utility:info" variant="inverse" size="xx-small"></lightning-icon>
+            </span>
+            <h2>
+                {newSCHReqNoteLabel}
+            </h2>
+            <br/>
+        </div>
+    </template>
+    
+    <!-- Account Hierarchy -->
+    <template if:false={showDefaultHierarchy}>
+        <c-sch-account-hierarchy record-id={recordId} 
+            rs-account-id={selectedAccountRSId} rs-account-name={selectedAccountRSName} rs-account-label={selectedAccountRSLabel}
+            rg-account-id={selectedAccountRGId} rg-account-name={selectedAccountRGName} rg-account-label={selectedAccountRGLabel}
+            rm-account-id={selectedAccountRMId} rm-account-name={selectedAccountRMName} rm-account-label={selectedAccountRMLabel}
+            show-rg-hierarchy={showRgHierarchy} show-rm-hierarchy={showRmHierarchy}> 
+        </c-sch-account-hierarchy>
+    </template>
+    <template if:true={showDefaultHierarchy}>
+            <c-sch-account-hierarchy record-id={recordId} 
+                show-rg-hierarchy={showRgHierarchy} show-rm-hierarchy={showRmHierarchy}> 
+            </c-sch-account-hierarchy>
+        </template>
+    
+    <template if:true={showSpinner}>
+            <div class="slds-m-top_x-large inlineSpinner">
+                <lightning-spinner variant="brand" alternative-text="Loading"></lightning-spinner>
+            </div>
+    </template>
+
+    <br/>
+    
+    <!--LEGAL ENTITY SEARCH LAYOUT START-->	
+    <lightning-layout pull-to-boundary="medium">
+        <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" flexibility="auto" padding="horizontal-small">
+            <lightning-input
+                data-field="rmEntitySearch"
+                name="rm-entity-search"
+                label="Legal (RM) Entity Name"
+                value={rmEntitySearchStr}
+                onchange={handleRMNameChange}
+                is-loading={showRMSearchingSpinner}
+                disabled={rmEntitySearchDisabled}
+                required>
+            </lightning-input>
+        </lightning-layout-item>
+        
+        <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" flexibility="auto" padding="horizontal-small">
+            <lightning-record-edit-form id="schReqClientLoc" object-api-name="SCH_Request__c">
+                
+                <!--<div class="slds-float_left slds-required"> * </div>-->
+                <lightning-input-field field-name='RM_Client_Location__c' onchange={handleRmClientLocChange}
+                    variant='label-stacked' value={rmEntityLocationSearch} disabled={rmEntityLocationDisabled}>
+                </lightning-input-field>
+            </lightning-record-edit-form>
+            
+            <!--<lightning-button label="Neutral" title="Non-primary action" onclick={handleClick} class="slds-m-left_x-small"></lightning-button> -->
+
+        </lightning-layout-item>      
+    </lightning-layout>
+    <!--LEGAL ENTITY SEARCH LAYOUT END-->	
+
+    <lightning-accordion  allow-multiple-sections-open
+            active-section-name={activeSections} 
+            onsectiontoggle={handleSectionToggle}
+            >
+        <lightning-accordion-section name="rmSearchRsltSec" label={sfLegalEntityDetailsStep} >
+            <!--LEGAL ENTITY SEARCH RESULT TABLE START-->	
+            <lightning-layout pull-to-boundary="medium" multiple-rows>
+                
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" flexibility="auto" padding="horizontal-small">
+                    <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error infoSectionTextAlignment" role="alert">
+                        <span class="slds-assistive-text">Info</span>
+                        <span class="slds-icon_container slds-icon-utility-info slds-m-right_x-small" title="Description of icon when needed">
+                            <lightning-icon icon-name="utility:info" variant="inverse" size="xx-small"></lightning-icon>
+                        </span>
+                        <h2>
+                            {existingSFLegalEntityStepInfo}
+                        </h2>
+                        <br/>
+                    </div>
+                </lightning-layout-item>
+                
+                
+                <!--SF : RM ENTITY MATCHES-->
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" flexibility="auto" padding="horizontal-small">
+                    <div style="height: 300px;" class="slds-box">	                        
+        
+                       
+        
+                        <template if:true={showRmSFEntities}>
+                            <!--<div style="height: 250px; width: 660px;">-->
+                            <div style="height: 250px;">
+                                <lightning-datatable
+                                        column-widths-mode="auto"
+                                        key-field="Id"
+                                        data-field="rmSFDataTable"
+                                        data={rmEntitySFData}
+                                        columns={rmEntitySFCols}
+                                        onrowaction={callRowAction}
+                                        hide-checkbox-column                                        
+                                        >
+                                </lightning-datatable>
+                            </div>
+                        </template>
+                        <template if:false={showRmSFEntities}>
+                            <div class="slds-p-top_x-large"></div><div class="slds-p-top_x-large"></div>
+                            <div class="slds-p-top_x-large slds-text-title_caps slds-text-align_center">
+                                {noMatchingRecFoundLbl}
+                            </div>
+                        </template>
+                    </div> 
+                    
+                </lightning-layout-item>
+               
+            </lightning-layout> <!--LEGAL ENTITY SEARCH RESULT TABLE END-->	  
+            
+            <lightning-layout>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="8" flexibility="auto" padding="horizontal-small">
+                    <!-- <div class="slds-text-align_right" style="padding:5px; color:red;">
+                        <h2> {accountNotFoundinSFLbl} </h2>
+                    </div> -->
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="4" flexibility="auto" padding="horizontal-small">
+                    <div class="slds-text-align_right" style="padding-top:5px;">
+                            <lightning-button variant="neutral" label={cancel} title={cancel} onclick={handleCancel} 
+                            class="slds-m-left_x-small" >
+                        </lightning-button> 
+                        <lightning-button variant="brand" label={notAvailable} title={notAvailable} onclick={handleRMNextClick} 
+                            class="slds-m-left_x-small" disabled={rmNextDisabled}>
+                        </lightning-button> 
+                    </div>               
+                </lightning-layout-item>
+            </lightning-layout> <!--LEGAL ENTITY BUTTON ROW END-->	
+        </lightning-accordion-section>
+
+        <lightning-accordion-section name="bbgSearchRsltSec" label={externalEntityDetailsStep} >
+            <!--EXTERNAL ENTITY SEARCH RESULT TABLE START-->	
+            <lightning-layout pull-to-boundary="medium" multiple-rows>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" flexibility="auto" padding="horizontal-small">
+                    <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error infoSectionTextAlignment" role="alert">
+                        <span class="slds-assistive-text">Info</span>
+                        <span class="slds-icon_container slds-icon-utility-info slds-m-right_x-small" title="Description of icon when needed">
+                            <lightning-icon icon-name="utility:info" variant="inverse" size="xx-small"></lightning-icon>
+                        </span>
+                        <h2>
+                            {externalEntityStepInfo}
+                        </h2>
+                        <br/>
+                    </div>
+                </lightning-layout-item>
+                
+                
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" flexibility="auto" padding="horizontal-small">
+                    <div style="height: 300px;" class="slds-box">	
+                        
+                        <!-- <template if:true={showSearchingBbgEntity}>
+                            <div class="slds-m-top_x-large inlineSpinner">
+                                <lightning-spinner variant="brand" alternative-text="Loading"></lightning-spinner>
+                            </div>
+                        </template> -->
+        
+                        <template if:true={showBbgEntities}>
+                            <!--<div style="height: 250px; width: 660px;">-->
+                            <div style="height: 250px;">
+                                <lightning-datatable
+                                        column-widths-mode="auto"
+                                        key-field="Name"
+                                        data-field="rmBbgEntDataTable"
+                                        data={rmEntityBBGData}
+                                        columns={rmEntityBBGCols}                                        
+                                        enable-infinite-loading
+                                        max-row-selection="1"
+                                        selected-rows={selectedBbgRow}
+                                        onrowselection={handleExternalEntityRowSelection}
+                                        onloadmore={loadMoreRmBbgData}>
+                                </lightning-datatable>
+                            </div>
+                        </template>
+                        <template if:false={showBbgEntities}>
+                            <div class="slds-p-top_x-large"></div><div class="slds-p-top_x-large"></div>
+                            <div class="slds-p-top_x-large slds-text-title_caps slds-text-align_center">
+                                {noMatchingRecFoundLbl}
+                            </div>
+                        </template>
+                    </div> 
+                </lightning-layout-item>
+            </lightning-layout>
+            <!--EXTERNAL ENTITY SEARCH RESULT TABLE END-->	
+            <lightning-layout>
+                
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" flexibility="auto" padding="horizontal-small">
+                    <div class="slds-text-align_right" style="padding: 5px;">
+                        <template if:true={showClearSelectionBtn}>
+                            <lightning-button label={clearSelection} title={clearSelection}  onclick={resetFields} 
+                            class="slds-m-left_x-small" >
+                        </lightning-button>
+                        </template>
+                        
+
+                        <lightning-button label={previousLbl} title={previousLbl}  onclick={handleBbgPreviousClick} 
+                            class="slds-m-left_x-small" >
+                        </lightning-button>
+        
+                        <lightning-button variant="brand" label={bbgNextBtnLbl} title={bbgNextBtnLbl} disabled={disabledBbgBtnCondition} onclick={handleBbgNextClick} 
+                                class="slds-m-left_x-small" >
+                        </lightning-button>
+                    </div>
+                </lightning-layout-item>
+                
+                
+            </lightning-layout>
+            
+            
+        </lightning-accordion-section>
+
+        <lightning-accordion-section name="legalRMEntitySection" label={legalRMEntityDetailsStep}></lightning-accordion-section>
+        <lightning-accordion-section name="ultimateParentRSEntitySection" label={ultimateParentEntityDetailsStep}></lightning-accordion-section>
+        <lightning-accordion-section name="functionalGroupRGEntitySection" label={functionalGroupEntityDetailsStep}></lightning-accordion-section>
+        
+
+    </lightning-accordion>
+        
+</template>

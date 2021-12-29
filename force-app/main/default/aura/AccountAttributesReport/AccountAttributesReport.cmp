@@ -1,0 +1,22 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+    access="global">
+    
+    <span>
+    	<!-- RG Account History Report-->
+        <c:ReportButton aura:id="accountHistoryReportBtn" 
+                        reportDeveloperName ="RG_Account_History_Report_wvt"
+                        buttonLabel = "{!$Label.c.Account_History_Report_Button}"
+                        recordId = "{!v.recordId}">
+        </c:ReportButton>
+        
+        &nbsp;
+        
+        <!-- Senior Management Activities with Contacts Report-->
+        <c:ReportButton aura:id="seniorMgmtActivitiesWithContactsReportBtn" 
+                        reportDeveloperName ="Sr_Man_Activities_with_Contacts_Report_tTl"
+                        buttonLabel = "{!$Label.c.Senior_Mgmt_Activities_with_Contacts_Report_Button}"
+                        recordId = "{!v.recordId}">
+        </c:ReportButton>
+    </span>
+	
+</aura:component>

@@ -1,0 +1,779 @@
+<aura:component controller="ContactList" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,lightning:isUrlAddressable" access="global" >
+	<style>
+    	.menuClass {
+        	-webkit-transition: border .15s linear;
+            background-color: rgba(27, 82, 151, 1.0);
+    		border-color: rgba(27, 82, 151, 1.0);
+    		color: rgb(255, 255, 255);
+        	border-top-right-radius: .25rem !important;
+        	border-bottom-right-radius: .25rem !important;
+        	border-top-left-radius: .0rem !important;
+        	border-bottom-left-radius: .0rem !important;
+        	line-height: 1.875rem !important;
+        	height: 2rem !important;
+        	padding-right: 0.5rem;
+        }
+        
+        .slds-button--icon-bare {
+        	line-height: 1.875rem !important;
+        } /* Overrided actual class */
+        
+        .buttonClass {
+        	border-top-right-radius: .0rem !important;
+            border-bottom-right-radius: .0rem !important;
+            margin-bottom: .10rem;
+            background-color: rgba(27, 82, 151, 1.0);
+        }
+        
+        .buttonIconClass {
+        	height: 1.25rem !important;
+        	border: 0px;
+        }
+        
+        .hideLabelClass > label {
+        	display: none;
+        }
+        
+        .listClass {
+        	width: 100%;
+        }
+        
+        .selectInputElementClass {
+        	height: auto !important;
+        	background-image: none !important;
+        	padding: 0 2px !important;
+        }
+        
+        .rowClassForNonEditAccess {
+        	background-color: rgb(243,242,242);
+        }
+        /*winter 19 changes*/
+        #contactListTableDiv {
+            max-height: 670px;
+        }
+        
+        @media (max-height: 1920px)  {
+            #contactListTableDiv {
+                 max-height: 1600px;
+            }
+            #contactListTableDivOuter{
+                 height: 1600px;
+            }            
+        }
+         
+        @media (max-height: 1280px)  {
+            #contactListTableDiv {
+                 max-height: 600px;
+            }
+            #contactListTableDivOuter{
+                 height: 600px;
+            }
+        }
+
+               
+    </style>
+    
+    <aura:dependency resource="markup://c:ModalDialog"/>
+    <aura:attribute name="message" type="String"/>
+    <aura:attribute name="device" type="String" default="DESKTOP" />
+    
+    <!-- Attribute for User Contact Lists (Phone Book and Coverage) -->
+    <aura:attribute name="contactLists" type="CampaignShare[]"/>
+    
+    <!-- Attribute for Selected Contact List -->
+    <aura:attribute name="myContactListSelect" type="String" default="1"/>
+    
+    <!-- Attribute for SelectAll -->
+    <aura:attribute name="selectAllCheckboxValue" type="Boolean" default="false" />
+    
+    <!-- Attribute for Campaign Member Count -->
+    <aura:attribute name="campaignMemberCount" type="Integer" default="0" />
+    
+     <!-- Attribute for Campaign Access Level -->
+    <aura:attribute name="campaignAccessLevel" type="String" default="Read" />
+    
+    <!-- Attribute for Campaign Record Types and Other Details -->
+    <aura:attribute name="contactListOtherDetails" type="GenericInterface" />
+    
+     <!-- Stores RecordId for Edit and Delete Contact List -->
+    <aura:attribute name="recordId" type="String"/>
+    
+    <!-- Attributes for Add to List -->
+    <aura:attribute name="listOptions" type="Object[]"/>
+    <aura:attribute name="selectedListsForAddToList" type="String"/>
+    <aura:attribute name="campaignId" type="String"/>
+    
+    <!-- Attributes for Infinity Scrolling -->
+    <aura:attribute name="listMembers" type="Object[]" />
+    <aura:attribute name="pageNumber" type="Integer" default="1" /> 
+    <aura:attribute name="pageSize" type="Integer" default="60" />
+    <aura:attribute name="scrollCheckIntervalId" type="String" description="In the renderer.js, the interval id for periodically checking scroll position. Used when unrendering component to cancel interval check." access="private" /> 
+    
+    <!-- Attributes for Sorting -->
+    <aura:attribute name="sortDirection" type="String" default="ASC" />
+    <aura:attribute name="sortField" type="String" default="Id" />
+    
+    <!-- For Edit MassActivity modal -->
+    <aura:attribute name="massActivityData" type="Object" />
+    <aura:attribute name="massActivityColumn" type="List" />
+    <aura:attribute name="tableComponent" type="Object" />
+    <aura:attribute name="massActivityCount" type="String" />
+
+    <!-- For New Phone Book Campaign -->
+    <aura:attribute name="recordErrorForContactList" type="String"/>
+    <aura:attribute name="newContactList" type="Object" />
+    <aura:attribute name="simpleNewContactList" type="Object" />
+   
+    
+    <aura:attribute name="loading" type="Boolean" default="false" />
+    <aura:attribute name="internalAttendees" type="String[]" />
+    <aura:attribute name="clientAttendees" type="String[]" />
+    <aura:attribute name="rgAccount" type="String" default="" />
+    <aura:attribute name="filterJSON" type="String" default="" />
+    <aura:attribute name="listChanged" type="Boolean" default="true" />
+    <aura:attribute name="modelRequest" type="Boolean" default="false" />
+    <aura:attribute name="activityType" type="String" default="false" />    
+    <aura:attribute name="contactIdFiltered" type="String" default="" />
+    <aura:attribute name="singleLookupJSON" type="String" default="" />
+    
+    <!-- Attribute for Non Covered Contacts Filter -->
+    <aura:attribute name="notCoveredContactFilter" type="Boolean" default="false" />
+    
+    <force:recordData aura:id="contactListCreator"
+        fields="Id,Name,IsActive,Type,RecordType.Name,RecordType.DeveloperName"              
+        targetRecord="{!v.newContactList}"
+        targetFields="{!v.simpleNewContactList}"
+        targetError="{!v.recordErrorForContactList}"
+      />
+    
+    <!-- For Edit Phone Book Campaign Name -->
+    <aura:attribute name="recordErrorForEditContactList" type="String"/>
+    <aura:attribute name="editContactList" type="Object" />
+    <aura:attribute name="simpleEditContactList" type="Object" />
+    <aura:attribute name="editContactListRecordId" type="String" />
+    
+    <force:recordData aura:id="contactListEdit"
+        recordId="{!v.editContactListRecordId}"
+        fields="Id,Name,IsActive,Type,RecordType.Name,RecordType.DeveloperName"
+        targetRecord="{!v.editContactList}"
+        targetFields="{!v.simpleEditContactList}"
+        targetError="{!v.recordErrorForEditContactList}"
+        mode="EDIT"              
+      />
+    
+    <!-- For Deleting Phone Book Campaign -->
+    <!-- <aura:attribute name="recordErrorForDeleteContactList" type="String"/>
+    <aura:attribute name="deleteContactListRecordId" type="String" /> -->
+    
+    <!-- <force:recordData aura:id="contactListDelete"
+        recordId="{!v.deleteContactListRecordId}"
+        fields="Id"
+        targetError="{!v.recordErrorForDeleteContactList}"
+      /> -->
+    
+    <!-- For New Contact Coverage Campaign -->
+    <aura:attribute name="recordErrorForContactCoverageList" type="String"/>
+    <aura:attribute name="newContactCoverageList" type="Object" />
+    <aura:attribute name="simpleNewContactCoverageList" type="Object" />
+    
+    <force:recordData aura:id="contactCoverageListCreator"
+        layoutType="FULL"
+        targetRecord="{!v.newContactCoverageList}"
+        targetFields="{!v.simpleNewContactCoverageList}"
+        targetError="{!v.recordErrorForContactCoverageList}"
+      />
+    
+     <!-- For New Mass Email Campaign -->
+    <aura:attribute name="recordErrorForMassEmail" type="String"/>
+    <aura:attribute name="newMassEmail" type="Object" />
+    <aura:attribute name="simpleNewMassEmail" type="Object" />
+    
+    <force:recordData aura:id="massEmailCreator"
+        fields="Id,Name,Type,RecordType.Name,RecordType.DeveloperName"
+        targetRecord="{!v.newMassEmail}"
+        targetFields="{!v.simpleNewMassEmail}"
+        targetError="{!v.recordErrorForMassEmail}"
+      />
+   
+    <!-- Methods : Start -->
+    
+	<aura:method name="formRecordTemplates" action="{!c.formRecordTemplates}" /> 
+    
+    <aura:method name="emptyTableData" action="{!c.emptyTableData}" />
+    
+    <aura:method name="getPageData" action="{!c.getPageData}">
+    	<aura:attribute name="strSource" type="String"/>
+    </aura:method>
+    <aura:method name="getNextPage" action="{!c.getNextPage}" />
+    
+    <aura:method name="getSortedData" action="{!c.getSortedData}" />
+        
+    <aura:method name="sortContactName" action="{!c.sortContactName}" />
+    <aura:method name="sortRGAccountName" action="{!c.sortRGAccountName}" />
+    <aura:method name="sortRMAccountName" action="{!c.sortRMAccountName}" />
+    <aura:method name="sortCountry" action="{!c.sortCountry}" /> 
+    <aura:method name="createSingleLookupJSON" action="{!c.createSingleLookupJSON}" />
+    <aura:method name="openDialogForNewContactList" action="{!c.openDialogForNewContactList}" />
+    <aura:method name="openDialogForNewMassEmail" action="{!c.openDialogForNewMassEmail}" />
+    <aura:method name="openDialogForNewMassActivity" action="{!c.openDialogForNewMassActivity}" >
+        <aura:attribute name="activityType" type="String" />
+    </aura:method>
+    <aura:method name="saveList" action="{!c.saveList}" />
+    <aura:method name="showMembers" action="{!c.showMembers}" />
+    <aura:method name="goToEdit" action="{!c.goToEdit}" />
+    <aura:method name="goToRecord" action="{!c.goToRecord}" />
+    <aura:method name="redirectToRecord" action="{!c.redirectToRecord}" />
+    <aura:method name="openDialogForNewMassEmailWithValidation" action="{!c.openDialogForNewMassEmailWithValidation}" />
+    
+    <aura:method name="handleCreateButtonClick" action="{!c.handleCreateButtonClick}" />
+    <aura:method name="handleAddToButtonClick" action="{!c.handleAddToButtonClick}" />
+    
+    <aura:method name="openDialogForAddToList" action="{!c.openDialogForAddToList}">
+        <aura:attribute name="campaignType" type="String" />
+    </aura:method>    
+    
+    <aura:method name="formDialogForAddToCampaign" action="{!c.formDialogForAddToCampaign}">
+        <aura:attribute name="modalTitleLabel" type="String" />
+        <aura:attribute name="elementLabel" type="String" />
+    </aura:method>
+    <!--Added for Edit Mass Email-->
+     <aura:method name="formDialogForEditCampaign" action="{!c.formDialogForEditCampaign}">
+        <aura:attribute name="modalTitleLabel" type="String" />
+        <aura:attribute name="elementLabel" type="String" />
+    </aura:method>
+    
+    <!--Added for Edit Mass Activity-->
+     <aura:method name="formDialogForEditMassActivity" action="{!c.formDialogForEditMassActivity}">
+        <aura:attribute name="modalTitleLabel" type="String" />
+        <aura:attribute name="elementLabel" type="String" />
+    </aura:method>
+    <aura:method name="navigateToEditListMassActivity" action="{!c.navigateToEditListMassActivity}" />
+    
+    
+    <aura:method name="massActivityDetails" action="{!c.massActivityDetails}">
+    	<aura:attribute name="modalTitleLabel" type="String" />
+        <aura:attribute name="campaignRecordTypeNameLabel" type="String" />
+    </aura:method>
+    
+    <aura:method name="navigateToEditListCampaign" action="{!c.navigateToEditListCampaign}"></aura:method>
+    <aura:method name="navigateToShareRecordPage" action="{!c.navigateToShareRecordPage}"></aura:method>
+         
+    <aura:method name="addToList" action="{!c.addToList}">
+        <aura:attribute name="campaignId" type="String" />
+        <aura:attribute name="campaignType" type="String" />
+        
+    </aura:method>
+    
+    <aura:method name="openDialogForEditContactList" action="{!c.openDialogForEditContactList}" />
+    <aura:method name="openDialogForDeleteContactList" action="{!c.openDialogForDeleteContactList}" />
+    
+    <aura:method name="removeFromList" action="{!c.removeFromList}" />
+    
+    <aura:method name="navigateToPageForCallReport" action="{!c.navigateToPageForCallReport}" />
+    <aura:method name="navigateToPageForContactAddition" action="{!c.navigateToPageForContactAddition}" />
+    
+   
+    <aura:method name="getSelectedContacts" action="{!c.getSelectedContacts}">
+        <aura:attribute name="selectedContacts" type="Object"/> 
+    </aura:method>
+    
+    <aura:method name="setDataTableCheckboxValues" action="{!c.setDataTableCheckboxValues}">
+        <aura:attribute name="headerCheckboxValue" type="Boolean" />
+    </aura:method>
+    
+    <aura:method name="showMessage" action="{!c.showMessage}">
+        <aura:attribute name="title" type="String"/> 
+        <aura:attribute name="message" type="String"/> 
+        <aura:attribute name="type" type="String"/> 
+    </aura:method>
+    
+    <aura:method name="navigateToRecord" action="{!c.navigateToRecord}">
+        <aura:attribute name="strRecordId" type="String"/> 
+    </aura:method>
+    
+    <aura:method name="openPage" action="{!c.openPage}"> 
+        <aura:attribute name="strURL" type="String"/> 
+    </aura:method>
+   
+	<aura:method name="navigateToVfURL" action="{!c.navigateToVfURL}">
+        <aura:attribute name="strRecordId" type="String"/> 
+    </aura:method>
+    
+    <aura:method name="navigateToContactListReport" action="{!c.navigateToContactListReport}" />
+    
+    <aura:method name="seperateIdsForCallReport" action="{!c.seperateIdsForCallReport}" >
+        <aura:attribute name="selectedContactIds" type="String[]" />
+    </aura:method>
+    
+    <aura:method name="resetFilters" action="{!c.resetFilters}" />
+    
+    <aura:method name="createFilterJSON" action="{!c.createFilterJSON}" />
+    <aura:method name="navigateToActivity" action="{!c.navigateToActivity}">
+        <aura:attribute name="selectedData" type="String[]" />
+    </aura:method>
+    <!--Added for Winter 19 fix SALES 3000-->
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.doInit}" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>    
+    <!-- Methods : End -->
+    
+    <!-- Markup -->
+    <lightning:spinner aura:id="spinner" variant="brand" class="slds-hide" />
+    
+    <!-- Display Lightning Data Service errors for New Contact list --> 
+    <aura:if isTrue="{!not(empty(v.recordErrorForContactList))}"> 
+        <div class="recordError"> 
+            <ui:message title="Error" severity="error" closable="true"> 
+                {!v.recordErrorForContactList} 
+            </ui:message> 
+        </div> 
+    </aura:if> 
+    
+    <!-- Display Lightning Data Service errors for Edit Contact list --> 
+    <aura:if isTrue="{!and(not(empty(v.recordErrorForEditContactList)),or(v.campaignAccessLevel == 'All',v.campaignAccessLevel == 'Edit'))}"> 
+        <div class="recordError"> 
+            <ui:message title="Error" severity="error" closable="true"> 
+                {!v.recordErrorForEditContactList} 
+            </ui:message> 
+        </div> 
+    </aura:if>
+    
+    <!-- Display Lightning Data Service errors for Delete Contact list --> 
+    <aura:if isTrue="{!and(not(empty(v.recordErrorForDeleteContactList)),or(v.campaignAccessLevel == 'All',v.campaignAccessLevel == 'Edit'))}"> 
+        <div class="recordError"> 
+            <ui:message title="Error" severity="error" closable="true"> 
+                {!v.recordErrorForDeleteContactList} 
+            </ui:message> 
+        </div> 
+    </aura:if>
+    
+    <!-- Display Lightning Data Service errors for New Contact Coverage list --> 
+    <aura:if isTrue="{!not(empty(v.recordErrorForContactCoverageList))}"> 
+        <div class="recordError"> 
+            <ui:message title="Error" severity="error" closable="true"> 
+                {!v.recordErrorForContactList} 
+            </ui:message> 
+        </div> 
+    </aura:if>
+    
+    <!-- Display Lightning Data Service errors for New Mass Email --> 
+    <aura:if isTrue="{!not(empty(v.recordErrorForMassEmail))}"> 
+        <div class="recordError"> 
+            <ui:message title="Error" severity="error" closable="true"> 
+                {!v.recordErrorForMassEmail} 
+            </ui:message> 
+        </div> 
+    </aura:if>
+    
+    <div class="slds-grid slds-p-around_x-small">
+        <!-- List Selection Field -->
+        <span class="slds-col slds-grid slds-grid--align-spread slds-size_3-of-12" >
+            <span class="slds-col listClass">
+                <lightning:select aura:id="myContactListSelect" name="myContactListSelect" label="Contact Lists" onchange="{!c.showMembers}"  value="{!v.myContactListSelect}" class="hideLabelClass">
+                    <option value="1" text="{!$Label.c.Recently_Viewed_Contacts}"></option>
+                    <aura:iteration items="{!v.contactLists}" var="val">
+                        <aura:if isTrue="{!(v.myContactListSelect == val.Campaign.Id)}">
+                            <option value="{!val.Campaign.Id}" text="{!val.Campaign.Name}" selected="true"></option>
+                        <aura:set attribute="else">
+                            <option value="{!val.Campaign.Id}" text="{!val.Campaign.Name}"></option>
+                        </aura:set>    
+                        </aura:if>
+                        
+                    </aura:iteration>
+                </lightning:select>
+            </span>
+        </span> 
+        
+        <!-- Buttons -->
+        <span class="slds-col slds-grid slds-grid--align-end slds-size_7-of-12" >
+            <span class="slds-col">
+                <!-- New Button -->
+                <lightning:button variant="brand" label="{!$Label.c.Create}"  iconName="action:add_relationship" iconposition="left" class="buttonClass" onclick="{!c.handleCreateButtonClick}" />
+                <lightning:buttonMenu alternativeText="Create" onselect="{!c.handleMenuSelect}" name="newButtonMenu"  menuAlignment="right"  variant="bare-inverse" class="menuClass" >
+                
+                    <lightning:menuItem aura:id="newContactMenuItem" label="{!$Label.c.Contact_List_New_Contact}" value="newContactMenuItem" iconName="standard:avatar" />
+
+                    <lightning:menuItem aura:id="newContactListMenuItem" label="{!$Label.c.Contact_List}" value="newContactListMenuItem" iconName="standard:contact_list" />
+                    
+                    <aura:if isTrue="{!v.contactListOtherDetails.contactCoverageRecordExists == FALSE}">
+                    	<lightning:menuItem aura:id="newContactCoverageMenuItem" label="{!$Label.c.Contact_List_Contact_Coverage}" value="newContactCoverageMenuItem" iconName="custom:custom60"/>
+                    </aura:if>
+                    
+                    <lightning:menuItem aura:id="newCallReportMenuItem" label="{!$Label.c.Contact_List_Call_Report}" value="newCallReportMenuItem" iconName="action:new_event"/>
+                    
+                    <lightning:menuItem aura:id="newMassEmailMenuItem" label="{!$Label.c.Contact_List_Mass_Email}" value="newMassEmailMenuItem" iconName="action:email"/>
+                    
+                    <lightning:menuItem aura:id="newMassActivityMenuItem" label="{!$Label.c.Contact_List_Mass_Activity}" value="newMassActivityMenuItem" iconName="action:new_event"/>
+                    
+                    <lightning:menuItem aura:id="newModelRequestMenuItem" label="{!$Label.c.Contact_List_Model_Request}" value="newModelRequestMenuItem" iconName="action:new_event"/>                    
+                </lightning:buttonMenu>  
+                
+                &nbsp;
+                
+                <!-- Add To Button -->
+                <lightning:button variant="brand" label="{!$Label.c.Add_To}" iconName="action:join_group" iconposition="left" class="buttonClass" onclick="{!c.handleAddToButtonClick}"  />
+                <lightning:buttonMenu alternativeText="Add To" onselect="{!c.handleMenuSelect}" name="addToButtonMenu" variant="bare-inverse" menuAlignment="right" class="menuClass">
+                    <lightning:menuItem aura:id="addToContactListMenuItem" label="{!$Label.c.Contact_List}" value="addToContactListMenuItem" iconName="standard:contact_list"  />
+                    
+                    <lightning:menuItem aura:id="addToMyContactCoverageListMenuItem" label="{!$Label.c.Contact_List_My_Coverage}" value="addToMyContactCoverageListMenuItem" iconName="custom:custom60" />
+					<lightning:menuItem aura:id="addToContactCoverageListMenuItem" label="{!$Label.c.Contact_List_Other_Contact_Coverage}" value="addToContactCoverageListMenuItem" iconName="custom:custom60" />
+                    
+                    <lightning:menuItem aura:id="addToMassEmailMenuItem" label="{!$Label.c.Contact_List_Mass_Email}" value="addToMassEmailMenuItem" iconName="action:email" />
+                    
+                    <lightning:menuItem aura:id="addToMassActivityMenuItem" label="{!$Label.c.Contact_List_Mass_Activity}" value="addToMassActivityMenuItem" iconName="action:new_event"/>
+                    
+                    <lightning:menuItem aura:id="addToModelRequestMenuItem" label="{!$Label.c.Contact_List_Model_Request}" value="addToModelRequestMenuItem" iconName="action:new_event"/>
+                </lightning:buttonMenu>
+                
+                <!-- Maintenance Buttons -->
+                <aura:if isTrue="{!and(v.myContactListSelect != '1',or(v.campaignAccessLevel == 'All',v.campaignAccessLevel == 'Edit'))}">
+                    &nbsp;
+                    <lightning:button variant="brand" label="{!$Label.c.Update_List}" iconName="utility:settings" iconposition="left" class="buttonClass" onclick="{!c.navigateToPageForContactAddition}"/>
+                    <lightning:buttonMenu alternativeText="Update" onselect="{!c.handleMenuSelect}" name="updateButtonMenu" variant="bare-inverse" menuAlignment="right" class="menuClass">
+                        <!-- Search and Add Contacts -->
+                        <lightning:menuItem aura:id="searchAndAddContactsMenuItem" label="{!$Label.c.Contact_List_Add_Contacts}" value="searchAndAddContactsMenuItem" iconName="action:add_contact" />
+                        
+                        <!-- Remove from List -->
+                        <lightning:menuItem aura:id="removeFromListMenuItem" label="{!$Label.c.Contact_List_Remove_From_List}" value="removeFromListMenuItem" iconName="action:leave_group" />
+                        
+                        <!-- Edit List -->
+                        <aura:if isTrue="{!v.simpleEditContactList.RecordType.DeveloperName == 'Phone_Book'}">
+                        	<lightning:menuItem aura:id="editListMenuItem" label="{!$Label.c.Contact_List_Edit_List}" value="editListMenuItem" iconName="action:edit" />
+                        </aura:if>
+                        
+                        <!-- Remove List -->
+                        <aura:if isTrue="{!v.simpleEditContactList.RecordType.DeveloperName == 'Phone_Book'}">
+                        	<lightning:menuItem aura:id="removeListMenuItem" label="{!$Label.c.Contact_List_Remove_List}" value="removeListMenuItem" iconName="action:delete" />
+                        </aura:if>
+                        
+                        <!-- Share List -->
+                        <aura:if isTrue="{!and(v.simpleEditContactList.RecordType.DeveloperName == 'Phone_Book',v.campaignAccessLevel == 'All')}">
+                            <lightning:menuItem aura:id="shareListMenuItem" label="{!$Label.c.Contact_List_Share_List}" value="shareListMenuItem" iconName="action:share"  />
+                    	</aura:if>
+                        
+                    </lightning:buttonMenu>
+                </aura:if>
+                
+                 <!-- Download Contact List Button -->
+                <aura:if isTrue="{!v.myContactListSelect != '1'}">
+                    &nbsp;
+                    <lightning:button variant="brand" label="{!$Label.c.Export}" iconName="utility:open" iconposition="left" class="buttonClass" onclick="{!c.navigateToContactListReport}"/>
+                </aura:if>
+                
+                
+            </span>
+        </span>
+        
+        <!-- Count Label -->
+        <span class="slds-col slds-grid slds-grid_vertical-align-center slds-grid--align-end slds-size_2-of-12" >
+            <span class="slds-col slds-align-middle">
+                &nbsp; Total : &nbsp;<ui:outputText value="{!v.campaignMemberCount}" /> {!$Label.c.Contacts}
+            </span>
+        </span>   
+        
+    </div>      
+    
+	<!-- Filter -->
+    <div>
+    <aura:if isTrue="{!v.myContactListSelect != '1'}">
+    	<div class="slds-grid slds-p-around_x-small">       
+            <span class="slds-col slds-grid slds-grid--align-spread slds-size_3-of-12">
+               <span class="slds-col listClass">
+                        <c:SingleLookup aura:id="contact"  allRecords="false" sObjectAPIName="CampaignMember" charLimit="3"  label="{!$Label.c.ContactName}" pluralLabel="Contacts" listIconSVGPath="standard:contact" 
+                        	singleLookupJSON="{!v.singleLookupJSON}" listIconClass="" itemChange="{!c.getSelectedContactFilter}" placeholder="{!$Label.c.ContactNamePlaceholder}" onReset="{!c.updateLookupIdEvent}" />                   
+                </span>
+            </span>
+            <span class="slds-col slds-grid slds-grid--align-spread slds-size_1-of-12"> 
+                <div></div>
+            </span>
+            <span class="slds-col slds-grid slds-grid--align-spread slds-size_3-of-12">                
+                <span class="slds-col listClass">
+                        <c:SingleLookup aura:id="accounts"  allRecords="false" sObjectAPIName="Account" charLimit="2"  label="{!$Label.c.Account}" pluralLabel="Accounts" listIconSVGPath="standard:account" 
+                        accountType="RG_Account" listIconClass="slds-icon-standard-account" itemChange="{!c.getSelectedAccounts}" placeholder="{!$Label.c.AccountPlaceholderFilter}" onReset="{!c.updateLookupIdEvent}" />                   
+                </span>
+            </span>
+            <span class="slds-col slds-grid slds-grid--align-spread slds-size_1-of-12"> 
+                &nbsp;
+            </span>
+            <span class="slds-col slds-grid slds-align-middle slds-grid_vertical slds-size_2-of-12"> 
+                <div class="slds-col">
+                    {!$Label.c.Contact_List_Not_Covered_Contacts}
+                </div>
+                <div  class="slds-col">
+                    <label class="slds-checkbox_toggle slds-grid">
+                        <ui:inputCheckbox aura:id="notCoveredContactFilter" value="{!v.notCoveredContactFilter}" change="{!c.notCoveredContactFilterSelector}"  />
+                        <span id="toggle-desc" class="slds-checkbox_faux_container" aria-live="assertive">
+                            <span class="slds-checkbox_faux"></span>
+                            <span class="slds-checkbox_on"></span>
+                            <span class="slds-checkbox_off"></span>
+                        </span>
+                    </label>
+                </div>
+            </span>
+        </div>
+    </aura:if>
+    </div>
+    
+    <!-- Table Changes -->    
+	<div class="slds-grid slds-p-around_xx-small" id="contactListTableDivOuter">
+        <div id="contactListTableDiv" class="slds-scrollable--x slds-scrollable--y" style="{!'overflow: auto; height:100%'}">        
+		    <table class="slds-table slds-no-row-hover slds-table--bordered">
+        	<thead style="border: 1px solid Black;">
+                <tr class="slds-text-title_caps">
+                    <!-- Row Number -->
+                     <!--<th scope="col" class="errorColumnHeader" style="width: 25px;">
+                        &nbsp;
+                    </th> -->
+                    <!-- Row Selector -->
+                    <th scope="col" class="selectionColumnHeader" style="width: 25px;">
+                        <ui:inputCheckbox aura:id="selectAll" label=" " value="{!v.selectAllCheckboxValue}" change="{!c.selectAll}" name="selectAll"  />
+                    </th>
+                    <th scope="col" class="actionColumnHeader" style="width: 16px;">
+                        &nbsp;
+                    </th>
+                    <th scope="col" class="slds-is-sortable">
+                        <div class="slds-truncate" title="Phone">Name</div>
+                        <!-- Shield changes as sorting isn't provided on Name-->
+                        <!--<aura:if isTrue="{!v.myContactListSelect != '1'}">
+                            <a href="javascript:void(0);" onclick="{!c.sortContactName}" style="color:black; text-decoration: none;">
+                                <div class="slds-truncate" title="{!$Label.c.Name}">
+                                    {!$Label.c.Name}
+                                    <aura:if isTrue="{! and(v.sortDirection == 'DESC',v.sortField == 'Contact.Localized_Name__c')}">
+                                        <lightning:buttonIcon alternativeText="Sort" iconName="utility:arrowdown" class="buttonIconClass" /> 
+                                    </aura:if>
+                                    <aura:if isTrue="{! and(v.sortDirection == 'ASC',v.sortField == 'Contact.Localized_Name__c')}">
+                                        <lightning:buttonIcon alternativeText="Sort" iconName="utility:arrowup" class="buttonIconClass" /> 
+                                    </aura:if>
+                                </div>
+                            </a>
+                            
+                            <aura:set attribute="else">
+                                <div class="slds-truncate" title="{!$Label.c.Name}">{!$Label.c.Name}</div>
+                            </aura:set>
+                            
+                        </aura:if>
+						-->
+                    </th>
+                    
+                    <th scope="col">
+                        <aura:if isTrue="{!v.myContactListSelect != '1'}">
+                            <a href="javascript:void(0);" onclick="{!c.sortRGAccountName}" style="color:black; text-decoration: none;">
+                                <div class="slds-truncate" title="{!$Label.c.Account}">
+                                    {!$Label.c.Account}
+                                    <aura:if isTrue="{! and(v.sortDirection == 'DESC',v.sortField == 'Contact.RG_Account__r.Name')}">
+                                        <lightning:buttonIcon alternativeText="Sort" iconName="utility:arrowdown" class="buttonIconClass" /> 
+                                    </aura:if>
+                                    <aura:if isTrue="{! and(v.sortDirection == 'ASC',v.sortField == 'Contact.RG_Account__r.Name')}">
+                                        <lightning:buttonIcon alternativeText="Sort" iconName="utility:arrowup" class="buttonIconClass" /> 
+                                    </aura:if>
+                                </div>
+                            </a>
+                            
+                            
+                            <aura:set attribute="else">
+                                <div class="slds-truncate" title="{!$Label.c.Account}">{!$Label.c.Account}</div>
+                            </aura:set> 
+                            
+                        </aura:if>
+                    </th>
+                    
+                    <th scope="col">
+                        <aura:if isTrue="{!v.myContactListSelect != '1'}">
+                            <a href="javascript:void(0);" onclick="{!c.sortRMAccountName}" style="color:black; text-decoration: none;">
+                                <div class="slds-truncate" title="{!$Label.c.LegalEntity}">
+                                    {!$Label.c.LegalEntity}
+                                    <aura:if isTrue="{! and(v.sortDirection == 'DESC',v.sortField == 'Contact.Account.Localized_Name__c')}">
+                                        <lightning:buttonIcon alternativeText="Sort" iconName="utility:arrowdown" class="buttonIconClass" /> 
+                                    </aura:if>
+                                    <aura:if isTrue="{! and(v.sortDirection == 'ASC',v.sortField == 'Contact.Account.Localized_Name__c')}">
+                                        <lightning:buttonIcon alternativeText="Sort" iconName="utility:arrowup" class="buttonIconClass" /> 
+                                    </aura:if>
+                                </div>
+                            </a>
+                            
+                            
+                            <aura:set attribute="else">
+                                <div class="slds-truncate" title="{!$Label.c.LegalEntity}">{!$Label.c.LegalEntity}</div>
+                            </aura:set> 
+                            
+                        </aura:if>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="{!$Label.c.Phone}">{!$Label.c.Phone}</div>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="{!$Label.c.Mobile}">{!$Label.c.Mobile}</div>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="{!$Label.c.Research_Access}">{!$Label.c.Research_Access}</div>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="{!$Label.c.Email}">{!$Label.c.Email}</div>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="{!$Label.c.Position}">{!$Label.c.Position}</div>
+                    </th>
+                    <th scope="col">
+                        <aura:if isTrue="{!v.myContactListSelect != '1'}">
+                            
+                            <a href="javascript:void(0);" onclick="{!c.sortCountry}" style="color:black; text-decoration: none;">
+                                <div class="slds-truncate" title="Country">
+                                    Country
+                                    <aura:if isTrue="{! and(v.sortDirection == 'DESC',v.sortField == 'Contact.MailingCountryCode')}">
+                                        <lightning:buttonIcon alternativeText="Sort" iconName="utility:arrowdown" class="buttonIconClass" /> 
+                                    </aura:if>
+                                    <aura:if isTrue="{! and(v.sortDirection == 'ASC',v.sortField == 'Contact.MailingCountryCode')}">
+                                        <lightning:buttonIcon alternativeText="Sort" iconName="utility:arrowup" class="buttonIconClass" /> 
+                                    </aura:if>
+                                </div>
+                            </a>
+                            
+                            <aura:set attribute="else">
+                                <div class="slds-truncate" title="{!$Label.c.Country}">{!$Label.c.Country}</div>
+                            </aura:set> 
+
+                        </aura:if>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="{!$Label.c.EQ_Tier}">{!$Label.c.EQ_Tier}</div>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="{!$Label.c.Last_Activity}">{!$Label.c.Last_Activity}</div>
+                    </th>
+                    <th scope="col" class="actionColumnHeader" style="width: 42px;">
+                        <div class="slds-truncate" title="{!$Label.c.Edit_Record}">{!$Label.c.Edit_Record}</div>
+                    </th>
+                </tr>
+            </thead>  
+            <tbody>                              
+                <aura:iteration items="{!v.listMembers}" var="item" indexVar="idx">
+                    <tr class="{!(item.hasEditAccess == FALSE) ? 'slds-hint-parent rowClassForNonEditAccess' : 'slds-hint-parent'}">
+                        <!-- Row Number -->
+                        <!--<td class="slds-cell-error errorColumn rowNumberOnly cellContainer">
+                            {!(idx + 1)} 
+                        </td> -->
+                        <!-- Row Selector -->
+                        <td> 
+                        	<ui:inputCheckbox aura:id="selectedContacts" label=" " name="{!item.recordId}" value="" text="{!item.contactId}" change="{!c.rowSelectDeselect}" />
+                        </td>
+                        <!-- Edit Access -->
+                        <td>
+                            <div class="slds-truncate">
+                                <aura:if isTrue="{!item.hasEditAccess == false}">
+									<lightning:buttonIcon alternativeText="Not Covered" iconName="utility:error" class="buttonIconClass" size="small" />
+                                    <aura:set attribute="else">
+                                        &nbsp;
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                        </td>
+                        <!-- Name -->
+                        <td>
+                            <div class="slds-truncate" title="{!item.Name}">
+                                <a onclick="{!c.redirectToRecord}" data-index="{!item.contactId}">{!item.name}</a>
+                            </div>
+                        </td>
+                        <!-- RM Account Name -->
+                        <td>
+                            <div  class="slds-truncate" title="{!item.accountName}">
+                                <a onclick="{!c.redirectToRecord}" data-index="{!item.accountId}">{!item.accountName}</a>
+                            </div>
+                        </td>
+                        <!-- RG Account Name -->
+                        <td>
+                            <div  class="slds-truncate" title="{!item.accountRMName}">
+                                <a onclick="{!c.redirectToRecord}" data-index="{!item.accountRMId}">{!item.accountRMName}</a>
+                            </div>
+                        </td>
+                        <!-- Phone -->
+                        <td>
+                            <aura:if isTrue="{!and(item.phone != '+000000000000' || !item.phone != '+0000000000')}">
+                                <div class="slds-truncate" title="{!item.phone}">
+                                    <aura:if isTrue="{!item.hasEditAccess == true}">
+                                    	<lightning:clickToDial value="{!item.phone}" recordId="{!item.contactId}" />
+                                        <aura:set attribute="else">
+                                            <span>{!item.phone}</span>
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                                <aura:set attribute="else">
+                                    &nbsp;
+                                </aura:set>
+                            </aura:if>
+                        </td>
+                        <!-- Mobile Phone -->
+                        <td>
+							<aura:if isTrue="{!and(item.mobilePhone != '+0000000000', item.mobilePhone != '+000000000000')}">
+                            	<div class="slds-truncate" title="{!item.mobilePhone}">
+                                    <aura:if isTrue="{!item.hasEditAccess == true}">
+                                    	<lightning:clickToDial value="{!item.mobilePhone}" recordId="{!item.contactId}" />
+                                        <aura:set attribute="else">
+                                            <span>{!item.mobilePhone}</span>
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                                <aura:set attribute="else">
+                                    &nbsp;
+                                </aura:set>
+                            </aura:if>
+                        </td>
+                        <!-- Research Access -->
+                        <td>
+                            <div class="slds-truncate">
+                                <aura:if isTrue="{!item.miFIDIISalesCommentaryAllowed == 'Allowed'}">
+                                    <lightning:buttonIcon alternativeText="MiFIDII Sales Commentary Allowed" iconName="utility:answer" class="buttonIconClass" size="small" /> 
+                            	</aura:if>
+                                <span title="{!item.researchAccess}">
+                                	{!item.researchAccess}
+                                </span>
+                            </div>
+                        </td>
+                        <!-- Email -->
+                        <td>
+                            <div class="slds-truncate" title="{!item.email}">
+                                 <ui:outputEmail value="{!item.email}"/>
+                            </div>
+                        </td>
+                        <!-- Position -->
+                        <td>
+                            <div class="slds-truncate" title="{!item.title}">{!item.title}</div>
+                        </td>
+                        <!-- Country -->
+                        <td>
+                            <div class="slds-truncate" title="{!item.country}">{!item.countryCode}</div>
+                        </td>
+                        <!-- EQ Tier -->
+                        <td>
+                            <div class="slds-truncate" title="{!item.equityRschTier}">{!item.equityRschTier}</div>
+                        </td>
+                        <!-- Last Activity -->
+                        <td>
+                            <div class="slds-truncate">
+                                <aura:if isTrue="{!item.lastActivity != null}">
+									<lightning:buttonIcon alternativeText="{!item.lastActivity}" iconName="utility:event" onclick="{!c.goToRecord}" value="{!item.lastActivityId}" class="buttonIconClass" size="small" />
+                                </aura:if>
+                                <aura:if isTrue="{!item.lastCalledActivity != null}">
+									<lightning:buttonIcon alternativeText="{!item.lastCalledActivity}" iconName="utility:log_a_call" onclick="{!c.goToRecord}" value="{!item.lastCalledActivityId}" class="buttonIconClass" size="small" />
+                                </aura:if>
+                            </div>
+                        </td>
+                        <td>
+                            <lightning:buttonIcon alternativeText="" iconName="utility:edit" onclick="{!c.goToEdit}" value="{!item.contactId}" class="buttonIconClass" size="small" /> 
+                        </td>
+                    </tr>
+              	</aura:iteration>               
+          	</tbody>
+      	</table>
+        <div class="slds-docked_container">
+            <lightning:spinner aura:id="spinnerForDataTable" variant="brand" class="slds-hide" size="large" />
+        </div>
+        </div>
+    </div>
+
+    
+    <!-- Modal Window -->
+    <div aura:id="modalDialogPlaceHolder">
+    </div>
+    <!--  Modal Window -->
+	    
+    
+</aura:component>

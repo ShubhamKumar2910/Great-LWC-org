@@ -1,0 +1,38 @@
+<apex:page standardController="Campaign" extensions="EmailPreviewController">
+    <!-- For Service Console -->
+    <apex:includeScript value="/support/console/20.0/integration.js"/>
+    <script type="text/javascript">
+        function setTabTitle() {
+            //Set the current tabs title
+            sforce.console.setTabTitle('{!Campaign.Name}');
+        }
+        var pageLoad = window.onload;
+        window.onload = function() {
+            if (pageLoad) {
+                pageLoad();
+            }
+            setTabTitle();
+        }
+    </script>
+    <style type="text/css">
+        td {
+            vertical-align:top;
+        }
+    </style>
+
+    <apex:form >
+        <apex:pageBlock title="{!$CurrentPage.parameters.title}" >
+            <apex:outputText escape="false" value="{!$CurrentPage.parameters.description}" /><br/>
+            <br/>
+            <apex:commandButton action="{!goToNextPage}" value="{!$CurrentPage.parameters.buttonName}" />
+            <apex:commandButton action="{!goBackToCampaign}" value="{!$Label.Cancel}" rendered="{!$CurrentPage.parameters.showCancelButton}" />
+        </apex:pageBlock>
+    </apex:form>
+
+<style type="text/css">
+    .pbTitle {
+        white-space: nowrap
+    }
+</style>
+
+</apex:page>

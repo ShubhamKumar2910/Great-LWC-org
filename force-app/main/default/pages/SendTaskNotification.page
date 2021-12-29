@@ -1,0 +1,202 @@
+<apex:page id="page1" standardController="Task" extensions="SendTaskNotificationController" >
+    <!-- For Service Console -->
+    <apex:includeScript value="/support/console/20.0/integration.js"/>
+
+    <script type="text/javascript">
+    function setTabTitle() {
+        //Set the current tabs title
+        sforce.console.setTabTitle('{!Task.subject}');
+    }
+    function noenter(e){  
+        if(window.event){                    
+            key = window.event.keyCode;     //IE               
+        } 
+        else{                    
+            key = e.which;     //firefox               
+        }               
+        if(key == 13) {                    
+            var ele=document.getElementById('page1:form1:pageBlock1:searchButtonId'); 
+            ele.click();                     
+            return false;               
+        } else{                    
+            return true;               
+        }          
+    }     
+    var pageLoad = window.onload;
+    window.onload = function() {
+        if (pageLoad) {
+            pageLoad();
+        }
+        setTabTitle();
+    }
+    
+    
+    </script>
+    <style type="text/css">
+  		body.wait, body.wait * { cursor: wait !important; }
+        td {
+        vertical-align:top;
+        }
+    </style>
+    
+    <style type="text/css">
+        html, address,
+        blockquote,
+        body, dd, div,
+        dl, dt, fieldset, form,
+        frame, frameset,
+        h1, h2, h3, h4,
+        h5, h6, noframes,
+        ol, p, ul, center,
+        dir, hr, menu, pre   { display: block; unicode-bidi: embed }
+        li              { display: list-item }
+        head            { display: none }
+        table           { display: table }
+        tr              { display: table-row }
+        thead           { display: table-header-group }
+        tbody           { display: table-row-group }
+        tfoot           { display: table-footer-group }
+        col             { display: table-column }
+        colgroup        { display: table-column-group }
+        td, th          { display: table-cell }
+        caption         { display: table-caption }
+        th              { font-weight: bolder; text-align: center }
+        caption         { text-align: center }
+        body            { margin: 8px }
+        h1              { font-size: 2em; margin: .67em 0 }
+        h2              { font-size: 1.5em; margin: .75em 0 }
+        h3              { font-size: 1.17em; margin: .83em 0 }
+        h4, p,
+        blockquote, ul,
+        fieldset, form,
+        ol, dl, dir,
+        menu            { margin: 1.12em 0 }
+        h5              { font-size: .83em; margin: 1.5em 0 }
+        h6              { font-size: .75em; margin: 1.67em 0 }
+        h1, h2, h3, h4,
+        h5, h6, b,
+        strong          { font-weight: bolder }
+        blockquote      { margin-left: 40px; margin-right: 40px }
+        i, cite, em,
+        var, address    { font-style: italic }
+        pre, tt, code,
+        kbd, samp       { font-family: monospace }
+        pre             { white-space: pre }
+        button, textarea,
+        input, select   { display: inline-block }
+        big             { font-size: 1.17em }
+        small, sub, sup { font-size: .83em }
+        sub             { vertical-align: sub }
+        sup             { vertical-align: super }
+        table           { border-spacing: 2px; }
+        thead, tbody,
+        tfoot           { vertical-align: middle }
+        td              { vertical-align: top }
+        th, tr          { vertical-align: inherit }
+        s, strike, del  { text-decoration: line-through }
+        hr              { border: 1px inset }
+        ol, ul, dir,
+        menu, dd        { margin-left: 40px }
+        ol              { list-style-type: decimal }
+        ol ul, ul ol,
+        ul ul, ol ol    { margin-top: 0; margin-bottom: 0 }
+        u, ins          { text-decoration: underline }
+        br:before       { content: "\A"; white-space: pre-line }
+        center          { text-align: center }
+        :link, :visited { text-decoration: underline }
+        :focus          { outline: thin dotted invert }
+        
+        /* Begin bidirectionality settings (do not change) */
+        BDO[DIR="ltr"]  { direction: ltr; unicode-bidi: bidi-override }
+        BDO[DIR="rtl"]  { direction: rtl; unicode-bidi: bidi-override }
+        
+        *[DIR="ltr"]    { direction: ltr; unicode-bidi: embed }
+        *[DIR="rtl"]    { direction: rtl; unicode-bidi: embed }
+        
+        @media print {
+        h1            { page-break-before: always }
+        h1, h2, h3,
+        h4, h5, h6    { page-break-after: avoid }
+        ul, ol, dl    { page-break-before: avoid }
+        }
+    </style>
+    
+    <apex:form id="form1" >
+        <apex:pageBlock title="Send Email Notification" id="pageBlock1" >
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!sendEmail}" value="Send Email"/>
+                <apex:commandButton action="{!goBackToPreviousPage}" value="{!$Label.Back}"/>
+            </apex:pageBlockButtons>
+            
+            <apex:pageBlockSection columns="1" id="pageBlockSection1">
+                <apex:outputText label="{!$Label.Sender}" value="{!currentUser.Name}"/>
+                <apex:outputText label="{!$Label.Subject}" value="{!task.subject}"/>
+                <!--<apex:inputCheckbox label="Include Description" value="{!includeDescription}"/>-->                 
+                <apex:inputCheckbox label="Email Sales Coverage (G) Team" value="{!ccCoverageTeam}"/> 
+				
+               <!-- <apex:inputCheckbox label="Email Invitees" value="{!ccInvitee}"/> -->
+  				<!--<apex:inputText label="Nomura Employee as Invitee" id="inviteeEmailList"  value="{!inviteeEmailList}"/>-->
+            </apex:pageBlockSection>
+          
+            <!--start of user list -->
+            <apex:outputPanel layout="block"> 
+                <table class="layout">
+                    <tbody>
+                        <tr>
+                            <td style="width: 55px;" >&nbsp;</td>
+                            <td><apex:inputText id="searchTextId" label="Search for" value="{!whereClause}" onkeypress="return noenter(event)" /> </td>
+							<td style="width: 10px;"></td>
+                            <td><apex:commandButton id="searchButtonId" action="{!filterAvailableOptions}" value="Add Users" rerender="availableUsersBlock"/> </td>                            
+                        </tr>
+                    </tbody>
+                </table>
+                <!--
+<apex:outPutLabel value="Search for: "/> 
+<apex:inputText value="{!whereClause}" style=" margin: 10px;"/> 
+
+<apex:commandButton action="{!filterAvailableOptions}" value="Find" rerender="availableUsersBlock"/> 
+--> 			
+            </apex:outputPanel> 
+            <apex:outputPanel id="multiselectPanel" layout="block" styleClass="duelingListBox"> 
+                <table class="layout"> 
+                    <tbody> 
+                        <tr> 
+                            <td class="selectCell"> 
+                                <apex:outputPanel layout="block" styleClass="selectTitle"> 
+                                    <apex:outputLabel value="Available Users" for="multiselectPanel:leftList" /> 
+                                </apex:outputPanel> 
+                                <apex:selectList id="availableUsersBlock" value="{!selectedUserIds}" multiselect="true" size="15" style="width: 200px;"> 
+                                    <apex:selectOptions value="{!availableUsers}"/> 
+                                </apex:selectList> 
+                            </td> 
+                            <td class="buttonCell"> 
+                                <apex:outputPanel layout="block" styleClass="text">Add</apex:outputPanel> 
+                                <apex:outputPanel layout="block" styleClass="text"> 
+                                    <apex:commandLink action="{!add}" rerender="availableUsersBlock, selectedUsersBlock" id="btnRight">  
+                                        <apex:image value="/s.gif" alt="Add" styleClass="rightArrowIcon" title="Add" /> 
+                                    </apex:commandLink> 
+                                </apex:outputPanel> 
+                                <apex:outputPanel layout="block" styleClass="text"> 
+                                    <apex:commandLink action="{!remove}" rerender="availableUsersBlock, selectedUsersBlock" id="btnLeft"> 
+                                        <apex:image value="/s.gif" alt="Remove" styleClass="leftArrowIcon" title="Remove" /> 
+                                    </apex:commandLink> 
+                                    <apex:outputPanel layout="block" styleClass="duelingText">Remove</apex:outputPanel> 
+                                </apex:outputPanel> 
+                            </td> 
+                            <td class="selectCell"> 
+                                <apex:outputPanel layout="block" styleClass="selectTitle"> 
+                                    <apex:outputLabel value="Selected Users" for="multiselectPanel:rightList" /> 
+                                </apex:outputPanel> 
+                                <apex:selectList id="selectedUsersBlock" value="{!removedUserIds}" multiselect="true" size="15" style="width: 200px;"> 
+                                    <apex:selectOptions value="{!selectedUsers}"/> 
+                                </apex:selectList> 
+                            </td> 
+                        </tr> 
+                    </tbody> 
+                </table> 
+            </apex:outputPanel> 
+            
+            <!-- end of user list-->
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

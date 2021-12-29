@@ -1,0 +1,8 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"
+                 access="global">
+	<aura:attribute name="recordId" type="String" access="public"/>
+	<aura:handler name="init" value="{!this}" action="{!c.init}" />
+    <!--Instead of navigating to to the component from init function, if component is initialized as below and cancel 
+		button is shown at the like in standard screen-->
+    <!--<c:PK_New_Contact editContId="{!v.recordId}" readonly="true"/>-->
+</aura:component>

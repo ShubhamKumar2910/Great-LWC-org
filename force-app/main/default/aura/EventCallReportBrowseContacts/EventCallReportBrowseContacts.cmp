@@ -1,0 +1,157 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,force:hasRecordId" access="global" controller="CallReportContactSearchController">    
+	
+    <!-- Form attributes -->
+    <aura:attribute name="campaignId" type="String" />
+    <aura:attribute name="campaignName" type="String" />
+    <aura:attribute name="testId" type="String" />
+    <aura:attribute name="contact" type="String" />
+    <aura:attribute name="accountId" type="String" />
+    <aura:attribute name="contactQuery" type="String" />       
+    <aura:attribute name="datatable" type="String" />
+    <aura:attribute name="selectedAccount" type="String[]" />
+    <aura:attribute name="hasErrors" type="Boolean" default="false" />
+    <aura:attribute name="errorMessages" type="String" />
+    <aura:attribute name="hasWarning" type="Boolean" default="false" />
+    <aura:attribute name="warningMessages" type="String" />
+    <aura:attribute name="addDisabled" type="Boolean" default="true" />
+    <aura:attribute name="addCloseDisabled" type="Boolean" default="true" />
+    <aura:attribute name="recentContacts" type="String" default="Recent Contacts" />
+    <aura:attribute name="showRecentContactsTitle" type="Boolean" />
+    <aura:attribute name="RowId" type="String" default="Row"/>
+    <aura:attribute name="ContactName" type="String" default="{!$Label.c.ContactName}"/>
+    <aura:attribute name="LocalLanguageName" type="String" default="{!$Label.c.LocalLanguageName}"/>
+    <aura:attribute name="Email" type="String"  default="{!$Label.c.Email}"/>
+    <aura:attribute name="AccountName" type="String"  default="{!$Label.c.AccountName}"/>
+    <aura:attribute name="LegalEntity" type="String"  default="{!$Label.c.LegalEntity}"/>
+    <aura:attribute name="Comment" type="String" default="{!$Label.c.Comment}" />
+   	<aura:attribute name="contactData" type="Object"/>
+    <aura:attribute name="contactColumn" type="List"/>       
+    <aura:attribute name="totalRecordCount" type="String" default="0"/>     
+    <aura:attribute name="selectedContacts" type="String[]" access="public" default=""/>
+    <aura:attribute name="selectedRows" type="List" access="public" default=""/>
+    <aura:attribute name="maxRowSelect" type="Integer"/>
+    <aura:attribute name="sendContactObjectsInEvent" type="Boolean" default="false"/>
+    <aura:attribute name="showAddButton" type="Boolean" default="true"/>
+    <aura:attribute name="contactList" type="Contact[]" access="public" default="[]"/>
+    <aura:attribute name="displaySuccessToast" type="Boolean" default="true"/>
+
+    <aura:dependency resource="markup://force:navigateToComponent" type="EVENT" />
+    <aura:dependency resource="markup://force:showToast" type="EVENT" />  
+    <aura:method name="showSpinner" action="{!c.showSpinner}" />
+    <aura:method name="hideSpinner" action="{!c.hideSpinner}" />
+    <aura:method name="showDatatable" action="{!c.showDatatable}" />
+    <aura:method name="hideDatatable" action="{!c.hideDatatable}" />
+    <aura:method name="showToast" action="{!c.showToast}" />
+    <aura:method name="reset" action="{!c.reset}" />   
+    <aura:method name="init" action="{!c.init}" access="public"/> 
+	<aura:method name="displayError" action="{!c.displayError}" />
+    <aura:method name="resetDatatable" action="{!c.resetDatatable}" />
+    
+    <aura:registerEvent name="EventCallReportUpdateContactsEvent" type="c:EventCallReportUpdateContactsEvent"/> 
+
+    <aura:handler name="change" value="{!v.selectedContacts}" action="{!c.onSelectedContactsChange}"/>
+
+    <!-- Error layout -->
+    <lightning:layout horizontalAlign="stretch" >
+    	<lightning:layoutItem size="12">
+            <aura:if isTrue="{!v.hasErrors}">
+            	<ui:message closable="false" severity="error" title="Error">                
+                    <ui:outputText value="{!$Label.c.ContactSearchError}" />                
+                </ui:message>
+            </aura:if> 
+            <aura:if isTrue="{!v.hasWarning}">
+            	<ui:message closable="false" severity="warning" title="Warning">               
+                    <ui:outputText value="{!$Label.c.Contact_Locator_No_Results_Found}" />              
+                </ui:message>
+            </aura:if>
+        </lightning:layoutItem>
+    </lightning:layout>
+    
+    <!-- Main page -->
+    <article class="slds-card">         
+        <div class="slds-box slds-theme_shade">
+            <header class="slds-media slds-media_center">
+            <div class="slds-media__body ">
+        		<h2> 
+                    <span class="slds-text-heading_small">Search</span>
+                </h2>
+            </div>
+            </header>
+        </div>         
+    	<div class="slds-card__body" >
+                <lightning:layout horizontalAlign="space"  multipleRows="true">
+             	<!-- Row 1 -->
+                <lightning:layoutItem size="6" flexibility="auto" padding="around-small"> <!-- Column 1 -->
+                    <!-- Contact -->
+                    <lightning:icon iconName="utility:info" variant="info" size="x-small" title="{!$Label.c.ContactInfo}"/>
+                    <label class="slds-form-element__label" for="contact" >
+                        &nbsp;{!$Label.c.ContactNameEmail} 
+                    </label>                    
+                    <ui:inputTextArea aura:id="contact" class="slds-input" rows="2" value="{!v.contact}" placeholder="{!$Label.c.ContactPlaceholder}"/>
+                </lightning:layoutItem>
+                    
+                <lightning:layoutItem size="6" flexibility="auto" padding="around-small"> <!-- Column 3 -->
+                    <!-- Account -->
+                    <c:SingleLookup aura:id="accounts"  allRecords="false" sObjectAPIName="Account" charLimit="2"  label="{!$Label.c.Account}" pluralLabel="Accounts" listIconSVGPath="standard:account" 
+                    accountType="RG_Account" listIconClass="slds-icon-standard-account" itemChange="{!c.getSelectedAccounts}" placeholder="{!$Label.c.AccountPlaceholder}" preSelectedIds="{!v.selectedAccount}" onReset="{!c.updateLookupIdEvent}" />
+                </lightning:layoutItem>           
+                <!-- End Row 1 -->
+                
+                <!-- Row 2 -->            
+                <lightning:layoutItem size="3" flexibility="auto" padding="around-small" class="SRbuttons">
+                    <lightning:button label="{!$Label.c.Search}" onclick="{!c.search}" variant="neutral" iconName="utility:search" />
+                    <lightning:button label="{!$Label.c.Reset}" onclick="{!c.reset}" variant="neutral" iconName="utility:refresh"/>
+                </lightning:layoutItem>
+        		<lightning:layoutItem size="9" flexibility="auto" padding="around-small"  >   </lightning:layoutItem>
+                <!-- End Row 2 -->
+       		</lightning:layout>
+        </div>    	
+    </article>    	
+    <article class="slds-card">
+          <div class="slds-box slds-theme_shade">
+            <header class="slds-media slds-media_center">
+            <div class="slds-media__body">
+        		<h2> <aura:if isTrue="{!v.showRecentContactsTitle}">
+                        <span class="slds-text-heading_small">{!v.recentContacts}</span>
+                        <aura:set attribute="else">
+                        <span class="slds-text-heading_small">{!$Label.c.Contacts}</span>
+                        </aura:set>
+                    </aura:if>
+                </h2>
+            </div>
+            </header>
+        </div> 
+        <div class="slds-card__body">
+    		<lightning:layout horizontalAlign="stretch" multipleRows="true">
+                <lightning:layoutItem size="12" padding="around-small">          
+                    <lightning:button aura:id="addCloseButton" label="{!$Label.c.AddClose}" variant="neutral" onclick="{!c.addCloseClicked}" disabled="{!v.addCloseDisabled}" iconName="standard:contact_list"/>
+                    <aura:if isTrue="{!v.showAddButton}">
+                    	<lightning:button aura:id="addButton" label="{!$Label.c.AddLabel}" variant="brand" onclick="{!c.addClicked}" disabled="{!v.addDisabled}" iconName="utility:add" />
+               		</aura:if>
+                     <label class="slds-form-element__label totalRecordLabelStyle" for="totalRecords" >
+                        <ui:outputText aura:id="totalRecords" value="" />
+                        {!$Label.c.TotalRecords} &nbsp;{!v.totalRecordCount}               
+            		</label>
+                    
+                    <div id="table" class="slds-hide slds-table--header-fixed_container tableStyle" aura:id="dataTableDiv">
+                        <lightning:datatable aura:id="contactTable"
+                                             data="{!v.contactData}" 
+                                             columns="{!v.contactColumn}" 
+                                             keyField="contactId"
+                                             selectedRows="{!v.selectedRows}"                             
+                                             maxColumnWidth="600px"
+                                             sortedBy="rowNumber"
+                                             sortedDirection="asc"
+                                             onsort="{!c.updateColumnSorting}"
+                                             />
+                    </div>                      
+                </lightning:layoutItem>
+            </lightning:layout>
+   		</div>                
+   </article> 
+    
+    <!-- Spinner -->
+    <div>       
+        <lightning:spinner aura:id="spinnerComponent" class="slds-hide" variant="brand" size="large" alternativeText="Processing"/>       
+    </div>    
+</aura:component>

@@ -1,0 +1,162 @@
+<!--
+**	Author 		: Pravin Kundal
+**	Company 	: Nomura
+**	Description : LWC component to show the summary of SCH setup form various sources like
+**                BBG, RDM or manually
+-->
+
+<!--sch-account-hierarchy-summary-->
+<template>
+    <template if:true={hasError}>
+        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+            <span class="slds-assistive-text">error</span>
+            <span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small" title="Description of icon when needed">
+                <lightning-icon icon-name="utility:error" variant="inverse" size="xx-small"></lightning-icon>
+            </span>
+            <h2>
+                There are errors in processing this request. Please email&nbsp; 
+                <lightning-icon icon-name="utility:email" variant="inverse" size="xx-small"></lightning-icon>
+                <lightning-formatted-email hide-icon value={supportEmailContDetails} label="Salesforce Help Team"></lightning-formatted-email>
+                &nbsp;for help 
+            </h2>
+        </div>
+    </template>
+    <lightning-card>
+            
+        <!--<div slot="title" class="slds-text-title_caps">
+            <lightning-icon icon-name="standard:account" size="small" class="slds-m-right_x-small"></lightning-icon>
+            Entity Hierarchy Setup
+        </div>-->
+        <div slot="title">
+        <lightning-layout multiple-rows>
+            <lightning-layout-item size="12" padding="around-small">
+                <div class="slds-notify slds-notify_alert slds-theme_alert-texture" role="alert" style="text-align: left; white-space: normal;">
+					<span class="slds-assistive-text">Info</span>
+					<span class="slds-icon_container slds-icon-utility-info slds-m-right_x-small" title="Description of icon when needed">
+						<lightning-icon icon-name="utility:info" variant="inverse" size="xx-small"></lightning-icon>
+					</span>
+					<h2>
+						{schReqNoteLabel}
+					</h2>
+					<br/>
+				</div>
+            </lightning-layout-item>
+			<lightning-layout-item size="6" padding="horizontal-small">
+                <div class="slds-text-title_caps">
+                    <lightning-icon icon-name="standard:account" size="small" class="slds-m-right_x-small"></lightning-icon>
+                    Entity Hierarchy Setup &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Requestor: {requestorDetails})
+                </div>
+            </lightning-layout-item>
+            <lightning-layout-item size="6" padding="horizontal-small">
+                <template if:true={showExpColpButton}>
+                    
+                    <div class="slds-text-title_caps slds-text-align_right">
+                        <lightning-button label={expColTitle} title={expColTitle} icon-name={expColpBtnIcon} class="slds-m-left_x-small" onclick={handleExpColClick}></lightning-button>
+					</div>
+                </template>
+            </lightning-layout-item>
+  
+        </lightning-layout>
+        </div>
+        <div class="slds-m-left_large">
+        <!--<ul>-->
+            <!--<li>-->
+                <div class="slds-m-left_large">
+                    <fieldset class="slds-form-element slds-form-element_compound">
+                        <div class="slds-form-element__control">
+                            <div class="slds-form-element__row">
+                                <div class="slds-form-element">
+                                    <div class="slds-text-title_caps" style="text-decoration: underline;">Ultimate Parent (RS) Entity: </div>
+                                </div>
+                                <template if:true={showRsEntityName}>
+                                    <div class="slds-form-element">
+                                        <lightning-formatted-url value={rsAccLink} tooltip={rsAccToolTip} label={rsAccName} target="_blank"></lightning-formatted-url>
+                                    </div>
+                                </template>
+                                <div class="slds-form-element">
+                                    <lightning-badge label={rsBadgeLabel} class={rsEntityClass}></lightning-badge>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                    <!--<ul class="slds-is-nested">-->
+                        <!--<li>-->
+                            <div class="slds-m-left_large">
+                                <div class="slds-m-left_large">
+                                
+                                <fieldset class="slds-form-element slds-form-element_compound">
+                                    <div class="slds-form-element__row">
+                                        <img src={hierarchyEndNodeImg}>
+                                        <div class="slds-form-element slds-m-top_xx-small">
+                                            <div class="slds-text-title_caps" style="text-decoration: underline;">Functional Group (RG) Entity: </div>
+                                        </div>
+                                        <template if:true={showRgEntityName}>
+                                            <div class="slds-form-element slds-m-top_xx-small">
+                                                <lightning-formatted-url value={rgAccLink} tooltip={rgAccToolTip} label={rgAccName} target="_blank"></lightning-formatted-url>
+                                            </div>
+                                        </template>
+                                        <div class="slds-form-element slds-m-top_xx-small">
+                                            <lightning-badge label={rgBadgeLabel} class={rgEntityClass}></lightning-badge>
+                                        </div>
+                                        <!--<div class="slds-form-element">
+                                            <lightning-input type="toggle" label="User friendly Name" name="input1"
+                                                message-toggle-active="" message-toggle-inactive="">
+                                            </lightning-input>
+                                        </div>-->
+                                    </div>
+                                </fieldset>
+                            
+                            </div>
+                            </div>
+                            <div class="slds-m-left-large">
+                                    <div class="slds-m-left_xx-large">
+                                            <div class="slds-m-left_large">
+                                                    <div class="slds-m-left_large">
+                                    <!--<ul class="slds-is-nested">-->
+                                        <!--<li>-->
+                                            <div class="slds-m-left-large">
+                                                <fieldset class="slds-form-element slds-form-element_compound">
+                                                    <div class="slds-form-element__row">
+                                                        <img src={hierarchyEndNodeImg}>
+                                                        <div class="slds-form-element slds-m-top_xx-small">
+                                                            <div class="slds-text-title_caps" style="text-decoration: underline;">Legal (RM) Entity: </div>
+                                                        </div>
+                                                        <template if:true={showRmEntityName}>
+                                                            <div class="slds-form-element slds-m-top_xx-small">
+                                                                <lightning-formatted-url value={rmAccLink} tooltip={rmAccToolTip} label={rmAccName} target="_blank"></lightning-formatted-url>
+                                                                <!--<lightning-formatted-text class="slds-m-left_xx-small slds-text-color_error" value="(Client Location: UK)" label="(Client Location: UK)"></lightning-formatted-text>-->
+                                                                <span class={rmClientLocClass} >(Client Location: {rmClientLoc})</span>
+                                                            </div>
+                                                        </template>
+                                                        <div class="slds-form-element slds-m-top_xx-small">
+                                                            <lightning-badge label={rmBadgeLabel} class={rmEntityClass}></lightning-badge>
+                                                            <!--<span class="slds-badge existing">Badge Label</span>-->
+                                                        </div>
+                                                        <!--<template if:true={isRmManual}>
+                                                            <div class="slds-form-element slds-m-top_xx-small">
+                                                                <lightning-formatted-text class="slds-m-left_small" value="UFN:" ></lightning-formatted-text>
+                                                            </div>
+                                                            <div class="slds-form-element">
+                                                                <lightning-input type="toggle" name="input1" variant="label-hidden"
+                                                                    message-toggle-active="" message-toggle-inactive="">
+                                                                </lightning-input>
+                                                            </div>
+                                                        </template>-->
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        <!--</li>-->
+                                    <!--</ul>-->
+                            </div>
+                            </div>
+                            </div>
+                            </div>
+                        <!--</li>-->
+                    <!--</ul>-->
+                <!--</div>-->
+            <!--</li>-->
+        <!--</ul>-->
+        </div>
+    </lightning-card>
+</template>

@@ -1,0 +1,64 @@
+<apex:component controller="UserMultiSelectComponentController">
+  <apex:attribute name="aLeftLabel" description="Label on left listbox." type="String" required="true" />
+  <apex:attribute name="aRightLabel" description="Label on right listbox." type="String" required="true" />
+  <apex:attribute name="aSize" description="Size of listboxes." type="Integer" required="true" />
+  <apex:attribute name="aWidth" description="Width of listboxes." type="String" required="true" />
+  <apex:attribute name="aInitialRightList" description="Initial record Ids in right box." type="String[]" required="false" assignTo="{!InitialRightList}" />
+  <apex:attribute name="aCurrentRightList" description="Current record Ids in right box." type="String[]" required="true" assignTo="{!CurrentRightList}" />  
+ 
+  <apex:actionRegion >
+    <apex:outputPanel id="BoxPanel">
+      <table style="width: {!aWidth}">
+        <tr>
+          <td style="width: 65px;"><span class="labelCol">{!$Label.UserMultiSelect_Search}:</span></td>
+          <td style="width: 50%"><apex:inputText style="width:100%" value="{!SearchText}" /></td>
+          <td>
+            <span style="float: left;">&nbsp;</span>
+            <apex:actionStatus id="SearchIcon">
+              <apex:facet name="start">
+                <apex:outputPanel >
+                  <apex:commandButton style="float: left;" disabled="true" value="{!$Label.UserMultiSelect_Find}" />
+                  <img style="float: left;" src="/img/loading24.gif" />
+                </apex:outputPanel>
+              </apex:facet>
+              <apex:facet name="stop">
+                <apex:outputPanel >
+                  <apex:commandButton action="{!Find}" value="{!$Label.UserMultiSelect_Find}" rerender="BoxPanel" status="SearchIcon" />
+                </apex:outputPanel>
+              </apex:facet>
+            </apex:actionStatus>
+          </td>
+        </tr>
+      </table>
+ 
+      <table style="width: {!aWidth}">
+        <tr>
+          <th style="width:50%" class="selectTitle">{!aLeftLabel}</th>
+          <th style="width:30px"></th>
+          <th style="width:50%" class="selectTitle">{!aRightLabel}</th>
+        </tr>
+        <tr>
+          <td><apex:selectList value="{!LeftSelectedList}" multiselect="true" style="width:100%" size="{!aSize}">
+              <apex:selectOptions value="{!LeftOptionList}" />
+            </apex:selectList></td>
+ 
+          <td style="vertical-align: middle;">
+            <div>
+              <apex:image styleClass="picklistArrowRight" value="/s.gif">
+                <apex:actionSupport event="onclick" action="{!ClickRight}" reRender="BoxPanel" />
+              </apex:image>
+              <br /> <br />
+              <apex:image styleClass="picklistArrowLeft" value="/s.gif">
+                <apex:actionSupport event="onclick" action="{!ClickLeft}" reRender="BoxPanel" />
+              </apex:image>
+            </div>
+          </td>
+ 
+          <td><apex:selectList value="{!RightSelectedList}" multiselect="true" style="width:100%" size="{!aSize}">
+              <apex:selectOptions value="{!RightOptionList}" />
+            </apex:selectList></td>
+        </tr>
+      </table>
+    </apex:outputPanel>
+  </apex:actionRegion>
+</apex:component>

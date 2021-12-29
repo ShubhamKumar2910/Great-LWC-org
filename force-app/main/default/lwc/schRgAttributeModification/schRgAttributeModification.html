@@ -1,0 +1,71 @@
+<template>
+    
+        <lightning-card variant="narrow" icon-name="utility:edit_form">
+            <h1 slot="title"> {RG_Attribute_Modification} </h1>
+            <div slot="actions" class=slds-m-right_medium>
+                <lightning-button label={Back} title={Back} icon-name="utility:back" 
+                    data-name="back" variant="neutral" onclick={handleBtnClick}>
+                </lightning-button>
+                                
+            </div>
+            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error infoSectionTextAlignment" role="alert" style="white-space: normal;">
+                <span class="slds-assistive-text">Info</span>
+                <span class="slds-icon_container slds-icon-utility-info slds-m-right_x-small">
+                    <lightning-icon icon-name="utility:info" variant="inverse" size="xx-small"></lightning-icon>
+                </span>
+                <h2>
+                    {Edit_Info}
+                </h2>
+                <br/>
+            </div>    
+            <lightning-layout pull-to-boundary="medium" multiple-rows>
+                <p class="slds-p-horizontal_large">
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" flexibility="auto" padding="horizontal-small">
+                    <!-- <lightning-datatable
+                            key-field="Id"
+                            data={tableData}
+                            hide-checkbox-column = true
+                            show-row-number-column                                                
+                            columns={dataTableColumns}
+                            onsave={handleSave}
+                            draft-values={draftValues}>
+                    </lightning-datatable> -->
+
+                    <c-custom-data-table 
+                        key-field="Id" 
+                        data={tableData} 
+                        columns={dataTableColumns} 
+                        onsave={handleSave}
+                        oncancel={handleCancel}
+                        draft-values={draftValues} 
+                        oncellchange={handleCellChange}
+                        hide-checkbox-column
+                        column-widths-mode="fixed"
+                        resize-column-disabled
+                        errors={dataTableError}
+                        >
+                    </c-custom-data-table>
+                
+                </lightning-layout-item>
+                </p>
+                <!-- <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" flexibility="auto" padding="horizontal-small">
+                    <footer class="slds-modal__footer slds-align_absolute-center slds-m-around_small">
+                            
+                        <p class="slds-p-horizontal_x-large">      
+            
+                            <lightning-button label={Cancel} title={Cancel} icon-name="utility:close" 
+                                data-name="cancel" variant="Neutral" onclick={handleBtnClick}>
+                            </lightning-button>
+                            
+                            <lightning-button label={Save} title={Save} icon-name="utility:save" variant="brand" 
+                                data-name="save" class="slds-m-left_xx-small" onclick={handleBtnClick}>
+                            </lightning-button>
+    
+                        </p>
+                                
+                            
+                    </footer>
+                </lightning-layout-item> -->
+            </lightning-layout>
+        </lightning-card>
+    </template>

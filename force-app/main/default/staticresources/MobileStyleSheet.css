@@ -1,0 +1,20 @@
+.headerContainer{
+    width:101%;
+    height:32px;
+    background-color:#808080;
+    margin: -5px 0px 0px;
+}
+.headerIcon{
+    background-color:#808080;
+    border-color:#808080;
+    color:white;
+}
+.subContent{
+	font-size: 13px;
+}
+
+.slds-spinner {
+    position: absolute;
+    top: -1000%; 
+    left: -300%;
+}

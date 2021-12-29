@@ -1,0 +1,10 @@
+<apex:page controller="TasksEmailController">
+    <apex:outputText value="{!$Label.Info_for_Email}" style="font-weight:bold"/><br/><br/><br/>
+    <apex:form > 
+        <apex:outputText value="{!$Label.Recipient_Email_Addresses}" style="font-weight:bold"/>
+        <apex:inputText value="{!recipientEmailAdd}" /><br/>
+        <apex:outputText value="{!$Label.Comments}" style="font-weight:bold"/>
+        <apex:inputTextArea value="{!emailDesc}" richText="true"/><br/><br/><br/>
+        <apex:commandButton action="{!send}" value="Send"/>
+    </apex:form>     
+</apex:page>

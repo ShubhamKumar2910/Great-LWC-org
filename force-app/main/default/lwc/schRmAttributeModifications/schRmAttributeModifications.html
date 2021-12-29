@@ -1,0 +1,81 @@
+<template>
+    
+    <template if:true={showSpinner}>
+            <lightning-spinner alternative-text={processingLabel}></lightning-spinner>
+    </template>
+
+    <lightning-card variant="narrow" icon-name="utility:edit_form">
+        <h1 slot="title"> RM Attribute Modifications</h1>
+        <div slot="actions" class=slds-m-right_medium>
+           
+                <lightning-button label={Back} title={Back} icon-name="utility:back" 
+                data-name="back" variant="neutral" onclick={handleBtnClick}>
+            </lightning-button>
+            
+                                
+        </div>
+
+        
+        <lightning-layout pull-to-boundary="medium" >
+    
+            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" flexibility="auto" padding="horizontal-large">
+                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error infoSectionTextAlignment" role="alert" style="white-space: normal; margin-left: 10px; margin-right: 20px;">
+                    <span class="slds-assistive-text">Info</span>
+                    <span class="slds-icon_container slds-icon-utility-info slds-m-right_x-small">
+                        <lightning-icon icon-name="utility:info" variant="inverse" size="xx-small"></lightning-icon>
+                    </span>
+                    <h2>
+                        {Edit_Info}
+                    </h2>
+                    <br/>
+                </div>
+            </lightning-layout-item>
+                    
+            
+        </lightning-layout>
+
+    
+        <lightning-layout pull-to-boundary="medium">
+            <lightning-layout-item size="3" small-device-size="3" medium-device-size="3" flexibility="auto" padding="horizontal-large">
+                <div style="margin-left: 10px;" >
+                    <lightning-combobox
+                        name="domicilePicklist"
+                        label="Select Domicile"
+                        value={domicileValue}
+                        placeholder="Select domicile"
+                        options={domicileOptions}
+                        onchange={handleChangeDomicile} 
+                        disabled={disableDomicile}></lightning-combobox>
+                </div>
+            </lightning-layout-item>  
+        </lightning-layout>
+
+        <lightning-layout pull-to-boundary="medium">
+            
+            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" flexibility="auto" padding="horizontal-large">
+                <div style="margin-left: 10px; margin-right: 20px;">
+                    <c-custom-data-table 
+                        key-field="Id" 
+                        data={tableData} 
+                        columns={dataTableColumns}
+                        onpicklistchanged={picklistChanged} 
+                        onsave={handleSave}
+                        oncancel={handleCancel}
+                        draft-values={draftValues} 
+                        oncellchange={handleCellChange} 
+                        column-widths-mode='auto'
+                        onrowselection={handleRowSelection}
+                        resize-column-disabled
+                        errors={dataTableError}
+                        >
+                    </c-custom-data-table>
+                </div>
+            
+            </lightning-layout-item>
+            
+
+        </lightning-layout>
+    
+        
+    </lightning-card>
+</template>

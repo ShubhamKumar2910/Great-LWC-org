@@ -1,0 +1,83 @@
+<!--
+**	Author 		: Manmeet Singh Sahani, Sankarkartik Raman
+**	Company 	: Nomura
+**	Description : Wrapper LWC component for c:lookup-lwc compoenent
+-->
+
+<!-- c:lookup-lwc-flow-wrapper -->
+<template>
+    <template if:true={isLegalEntityLookup}>
+        <c-lookup-Lwc selection={selection} errors={errors} onsearch={handleLESearch} onselectionchange={handleLESelectionChange} 
+            label={lookupLabel} placeholder="Search Legal Entity..." data-field="legalEntity" >
+        </c-lookup-Lwc>
+    </template>
+    <template if:true={isCoverageEntityLookup}>
+        <c-lookup-Lwc selection={selection} errors={errors} onsearch={handleRGSearch} onselectionchange={handleRGSelectionChange}
+            label={lookupLabel} placeholder="Search Coverage Entity..." data-field="coverageEntity" >
+        </c-lookup-Lwc>
+    </template>
+
+    <template if:true={isLegalEntityLookupWithRGLookup}>
+        <!--<div style="color: red; font-size: medium; margin-bottom: 10px;">
+                <br />Only covered accounts can be selected for Client Onboarding.
+                
+        </div>-->
+        <c-lookup-Lwc selection={rgSelection} errors={errors} onsearch={handleRGSearch} onselectionchange={handleRGSelectionChange}
+            label={rgLookupLabel} placeholder="Search Coverage Entity..." data-field="coverageEntity" >
+        </c-lookup-Lwc>
+        <br/>
+        <c-lookup-Lwc selection={rmSelection} errors={errors} onsearch={handleLESearch} onselectionchange={handleLESelectionChange} 
+            label={rmLookupLabel} placeholder="Search Legal Entity..." data-field="legalEntity" >
+        </c-lookup-Lwc>        
+        
+        
+    </template>
+
+    <template if:true={isCallReportLookup}>
+        <c-lookup-Lwc selection={callRepSelection} errors={errors} onsearch={handleCallRepSearch} onselectionchange={handleCRSelectionChange}
+            label={lookupLabel} placeholder="Search Call Report..." data-field="callReportLookup" >
+        </c-lookup-Lwc>
+    </template>
+    <template if:true={isNomuraPersonLookup}>
+        <c-lookup-Lwc selection={nomuraPerSelection} errors={errors} onsearch={searchNomuraPerson} onselectionchange={handleNPSelectionChange}
+            label={lookupLabel} placeholder="Search User..." data-field="nomuraPersonLookup" >
+        </c-lookup-Lwc>
+        <br />
+        <template if:true={isInstinetIBDFlag}>
+            <lightning-combobox name="InstinetClientIDMarket"
+                                label="Is this an Instinet client needing an ID Market setup? If so, state the market."
+                                value={instinetClientMarketValue}
+                                placeholder="Select an option"                                                            
+                                options={instinetClientMktOptions}
+                                onchange={handleInstinetClientChange}>
+                                </lightning-combobox> 
+            <br />           
+        </template>
+    </template>
+    <template if:true={isContactLookup}>
+        <c-lookup-Lwc selection={contactSelection} errors={errors} onsearch={handleContactSearch} onselectionchange={handleContactSelectionChange}
+            label={lookupLabel} placeholder="Search Contact..." data-field="contactLookup" >
+        </c-lookup-Lwc>   
+        <template if:true={displayContactErrorMessage}>
+            <div class="slds-text-color_destructive">The Contact's First Name or Last Name exceeds the character limits. Please update the relevant fields below:</div>
+        </template>
+        <template if:true={contactFirstNameLimitExceeded}>
+            <lightning-input type="text" label="Contact First Name"  value={strContactFirstNameValue} onchange={handleContactFirstNameChange} required></lightning-input>
+        </template>
+        <template if:true={contactLastNameLimitExceeded}>
+            <lightning-input type="text" label="Contact Last Name" value={strContactLastNameValue} onchange={handleContactLastNameChange} required></lightning-input>
+        </template>
+        <template if:true={isObContactTypeRequired}>
+            <lightning-combobox name="OnboardingContactType"
+                label="Onboarding Contact Type"
+                value={obContactTypeValue}
+                placeholder="Select an option"                                                            
+                options={obContactTypeOptions}
+                onchange={handleOnboardingContactTypeChange}
+                required
+                class="slds-m-top_x-small slds-m-bottom_x-small">
+            </lightning-combobox>  
+        </template>
+
+    </template>
+</template>

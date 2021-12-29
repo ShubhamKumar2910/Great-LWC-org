@@ -1,0 +1,1202 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride,force:hasSObjectName"
+access="global" 
+controller="CallReportController">
+<ltng:require scripts="{!join(',',$Resource.Moment, $Resource.LightningLookupJS)}"
+  styles=""
+  afterScriptsLoaded="{!c.setScriptLoaded}" />
+
+<!-- Attributes --> 
+<aura:attribute name="areJSScriptsLoaded" type="Boolean" description="Flag to indicate jquery is loaded"/>
+<aura:attribute name="needToProcessReRenderLogic" type="Boolean" description="Flag to indicate need to process the logic rerender since it is called many times during the component's lifecycle"/>
+<aura:attribute name="newCallReport" type="SObject" default="{ 'sobjectType': 'Event' }" />
+<aura:attribute name="callReportDetailedDescription" type="SObject" default="{ 'sobjectType': 'Task_LTA__c' }" />
+<aura:attribute name="availableAccountContacts" type="Contact[]" default="{ 'sobjectType': 'Contact' }" />
+<aura:attribute name="isJapanFIUser" type="Boolean" default="false" />
+<aura:attribute name="createTypeChange" type="Boolean" default="false" />
+
+<aura:attribute name="isEQUser" type="Boolean" default="false" />
+<aura:attribute name="ExistingClientAttendees" type="String" />
+<aura:attribute name="CIDefaultL1" type="String" default=""/>
+<aura:attribute name="ExistingInternalInvitees" type="String" />
+<aura:attribute name="l0default" type="String" />
+<aura:attribute name="l1default" type="String" />
+<aura:attribute name="l1Changed" type="Boolean" default="false"  />
+<aura:attribute name="ClientAttendees" type="String" />
+<aura:attribute name="InternalInvitees" type="String" />
+<aura:attribute name="InternalInviteesPreloaded" type="String[]" />
+<aura:attribute name="hasErrors" type="Boolean" default="false" />
+<aura:attribute name="hasContactErrors" type="Boolean" default="false" />
+<aura:attribute name="internalInviteesSelected" type="String[]"/>
+<aura:attribute name="clientAttendeesSelected" type="String[]" />
+<aura:attribute name="ricCodeSelected" type="String[]" />
+<aura:attribute name="ricCodesIds" type="string[]" />
+<aura:attribute name="ricCodes" type="string[]" />
+
+<aura:attribute name="errorMessages" type="String[]" />
+<aura:attribute name="contactErrorMessages" type="String[]" />
+<aura:attribute name="recordId" type="String" access="public"/>
+<aura:attribute name="relatedToId" type="String" access="public"/>
+<aura:attribute name="subject" type="String"/>
+<aura:attribute name="detailedDescription" type="String"/>
+<aura:attribute name="relatedToObject" type="String"/>
+<aura:attribute name="lineitems" type="SObject[]" />
+<aura:attribute name="showNewContactPopup" type="Boolean" default="false" />
+<aura:attribute name="addUtilityBarPaddding" type="Boolean" default="false" />
+<aura:attribute name="newContact" type="Contact" default="{ 'sobjectType': 'Contact' }"/>
+<aura:attribute name="assignedToSelected" type="String[]"/>
+<aura:attribute name="newContactAccountSelected" type="String[]"/>
+<aura:attribute name="relatedToAccountSelected" type="String[]"/>
+<aura:attribute name="relatedToOpportunitySelected" type="String[]"/>
+<aura:attribute name="relatedToCampaignSelected" type="String[]"/>
+<aura:attribute name="addressOptions" type="List" />
+<aura:attribute name="selectedAddress" type="String" default=""/>
+<aura:attribute name="relatedToAccount" type="String"/>
+<aura:attribute name="relatedToAccountSelected1" type="String[]"/>
+<aura:attribute name="addressQuery" type="String" default=""/>
+<aura:attribute name="isCallFromTypeChange" type="Boolean" default="false"/>
+<aura:attribute name="l1_l0default" type="map" default = "{}" description="store controller(key)--> dependent(values) picklist value as a map." />
+<aura:attribute name="typeDependantValues" type="map" default = "{}" description="store controller(key)--> dependent(values) picklist value as a map." />
+<aura:attribute name="l0DependantDefaultValuesMap" type="map" default = "{}" description="store controller(key)--> dependent(values) picklist value as a map." />
+<aura:attribute name="l0EQActivityMap" type="map" default = "{}" description="store controller(key)--> dependent(values) picklist value as a map." />
+<aura:attribute name="l0FIActivityMap" type="map" default = "{}" description="store controller(key)--> dependent(values) picklist value as a map." />
+<aura:attribute name="defaultDuration" type="map" default="{}" description="store l0/l1 type default value as key and duration as map." />
+<aura:attribute name="activityFlagDependentStatusMap" type="Map" default="{}" description="store ActivityFlag(Key) --> dependent(Activity Status Values) picklist value as a map." />
+<aura:attribute name="startChanged" type="Boolean" default="false" />
+<aura:attribute name="campaignName" type="SObject" default="{ 'sobjectType' : 'Campaign' }" />
+<aura:attribute name="calledFrom" type="String" />
+<aura:attribute name="massActivityFlag" type="Boolean" default="false" />
+<aura:attribute name="campaignId" type="String" />
+<aura:attribute name="selectedContactData" type="Object" />
+<aura:attribute name="selectedContactCount" type="String" />
+<aura:attribute name="myContactListSelect" type="String" default=""/>
+<aura:attribute name="selectAllCheckboxValue" type="Boolean" default="false" />
+<aura:attribute name="availableEventTypes" type="String[]" default="" />
+<aura:attribute name="availablel0EventTypes" type="String[]" default="" />
+<aura:attribute name="sectorList" type="List"/>
+<aura:attribute name="activityStatuses" type="List" />
+<aura:attribute name="selectedEventType" type="String" default="" />
+<aura:attribute name="selectedActivityFlag" type="String" default="" />
+<aura:attribute name="selectedActivityStatus" type="String" default="" />
+<aura:attribute name="selectedl0EventType" type="String" default="" />
+<aura:attribute name="selectedSector" type="String" default="" />
+<aura:attribute name="modelRequest" type="Boolean" default="false" />
+<aura:attribute name="activityType" type="String"  /> 
+<aura:attribute name="filterApplied" type="Boolean" />
+<aura:attribute name="filters" type="String" />
+<aura:attribute name="availableCIStages" type="String[]" default=""/>
+<aura:attribute name="name" type="String" default="Create"/>
+<aura:attribute name="label" type="String" default="Create"/>
+<aura:attribute name="value" type="String" default="Create"/>
+<aura:attribute name="options" type="List"/>
+<aura:attribute name="createVal" type="String" default=""/>
+<aura:attribute name="isCapIntro" type="Boolean" default="false" />
+<aura:attribute name="selectedStageType" type="String" default=""/>
+<aura:attribute name="defaultStageType" type="String" default="Information Sent"/>
+<aura:attribute name="isTypeCI" type="String" default="false"/>    
+<aura:attribute name="SelectedFunds" type="String[]"/>
+<aura:attribute name="massActivityType" type="String" default=""/>
+<aura:attribute name="massActivitySubType" type="String" default=""/>
+<aura:attribute name="isClientMemo" type="Boolean" default="false"/>
+<aura:attribute name="accountLookupIdSelected" type="String" default=""/>
+<aura:attribute name="showCoveredAccountDetails" type="Boolean" default="false"/> 
+<aura:attribute name="coveredAccountCheck" type="Boolean" default="false"/> 
+<aura:attribute name="saveNewCheck" type="Boolean" default="false"/> 
+<aura:attribute name="isAnalystUser" type="Boolean" default="false"/> 
+<aura:attribute name="isActiveSalesCodePresent" type="Boolean" default="false" />
+<!-- FOR MULTIPLE-->
+<aura:attribute name="SaveEventType" type="String" default="No" />
+
+<aura:attribute name="dependentFieldMap" type="map" description="store controller(key)--> dependent(values) picklist value as a map." /> 
+<!-- Labels -->
+<aura:attribute name="subjectLabel" type="String" />
+<aura:attribute name="typeLabel" type="String" />
+<aura:attribute name="l0typeLabel" type="String" />
+<aura:attribute name="SectorLabel" type="String" />
+<aura:attribute name="activityflagLabel" type="String" default = "{!$Label.c.Activity_Flag}" />
+<aura:attribute name="activityStatusLabel" type="String" />   
+<aura:attribute name="tickerLabel" type="String" />
+<aura:attribute name="relatedToLabel" type="String" />
+<aura:attribute name="privateLabel" type="String" />
+<aura:attribute name="allDayEventLabel" type="String" />
+<aura:attribute name="ownerLabel" type="String" />
+<aura:attribute name="startDateLabel" type="String" />
+<aura:attribute name="endDateLabel" type="String" />
+<aura:attribute name="stageLabel" type="String" />
+<aura:attribute name="duration" type="String" />
+<aura:attribute name="startTimeInitialise" type="String" />
+<aura:attribute name="listOptions" type="List" default="[]"/>
+<aura:attribute name="defaultOptions" type="List" default="[]"/>
+<aura:attribute name="requiredOptions" type="List" default="[]"/>
+<aura:attribute name="defaultInitialiseCallReportLoad" type="Boolean" default="true"/>
+
+
+<aura:attribute name="assignedToRecordId" type="String" />
+<aura:attribute name="assignedToUserField" type="Object" />
+<!--<aura:attribute name="assignedToUser" type="Object" />-->
+
+<!--Added for JIRA SALES-3521-->
+<aura:attribute name="avaliableposition" type="String[]" default=""/>
+<aura:attribute name="selectedPosition" type="String" default=""/>
+<!--Added for SALES-3510 -->
+<aura:attribute name="isObjectiveMandatory" type="Boolean" default="false"/>
+<!-- For changing Type according to assigned to user
+Update for JIRA SALES-3644
+<force:recordData aura:id="assignedToUser"
+fields="Id, Name, Profile.Name, Is_Analyst__c, UserRole.Name"
+recordId="{!v.assignedToRecordId}"
+targetFields="{!v.assignedToUserField}"
+mode="VIEW"
+recordUpdated="{!c.updateEventTypeByUser}"
+/>-->
+
+<!--Added for Winter 19 fix SALES 3000-->
+<aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+<aura:handler name="change" value="{!v.newCallReport.StartDateTime}" action="{!c.startDateChanged}"/>
+<aura:handler name="change" value="{!v.newCallReport.EndDateTime}" action="{!c.endDateChanged}"/>
+<aura:handler name="change" value="{!v.newCallReport.IsPrivate}" action="{!c.privateFlagChanged}"/> 
+<aura:handler name="change" value="{!v.newCallReport.IsAllDayEvent}" action="{!c.allDayFlagChanged}"/> 
+<aura:handler name="EventCallReportUpdateContactsEvent" event="c:EventCallReportUpdateContactsEvent" action="{!c.updateInvitees}"/>
+<aura:handler name="change" value="{!v.relatedToObject}" action="{!c.relatedToObjectChanged}"/> 
+
+<aura:method name="callReportView" action="{!c.callReportView}" />
+<aura:method name="massActivityView" action="{!c.massActivityView}" /> 
+<!--<aura:method name="getProfileName" action="{!c.getProfileName}" /> -->
+<aura:method name="init" action="{!c.init}" />
+<aura:method name="getAddressData" action="{!c.getAddressData}" >
+<aura:attribute name="relatedAccount" type="String" />
+</aura:method>
+<aura:method name="showMessage" action="{!c.showMessage}">
+<aura:attribute name="title" type="String"/> 
+<aura:attribute name="message" type="String"/> 
+<aura:attribute name="type" type="String"/> 
+</aura:method>
+
+<!--LIGHTNING NAVIGATION-->
+<lightning:navigation aura:id="navigationService" />
+
+<lightning:spinner aura:id="pageSpinner" variant="brand" size="large"/>
+<aura:if isTrue="{!$Browser.formFactor == 'DESKTOP'}">
+<div style="padding-right:15%;padding-left:15%; background-color: white;">
+<!-- Error Messages -->
+<aura:if isTrue="{!v.hasErrors}">
+<div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" role="alert">
+    <lightning:icon iconName="utility:warning" variant="warning" class="slds-icon slds-icon_x-small inlineTable"/>
+    <div id="errors" style="">
+        <aura:iteration items="{!v.errorMessages}" var="item">
+            <ui:outputText value="{!item.message}" class="blockDisplay"/>
+        </aura:iteration>
+    </div>
+    <lightning:buttonIcon iconName="utility:close" variant="bare" onclick="{!c.closeErrorMessages}"/>
+</div>
+<aura:set attribute="else">
+    <div></div>
+</aura:set>
+</aura:if>             
+<!-- Call Report Form -->
+<div class="slds-form slds-form_compound"> 
+<div class="slds-form-element__row">
+    <div class="slds-form-element slds-size_1-of-1 slds-m-top_x-small">
+        <!-- Attendees Heading -->
+        <!-- Calendar Details Heading -->
+        <h3 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate slds-p-horizontal_small" title="Section Title">
+                <ui:outputText value="{!$Label.c.Event_Custom_Calendar_Details}" />
+            </span>
+        </h3>
+    </div>
+</div>
+<div class="slds-form-element__row">                        
+        <div class="slds-form-element slds-size_2-of-2 slds-hide" aura:id="createDiv">
+            <lightning:select aura:id ="createType" name="{! v.name }" label="{! v.label }" required="{!v.isCapIntro}" value="{!v.createVal}" onchange="{!c.createTypeChanged}">                           
+                <option value="{!$Label.c.Event_Call_Report_Notes_Non_Cap_Intro}">{!$Label.c.Event_Call_Report_Notes_Non_Cap_Intro}</option> 
+                <option value="{!$Label.c.Event_Call_Report_Notes}">{!$Label.c.Event_Call_Report_Notes}</option>
+                <option value="{!$Label.c.Event_CI_Interactions}">{!$Label.c.Event_CI_Interactions}</option> 
+             </lightning:select>
+        </div>
+        </div>
+<div class="slds-form-element__row">
+    <div class="slds-form-element slds-size_2-of-6 slds-hide" aura:id="l0typeDiv">
+        <!-- L0Type = Type --> 
+        <lightning:select aura:id="l0eventType" name="selectl0" label="{!v.l0typeLabel}" value="{!v.selectedl0EventType}" onchange="{!c.l0EventTypeChanged}" required="true">
+            <aura:iteration items="{!v.availablel0EventTypes}" var="type">
+                <aura:if isTrue="{!type == v.selectedl0EventType}">
+                    <option value="{!type}" selected="true">{!type}</option>
+                    <aura:set attribute="else">
+                        <option value="{!type}">{!type}</option>
+                    </aura:set>
+                </aura:if>
+            </aura:iteration>
+        </lightning:select>                        
+    </div>
+    <div class="slds-form-element slds-size_2-of-6 slds-hide" aura:id="typeDiv">
+        <!-- Type = L1 Type-->
+        <lightning:select aura:id="eventType" name="selectItem" label="{!v.typeLabel}" onchange="{!c.eventTypeChanged}" value="{!v.selectedEventType}" required="true">
+            <aura:iteration items="{!v.availableEventTypes}" var="type">
+                <aura:if isTrue="{!type == v.selectedEventType}">
+                    <option value="{!type}" selected="true">{!type}</option>
+                    <aura:set attribute="else">
+                        <option value="{!type}">{!type}</option>
+                    </aura:set>
+                </aura:if>
+            </aura:iteration>
+        </lightning:select>                        
+    </div>
+
+    <div class="slds-form-element slds-size_2-of-6 slds-hide" style="display:inline-flex;margin-top: auto;" aura:id="massActivityTypeDiv">
+        <!-- Activity Type Div -->
+        <ui:outputText class="slds-form-element__label" value="{!v.l0typeLabel}"/>
+        <ui:outputText class="slds-form-element__label" aura:id="massActivityType" value="{!v.massActivityType}"/>                        
+    </div>
+    <div class="slds-form-element slds-size_2-of-6 slds-hide" style="display:inline-flex;margin-top: auto;" aura:id="massActivitySubTypeDiv">
+        <!-- Activity SubType Div -->
+        <ui:outputText class="slds-form-element__label" value="{!v.typeLabel}"/>
+        <ui:outputText class="slds-form-element__label" aura:id="massActivitySubType" value="{!v.massActivitySubType}"/>                                             
+    </div>
+
+    <div class="slds-form-element slds-size_2-of-6" style="display:inline-block; ">
+        <div class="slds-form-element slds-size_1-of-2 slds-hide" aura:id="activityFlagDiv" style="display:inline-block;">
+            <!-- Activity Flag-->
+            <c:SelectMultiple aura:id="actFlag"  setLabelName="{!v.activityflagLabel}" selectChange="{!c.activityFlagChanged}" />                      
+        </div>
+
+        <div class="slds-form-element slds-size_1-of-2 slds-hide" aura:id="activityFlagStatusDiv" style="display:inline-block;">
+            <!-- Activity Status / IBOR Status -->
+            <lightning:select aura:id="activityStatus" name="activityStatusData"  label="{!v.activityStatusLabel}" onchange="{!c.activityStatusChanged}" value="{!v.selectedActivityStatus}">
+                <aura:iteration items="{!v.activityStatuses}" var="activityStatusItem">
+                    <aura:if isTrue="{!activityStatusItem == v.selectedActivityStatus}">
+                        <option value="{!activityStatusItem}" selected="true">{!activityStatusItem}</option>
+                        <aura:set attribute="else">
+                            <option value="{!activityStatusItem}">{!activityStatusItem}</option>
+                        </aura:set>
+                    </aura:if>    
+                </aura:iteration>
+            </lightning:select>                      
+        </div>
+    </div>
+    
+</div>
+<div class="slds-form-element__row">
+            <div class="slds-form-element slds-size_2-of-2 slds-hide" aura:id="stageDiv">                           
+                <lightning:select aura:id="stage" name="stageItem" label="{!v.stageLabel}" onchange="{!c.stageTypeChanged}" value="{!v.selectedStageType}" required="{!v.isCapIntro}">
+                    <aura:iteration items="{!v.availableCIStages}" var="type">
+                        <aura:if isTrue="{!type == v.selectedStageType}">
+                            <option value="{!type}" selected="true">{!type}</option>
+                            <aura:set attribute="else">
+                                <option value="{!type}">{!type}</option>
+                            </aura:set>
+                        </aura:if>
+                    </aura:iteration>
+                </lightning:select>                        
+            </div>
+        </div> 
+<!-- Added for JIRA SALES-3119 -->
+<div class="slds-form-element__row">
+    
+</div>
+<div class="slds-form-element__row">
+    <div class="slds-form-element slds-size_2-of-2">
+        <!-- Subject -->
+        <lightning:input aura:id="subjectInput" required="true" label="{!v.subjectLabel}" value="{!v.newCallReport.Subject}" name="" /> 
+    </div>
+</div>
+<div class="slds-form-element__row">
+    
+    <div class="slds-form-element slds-size_4-of-12">
+        <!-- Start DateTime -->
+        <ui:inputDateTime aura:id="startDateInput" required="true"  label="{!v.startDateLabel}" displayDatePicker="true" value="{!v.newCallReport.StartDateTime}"/>
+    </div>  
+    
+    <div class="slds-form-element slds-size_4-of-12">
+        <!-- End DateTime -->
+        <ui:inputDateTime aura:id="endDateInput" required="true" label="{!v.endDateLabel}" displayDatePicker="true" value="{!v.newCallReport.EndDateTime}"/>
+    </div>
+    <div class="slds-form-element slds-size_2-of-10" style="display:inline-flex;margin-top: 4% !important;">
+        <!-- Duration in minutes -->
+        <ui:outputText class="slds-form-element__label" value="{!v.duration}"/>
+        <ui:outputText class="slds-form-element__label" aura:id="durationInMinutes" value="{!v.newCallReport.DurationInMinutes}"/>
+        <ui:outputText class="slds-form-element__label" value="{!$Label.c.Mins}"/>                       
+    </div>
+    <div class="slds-form-element slds-size_2-of-10" style="display:inline-flex;margin-top: 4% !important;">
+        <!-- All Day Event -->
+        <lightning:input type="checkbox" name="" aura:id="allDayEventInput" label="{!v.allDayEventLabel}" checked="{!v.newCallReport.IsAllDayEvent}" />
+    </div>
+    
+    
+</div>    
+
+<br />
+
+<fieldset class="slds-form-element">
+  <div class="slds-form-element__group">
+                                
+        <div class="slds-form-element__row">
+            <div class="slds-form-element slds-size_1-of-1">
+            
+                <div class="slds-form-element__row">
+                    <div class="slds-form-element slds-size_8-of-12">
+                            <h3 class="slds-section__title slds-theme_shade">
+                                    <span class="slds-truncate slds-p-horizontal_small" title="">{!$Label.c.Attendees}</span>
+                                </h3> 
+                    </div>
+                    <div class="slds-form-element slds-size_4-of-12 slds-hide" aura:id="splitDiv" style="float:right; margin-top: -2% !important;">
+                            <lightning:select aura:id ="splitType" name="SplitType" label="{!$Label.c.Create_Multiple_Activities}" value="{v.SaveEventType}" onchange="{!c.toggleClick}">                           
+                                <option value="{!$Label.c.Event_Split_Type_None}">{!$Label.c.Event_Split_Type_None}</option> 
+                                <option value="{!$Label.c.Event_Split_Type_Account}">{!$Label.c.Event_Split_Type_Account}</option>
+                                <option value="{!$Label.c.Event_Split_Type_Contact}">{!$Label.c.Event_Split_Type_Contact}</option> 
+                             </lightning:select>
+                    </div>
+                </div>
+               
+             
+                <div class="slds-size_12-of-12 slds-m-bottom_x-small slds-form-element__row">
+                     <!-- Filter by Account-->
+                    <div class="slds-size_5-of-12 slds-hide slds-m-bottom_x-small" aura:id="accountLookupDiv" style="margin-top: auto; width:50% !important">                       
+                            <c:SingleLookup aura:id="accountLookup"   
+                                allRecords="false" 
+                                sObjectAPIName="Account" 
+                                accountType="RG_Account"
+                                charLimit="2"  
+                                label="{!$Label.c.Filter_By_Account}" 
+                                listIconSVGPath="standard:account" 
+                                listIconClass="slds-icon-standard-account" 
+                                itemChange="{!c.accountLookupChanged}" 
+                                placeholder="{!$Label.c.Event_Search_Accounts}" 
+                                preSelectedIds="{!v.relatedToAccountSelected}"
+                                showCoveredAccountDetails="{!v.coveredAccountCheck}"                            
+                                displayInfo="true"
+                            />
+                        </div>
+                        <!-- Covered Account checkbox -->
+                        <div class="slds-size_2-of-12 slds-m-bottom_x-small slds-hide" aura:id="coveredAccCheckboxDiv" style="padding-left:1%;margin-top: auto;">
+                            <ui:inputCheckbox aura:id="coveredAccountsOnly" value="{!v.coveredAccountCheck}" change="{!c.coveredAccountCheckChange}" label="Covered Accounts only"  />
+                        </div>
+
+                        
+                        <div id="newContact" class="slds-hide slds-size_5-of-12" aura:id="attendeesButtonDiv" style="margin-top:2.5%;padding-left:1%">
+                            <lightning:buttonGroup class="addContact">                                                
+                                <lightning:button iconName="utility:search" variant="neutral" iconPosition="left" onclick="{!c.openmodal}" label="{!$Label.c.Event_Browse_Contacts}"/>
+                                <lightning:button iconName="utility:adduser" variant="neutral" onclick="{!c.createNewContact}"   label="{!$Label.c.Event_New_Contact}" iconPosition="left" />
+                            </lightning:buttonGroup>
+                        </div>
+                </div>
+
+                <div class="slds-form-element__row" style="display:flex;">
+                        <div class="slds-m-top--medium"></div>
+                        
+                        <div class="slds-size_2-of-12 slds-hide" aura:id="relatedToDiv">
+                            <div class="slds-form-element__control">
+                                
+                                <!-- Object Selector - for custom fields, make sure to modify the code to add __c to object name when passed to the Apex class -->
+                                <lightning:select aura:id="objectSelect" name="selectItem" label="{!$Label.c.Event_Related_To}" value="{!v.relatedToObject}">
+                                    <option value="{!$Label.c.Event_Account}">{!$Label.c.Event_Account}</option>
+                                    <option value="{!$Label.c.Event_Campaign}">{!$Label.c.Event_Campaign}</option>
+                                    <option value="{!$Label.c.Event_Opportunity}">{!$Label.c.Event_Opportunity}</option>
+                                    
+                                </lightning:select>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-size_7-of-12 slds-hide" aura:id="relatedToSearchDiv">
+                            <aura:if isTrue="{!v.relatedToObject == 'Opportunity' || v.relatedToObject == $Label.c.Event_Opportunity}">
+                                <c:SingleLookup aura:id="related-to-opportunity"   
+                                                allRecords="false" 
+                                                sObjectAPIName="Opportunity" 
+                                                charLimit="2"  
+                                                label="" 
+                                                listIconSVGPath="standard:opportunity" 
+                                                listIconClass="slds-icon-standard-opportunity" 
+                                                itemChange="{!c.relatedToOpportunityChanged}" 
+                                                placeholder="{!$Label.c.Event_Search_Opportunities}" 
+                                                preSelectedIds="{!v.relatedToOpportunitySelected}"
+                                                showCoveredAccountDetails="{!v.showCoveredAccountDetails}"
+                                                accountId="{!v.accountLookupIdSelected}"
+                                                />
+                                <aura:set attribute="else">
+                                    <div></div>
+                                </aura:set>
+                            </aura:if> 
+                            <aura:if isTrue="{!v.relatedToObject == 'Account' || v.relatedToObject == $Label.c.Event_Account}">
+                                <c:SingleLookup aura:id="related-to-account"   
+                                                allRecords="false" 
+                                                sObjectAPIName="Account" 
+                                                accountType="RG_Account"
+                                                charLimit="2"  
+                                                label="" 
+                                                listIconSVGPath="standard:account" 
+                                                listIconClass="slds-icon-standard-account" 
+                                                itemChange="{!c.relatedToAccountChanged}" 
+                                                placeholder="{!$Label.c.Event_Search_Accounts}" 
+                                                preSelectedIds="{!v.relatedToAccountSelected}"/>
+                                <aura:set attribute="else">
+                                    <div></div>
+                                </aura:set>
+                            </aura:if> 
+                            <aura:if isTrue="{!v.relatedToObject == 'Campaign'  || v.relatedToObject == $Label.c.Event_Campaign}">
+                                <c:SingleLookup aura:id="related-to-campaign"
+                                                allRecords="false" 
+                                                sObjectAPIName="Campaign" 
+                                                charLimit="2"  
+                                                label="" 
+                                                listIconSVGPath="standard:campaign" 
+                                                listIconClass="slds-icon-standard-campaign" 
+                                                itemChange="{!c.relatedToCampaignChanged}" 
+                                                placeholder="{!$Label.c.Event_Search_Campaigns}" 
+                                                preSelectedIds="{!v.relatedToCampaignSelected}"/> 
+                                <aura:set attribute="else">
+                                    <div></div>
+                                </aura:set>
+                            </aura:if>
+                        </div>
+                        <div class="slds-form-element slds-size_3-of-12 slds-hide" aura:id="privateEventDiv" style="margin-top:3%;padding-left:1%;display: flex;">
+                            <!-- Private Event -->
+                            <lightning:input type="checkbox" name="privateEventInput" aura:id="privateEventInput" label="{!v.privateLabel}" checked="{!v.newCallReport.Private_Flag__c}"/>
+                            <!-- Bluefire -->
+                            <lightning:input type="checkbox" name="bluefireEventInput" class="slds-hide" aura:id="bluefireEventInput" label="{!$Label.c.Hotaru}" checked="{!v.newCallReport.BlueFire_Signal__c}"/>                            
+                        </div> 
+                       </div>                
+                        <div class="slds-form-element__row">                             
+                            <div class="slds-size_12-of-12 slds-hide" aura:id="relatedToSearchFundDiv">
+                                    <c:SingleLookup aura:id="related-to-fund"   
+                                                    allRecords="false" 
+                                                    sObjectAPIName="Fund__c" 
+                                                    charLimit="2"  
+                                                    label="{!$Label.c.Event_Fund_Label}" 
+                                                    listIconSVGPath="standard:account" 
+                                                    listIconClass="slds-icon-standard-account" 
+                                                    itemChange="{!c.relatedToFundChanged}" 
+                                                    placeholder="{!$Label.c.Event_Fund_Search}" 
+                                                    preSelectedIds="{!v.SelectedFunds}"
+                                                    />
+                            </div>
+                        </div>
+
+                <div class="slds-hide slds-m-bottom_x-small" aura:id="clientAttendeesDiv"> 
+                 
+                    <c:Lookup aura:id="lookup-external-contact"   
+                              allRecords="false" 
+                              sObjectAPIName="Contact" 
+                              showNomuraEmployee="false" 
+                              charLimit="2" 
+                              label="{!$Label.c.Event_Custom_Client_Attendees}" pluralLabel="{!$Label.c.Event_Custom_Client_Attendees}" 
+                              listIconSVGPath="standard:contact"
+                              listIconClass="slds-icon-standard-contact" 
+                              itemChange="{!c.externalInviteesChanged}"
+                              preSelectedIds="{!v.clientAttendeesSelected}"
+                              showMetadata="true"
+                              showCoveredAccountDetails="{!v.showCoveredAccountDetails}"
+                              accountId="{!v.accountLookupIdSelected}"
+                              />
+                    
+                    
+               </div>
+                <div class="slds-hide"  aura:id="internalAttendeesDiv">
+               
+               <c:Lookup aura:id="lookup-internal-contact"   
+                          allRecords="false" 
+                          sObjectAPIName="User" 
+                          showNomuraEmployee="true" 
+                          charLimit="2" 
+                          label="{!$Label.c.Event_Custom_Internal_Invitees}" pluralLabel="{!$Label.c.Event_Custom_Internal_Invitees}" 
+                          listIconSVGPath="standard:contact"
+                          listIconClass="slds-icon-standard-contact" 
+                          itemChange="{!c.internalInviteesChanged}" 
+                          preSelectedIds="{!v.internalInviteesSelected}"
+                          showMetadata="false" 
+                          includeInstinetContact="true" />
+                
+            </div>
+           
+                
+                    
+                <div class="slds-hide" aura:id="clientManagerAttendeesDiv">
+                    <c:SingleLookup aura:id="lookup-manager-contact"   
+                              allRecords="false" 
+                              sObjectAPIName="Contact"
+                              showNomuraEmployee="false"
+                              charLimit="2" 
+                              label="{!$Label.c.Event_Manager_Contact_Label}" 
+                              listIconSVGPath="standard:contact"
+                              listIconClass="slds-icon-standard-contact"                                               
+                              readOnly="false"
+                              placeholder = "{!$Label.c.Event_Manager_Contact_PH}"
+                              itemChange="{!c.externalInviteesChanged}"
+                              preSelectedIds="{!v.clientAttendeesSelected}"
+                              accountCompany="Manager"      
+                              />
+                </div>
+                <div class="slds-hide" aura:id="clientInvestorAttendeesDiv">
+                <c:SingleLookup aura:id="lookup-investor-contact"  
+                          sObjectAPIName="Contact" 
+                          showNomuraEmployee="false"
+                          charLimit="2" 
+                          label="{!$Label.c.Event_Investor_Contact_Label}"
+                          listIconSVGPath="standard:contact"
+                          listIconClass="slds-icon-standard-contact"                                            
+                          readOnly="false"
+                          placeholder = "{!$Label.c.Event_Investor_Contact_PH}"
+                          itemChange="{!c.internalInviteesChanged}"
+                          preSelectedIds="{!v.internalInviteesSelected}"
+                          accountCompany="Investor" 
+                          />
+                </div>
+                    
+            </div>    
+        </div>
+        <div class="slds-form-element__row">
+        </div>
+        
+        <div class="slds-form-element__row">
+            <div class="slds-form-element slds-size_1-of-1">
+                <!-- Descrption Information Heading -->
+                <h3 class="slds-section__title slds-theme_shade">
+                    <span class="slds-truncate slds-p-horizontal_small" title="{!$Label.c.Event_Custom_Description_Information}">
+                        <ui:outputText value="{!$Label.c.Event_Custom_Description_Information}" />
+                    </span>
+                </h3>
+                <!-- Objectives and Call Report -->
+                <!--Section modified for SALES -3510-->
+                <aura:if isTrue="{!v.isObjectiveMandatory}">
+                    <label class="objectivemandaory">
+                       * 
+                    </label>
+                    <label class="slds-form-element__label" for="ObjectivesAndCallReport" >
+                        {!$Label.c.Event_Objectives}  
+                    </label>
+                    <br/>
+                    <label class="objectivemandaory"  >
+                            {!$Label.c.Event_ObjectivesMandatory}
+                    </label>    
+                    <br/>
+                    <label class="objectivemandaory"  >
+                        {!$Label.c.Event_ObjectivesMandatory1}&nbsp;
+                    </label>
+                    <label class="objectivemandaoryitalic"  >
+                        {!$Label.c.Event_ObjectivesMandatory2}&nbsp;
+                    </label>   
+                    <label class="objectivemandaory"  >
+                        {!$Label.c.Event_ObjectivesMandatory3}&nbsp;
+                    </label>                                  
+                    <lightning:textarea name="ObjectivesAndCallReport" value="{!v.newCallReport.Description}" maxlength="32000" class="objectives" />                                  
+                    <aura:set attribute="else">
+                        <lightning:textarea name="ObjectivesAndCallReport" value="{!v.newCallReport.Description}" label="{!$Label.c.Event_Objectives}" maxlength="32000" class="objectives"/>                                
+                    </aura:set>
+                </aura:if>
+            </div>
+        </div>
+        <div class="slds-form-element__row">
+            <div class="slds-form-element slds-size_1-of-1">
+                <!-- Detailed Description -->
+                <h3 class="slds-section__title slds-theme_shade" >
+                    <div class="slds-float--left slds-m-left_small" style="cursor: pointer;" onclick="{!c.toggleShowHide}">
+                        <lightning:icon class="slds-show" aura:id="openDescSecId" iconName="utility:add" size="x-small" alternativeText="Indicates add"/>
+                        <lightning:icon class="slds-hide" aura:id="closeDescSecId" iconName="utility:dash" size="x-small" alternativeText="Indicates dash"/>
+                    </div>
+                    <span class="slds-truncate slds-p-horizontal_small" title="Section Title">
+                        <ui:outputText value="{!$Label.c.Event_Detailed_Description}" />
+                    </span>
+                </h3>
+                <div class="slds-hide" aura:id="richTextDescription">
+                    <br/>
+                    <lightning:inputRichText value="{!v.callReportDetailedDescription.LTA_1__c}"/>
+                    <br/>
+                </div>                               
+            </div>
+        </div>
+        
+        <div class="slds-form-element__row">
+        <div class="slds-form-element slds-size_1-of-3"></div>
+        <div class="slds-form-element slds-size_1-of-3"></div>    
+        <div class="slds-form-element slds-size_1-of-3">
+            <label class="slds-form-element__label">
+                {!$Label.c.Sector_user_note}
+            </label>
+        </div>
+        </div>
+        
+        <div class="slds-form-element__row" style="">
+                <div class="slds-form-element slds-size_1-of-3">
+                    <c:SingleLookup aura:id="lookup-assigned-to"
+                                allRecords="false" 
+                                sObjectAPIName="User" 
+                                charLimit="2"  
+                                label="{!$Label.c.Event_Assigned_To}" 
+                                listIconSVGPath="standard:user" 
+                                listIconClass="slds-icon-standard-user" 
+                                itemChange="{!c.assignedToChanged}" 
+                                placeholder="{!$Label.c.Event_Search_Users}" 
+                                preSelectedIds="{!v.assignedToSelected}"/> 
+                </div>
+                
+                <div  class="slds-form-element slds-size_1-of-3" aura:id="ricCodeDiv">
+                    <c:Lookup aura:id="lookup-ric-code"   
+                              allRecords="false" 
+                              sObjectAPIName="Ticker__c" 
+                              showNomuraEmployee="false" 
+                              charLimit="2" 
+                              label="{!$Label.c.Event_Ticker}" pluralLabel="" 
+                              listIconSVGPath="standard:contact"
+                              listIconClass="slds-icon-standard-contact" 
+                              itemChange="{!c.ricCodeChanged}"
+                              preSelectedIds="{!v.ricCodes}"
+                              showMetadata="true"></c:Lookup>
+                </div>
+               
+                <div  class="slds-form-element slds-size_1-of-3" aura:id="sectorsDiv">
+                    <lightning:select aura:id="Sector" name="selectSector"  label="{!$Label.c.Event_Sector}" value="{!v.selectedSector}" onchange="{!c.sectorChanged}">
+                            <aura:iteration items="{!v.sectorList}" var="type">
+                                <option value="{!type.key}">{!type.value}</option>     
+                            </aura:iteration>
+                    </lightning:select>
+            </div>
+        </div>
+    </div>
+</fieldset>
+</div>
+</div>   
+<br/>
+<div class="slds-docked-form-footer" style="height: 35pt;background: repeating-linear-gradient(45deg, rgb(84,105,141), rgb(84,105,141) 20px, rgba(84,105,141,.97) 20px, rgba(84,105,141,.97) 40px);;margin-bottom:40px;z-index: auto;">
+<lightning:layout horizontalAlign="center" verticalAlign="center">
+    <lightning:button label="{!$Label.c.Event_Custom_Cancel}" onclick="{!c.cancel}" variant="neutral"/>
+    <lightning:button aura:id="saveNewButton" label="{!$Label.c.Save_New}" onclick="{!c.saveNew}" variant="neutral"/>
+    <lightning:button aura:id="saveButton" label="{!$Label.c.Event_Custom_Save}" onclick="{!c.save}" variant="brand"/>                
+    <br/><br/>
+</lightning:layout>   
+</div>         
+
+<br/><br/>
+
+<aura:if isTrue="{!v.showNewContactPopup}">
+<div aura:id="contactPopUp" class="slds-docked_container contactPopUp" style="position: fixed;
+                                                                          z-index: 9000;
+                                                                          margin-bottom: 85px;
+                                                                          min-height: 700px;
+                                                                          overflow-anchor: visible;
+                                                                          right: 2em;
+                                                                          bottom: 2em;">
+<section class="slds-docked-composer slds-grid slds-grid_vertical slds-is-open" role="dialog" aria-labelledby="modal-heading-id-1" aria-describedby="modal-content-id-1">
+    <header class="slds-docked-composer__header slds-grid slds-shrink-none" aria-live="assertive">
+        <div class="slds-media slds-media_center slds-no-space">
+            <div class="slds-media__figure slds-m-right_x-small">
+            </div>
+            <div class="slds-media__body">
+                <h2 class="slds-truncate" id="modal-heading-id-1" title="Header">New Contact</h2>
+            </div>
+        </div>
+        <div class="slds-col_bump-left slds-shrink-none">
+            <lightning:buttonIcon iconName="utility:close" variant="bare" onclick="{!c.closeNewContactPopup}"/>
+        </div>
+    </header>
+    <div class="slds-docked-composer__body slds-docked-composer__body_form" id="modal-content-id-1" style="">
+        <!-- Error Messages -->
+        <aura:if isTrue="{!v.hasContactErrors}">
+            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" role="alert" style="padding: 0.9rem;">
+                <lightning:icon iconName="utility:warning" variant="warning" class="slds-icon slds-icon_x-small inlineTable"/>
+                <div id="contactErrors">
+                    <aura:iteration items="{!v.contactErrorMessages}" var="item">
+                        <ui:outputText value="{!item.message}" class="blockDisplay"/>
+                    </aura:iteration>
+                </div>
+                <lightning:buttonIcon iconName="utility:close" variant="bare" onclick="{!c.closeContactErrorMessages}"/>
+            </div>
+            <aura:set attribute="else">
+                <div></div>
+            </aura:set>
+        </aura:if> 
+        <!-- Display an editing form -->
+        <div class="slds-form slds-form_compound">
+            <fieldset class="slds-form-element">
+                <div class="slds-form-element__group">
+                    <div class="slds-form-element__row ">
+                        <div class="slds-size_2-of-2">
+                            <div style="margin-left:.5em;">
+                                <c:SingleLookup aura:id="newcontact-account"   
+                                                allRecords="false" 
+                                                sObjectAPIName="Account"
+                                                accountType="RG_Account" 
+                                                charLimit="2"  
+                                                label="* Account " 
+                                                listIconSVGPath="standard:account" 
+                                                listIconClass="slds-icon-standard-account" 
+                                                itemChange="{!c.contactAccountchanged}" 
+                                                placeholder="Search Accounts" 
+                                                preSelectedIds="{!v.relatedToAccount}"
+                                                onReset="{!c.OnReset}"
+                                                />
+                            </div>
+                            <div style="margin-left:.5em;">
+                                <c:Combobox aura:id="addressCombobox" selectedEvent="{!c.addressChanged}" label="* Address" placeholder="Search Addresses" query="{!v.addressQuery}" sObjectAPIName="Account" recordId="{!v.relatedToAccount}" preSelectedId="{!v.selectedAddress}" clearIdEvent="{!c.addressCleared}"/>
+                            </div>
+                            <div style="margin-left:.5em;">
+                                <lightning:select name="selectItem" label="Salutation" value="{!v.newContact.Salutation}" required="true">
+                                    <option value="--None--">--None--</option>
+                                    <option value="Mr.">Mr.</option>
+                                    <option value="Mrs.">Mrs.</option>
+                                    <option value="Ms.">Ms.</option>
+                                    <option value="Miss">Miss</option>
+                                    <option value="M.">M.</option>
+                                    <option value="Dr.">Dr.</option>
+                                    <option value="Prof.">Prof.</option>
+                                    <option value="Sr">Sr</option>
+                                    <option value="Sra">Sra</option>
+                                    <option value="Srta">Srta</option>
+                                    <option value="Herr">Herr</option>
+                                    <option value="Frau">Frau</option>
+                                    <option value="Monsieur">Monsieur</option>
+                                    <option value="Madame">Madame</option>
+                                    <option value="Mademoiselle">Mademoiselle</option>
+                                    <option value="Signore">Signore</option>
+                                    <option value="Signora">Signora</option>
+                                    <option value="Hon.">Hon.</option>
+                                </lightning:select>
+                            </div>
+                            <!--Fixed the formatting issue on the new contact JIRa 3521-->
+                            <div style="margin-left:.5em;"><lightning:input aura:id="FirstName" name="FirstName" label="First Name" 
+                                value="{!v.newContact.FirstName}" required="true" /></div>
+                            <div style="margin-left:.5em;"><lightning:input aura:id="LastName" name="LastName" label="Last Name"
+                                value="{!v.newContact.LastName}" required="true" /></div>  
+                            <div style="margin-left:.5em;"> <!--Added for JIRA SALES-3521-->
+                                    <lightning:select class="" name="positionlist" label="{!$Label.c.Role}" aura:id="Position" onchange="{!c.positionvalueChanged}" value="{!v.newContact.PositionPicklist__c}"> <!--Update label for JIRA Sales-3654-->
+                                       <option value="">--None--</option>
+                                        <aura:iteration items="{!v.avaliableposition}" var="item">
+                                            <option value="{!item}">{!item}</option>
+                                        </aura:iteration>
+                                    </lightning:select>       
+                            </div> <!--Added for JIRA SALES-3561-->
+                            <div style="margin-left:.5em;"><lightning:input aura:id="Title" name="Title" label="{!$Label.c.Functional_Title}" 
+                                value="{!v.newContact.Title}" /></div> <!--Update label for JIRA Sales-3654-->
+                            <div style="margin-left:.5em;"><lightning:input aura:id="Email" name="Email" label="Primary Email" 
+                                value="{!v.newContact.Email}" required="true" /></div>                                            
+                            <div style="margin-left:.5em;"><lightning:input aura:id="Email" name="Email" label="Research Email" 
+                                value="{!v.newContact.Research_Email__c}" required="false" /></div>                                            
+                            <div style="margin-left:.5em;"><lightning:input aura:id="Phone" name="Phone" label="Phone"
+                                value="{!v.newContact.Phone}" /></div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <footer class="slds-docked-composer__footer slds-shrink-none" style="height:87px;">
+        <div class="slds-col_bump-left slds-text-align_right">
+            <lightning:button label="{!$Label.c.Event_Custom_Save}" onclick="{!c.saveNewContact}" variant="brand"/>
+        </div>
+    </footer>
+</section>
+</div>
+<br/>
+<aura:set attribute="else">
+<div></div>
+</aura:set>
+</aura:if>
+
+<br/>
+<br/>
+<br/>
+
+<div role="dialog" tabindex="-1" aria-labelledby="header43" aura:id="Modalbox" class="slds-modal">
+<div class="slds-modal__container" style="width: 90%;max-width: 80rem;min-width: 20rem;margin-top: 10%;height: 86%;">
+<div class="slds-modal__header">
+    <div style="float:right;">
+        <lightning:buttonIcon iconName="utility:close" variant="bare" onclick="{!c.closeModal}" alternativeText="" />
+    </div>
+    <h2 id="header43" class="slds-text-heading--medium">{!$Label.c.Browse_Contacts}</h2>
+</div>
+<div class="slds-modal__content slds-p-around--medium">
+    <div>
+        <c:EventCallReportBrowseContacts aura:id="contactReportSearch" selectedAccount="{!v.relatedToAccountSelected}" selectedRows="{!v.clientAttendeesSelected}" selectedContacts="{!v.clientAttendeesSelected}"/>
+    </div>
+</div>
+<div class="slds-modal__footer">
+</div>
+</div>
+</div>
+<div class="slds-backdrop " aura:id="Modalbackdrop"></div>
+
+<!--MOBILE-->
+<aura:set attribute="else">
+<ui:scrollerWrapper class="scrollerSize">
+<lightning:layout class="whiteBackground" multipleRows="true">
+    <lightning:layoutItem class="fullWidth">
+        <!-- Error Messages -->
+        <aura:if isTrue="{!v.hasErrors}">
+            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" role="alert">
+                <lightning:icon iconName="utility:warning" variant="warning" class="slds-icon slds-icon_x-small inlineTable"/>
+                <div id="errors" style="">
+                    <aura:iteration items="{!v.errorMessages}" var="item">
+                        <ui:outputText value="{!item.message}" class="blockDisplay"/>
+                    </aura:iteration>
+                </div>
+                <lightning:buttonIcon iconName="utility:close" variant="bare" onclick="{!c.closeErrorMessages}"/>
+            </div>
+        </aura:if> 
+    </lightning:layoutItem>
+    
+    <lightning:layoutItem class="fullWidth around-small">
+        <!-- Calendar Details Heading -->
+        <h3 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate slds-p-horizontal_small" title="Section Title">
+                <ui:outputText value="{!$Label.c.Event_Custom_Calendar_Details}" />
+            </span>
+        </h3>
+    </lightning:layoutItem>
+    <lightning:layoutItem class="fullWidth" padding="around-small">
+        <div class="slds-form-element__row">                        
+        <div class="slds-form-element slds-size_2-of-2 slds-hide" aura:id="createDiv">
+            <lightning:select aura:id ="createType" name="{! v.name }" label="{! v.label }" required="{!v.isCapIntro}" value="{!v.createVal}" onchange="{!c.createTypeChanged}">                           
+                <option value="{!$Label.c.Event_Call_Report_Notes_Non_Cap_Intro}">{!$Label.c.Event_Call_Report_Notes_Non_Cap_Intro}</option> 
+                <option value="{!$Label.c.Event_Call_Report_Notes}">{!$Label.c.Event_Call_Report_Notes}</option>
+                <option value="{!$Label.c.Event_CI_Interactions}">{!$Label.c.Event_CI_Interactions}</option> 
+             </lightning:select>
+        </div>
+        </div>
+        <div class="slds-hide slds-m-bottom_x-small" aura:id="l0typeDiv">
+            <!-- L0Type = Type -->
+            <lightning:select aura:id="l0eventType" name="selectl0" label="{!v.l0typeLabel}" value="{!v.selectedl0EventType}" onchange="{!c.l0EventTypeChanged}" required="true">
+                <aura:iteration items="{!v.availablel0EventTypes}" var="type">
+                    <aura:if isTrue="{!type == v.selectedl0EventType}">
+                        <option value="{!type}" selected="true">{!type}</option>
+                        <aura:set attribute="else">
+                            <option value="{!type}">{!type}</option>
+                        </aura:set>
+                    </aura:if>
+                </aura:iteration>
+            </lightning:select>                        
+        </div>
+        <div class="slds-hide slds-m-bottom_x-small" aura:id="typeDiv">
+            <!-- Type -->
+            <lightning:select aura:id="eventType" name="selectItem" label="{!v.typeLabel}" onchange="{!c.eventTypeChanged}" value="{!v.selectedEventType}" required="true">
+                <aura:iteration items="{!v.availableEventTypes}" var="type">
+                    <aura:if isTrue="{!type == v.selectedEventType}">
+                        <option value="{!type}" selected="true">{!type}</option>
+                        <aura:set attribute="else">
+                            <option value="{!type}">{!type}</option>
+                        </aura:set>
+                    </aura:if>
+                </aura:iteration>
+            </lightning:select>                        
+        </div>
+        
+        <div class="slds-hide slds-m-bottom_x-small" aura:id="activityFlagDiv">
+            <!-- Activity Flag-->
+            <c:SelectMultiple aura:id="actFlag"  setLabelName="{!v.activityflagLabel}" selectChange="{!c.activityFlagChanged}" />                      
+        </div>
+
+        <div class="slds-hide slds-m-bottom_x-small" aura:id="activityFlagStatusDiv">
+            <!-- Activity Status / IBOR Status -->
+            <lightning:select aura:id="activityStatus" name="activityStatusData"  label="{!v.activityStatusLabel}" onchange="{!c.activityStatusChanged}" value="{!v.selectedActivityStatus}">
+                <aura:iteration items="{!v.activityStatuses}" var="activityStatusItem">
+                    <aura:if isTrue="{!activityStatusItem == v.selectedActivityStatus}">
+                        <option value="{!activityStatusItem}" selected="true">{!activityStatusItem}</option>
+                        <aura:set attribute="else">
+                            <option value="{!activityStatusItem}">{!activityStatusItem}</option>
+                        </aura:set>
+                    </aura:if>    
+                </aura:iteration>
+            </lightning:select>                      
+        </div>
+        
+        <div class="slds-form-element__row">
+            <div class="slds-form-element slds-size_2-of-2 slds-hide" aura:id="stageDiv">                           
+                <lightning:select aura:id="stage" name="stageItem" label="{!v.stageLabel}" onchange="{!c.stageTypeChanged}" value="{!v.selectedStageType}" required="{!v.isCapIntro}">
+                    <aura:iteration items="{!v.availableCIStages}" var="type">
+                        <aura:if isTrue="{!type == v.selectedStageType}">
+                            <option value="{!type}" selected="true">{!type}</option>
+                            <aura:set attribute="else">
+                                <option value="{!type}">{!type}</option>
+                            </aura:set>
+                        </aura:if>
+                    </aura:iteration>
+                </lightning:select>                        
+            </div>
+        </div>
+        <!-- Subject -->
+        <div class="slds-m-bottom_x-small">
+            <lightning:input aura:id="subjectInput" required="true" label="{!v.subjectLabel}" value="{!v.newCallReport.Subject}"/> 
+        </div>
+        <!-- Start DateTime -->
+        <div class="">
+            <abbr class="slds-required" title="required">*</abbr>
+            <label class="slds-form-element__label slds-no-flex" for="startTime">{!v.startDateLabel}
+            </label>
+        </div>
+        <div id="startTime" class="slds-m-bottom_x-small">
+            <ui:inputDateTime aura:id="startDateInput" required="true" label="{!v.startDateLabel}" displayDatePicker="true" value="{!v.newCallReport.StartDateTime}"/>
+        </div>
+        <!-- End DateTime -->
+        <div class="">
+            <abbr class="slds-required" title="required">*</abbr>
+            <label class="slds-form-element__label slds-no-flex" for="endTime">{!v.endDateLabel}
+            </label>
+        </div>
+        <div class="slds-m-bottom_x-small">
+            <ui:inputDateTime aura:id="endDateInput" required="true" label="{!v.endDateLabel}" displayDatePicker="true" value="{!v.newCallReport.EndDateTime}" />
+        </div>
+        <div class="slds-m-bottom_x-small">
+            <!-- Duration in minutes -->
+            <ui:outputText class="slds-form-element__label" value="{!v.duration}"/>
+            <ui:outputText class="slds-form-element__label" aura:id="durationInMinutes" value="{!v.newCallReport.DurationInMinutes}"/>
+            <ui:outputText class="slds-form-element__label" value="{!$Label.c.Mins}"/>                       
+        </div>
+        <div class="slds-m-bottom_x-small">
+            <!-- All Day Event -->
+            <lightning:input type="checkbox" name="" aura:id="allDayEventInput" label="{!v.allDayEventLabel}" checked="{!v.newCallReport.IsAllDayEvent}" />
+        </div>
+        <!--COPIED 3-->
+        <div class="slds-size_12-of-12 slds-m-bottom_x-small slds-form-element__row">
+                <!-- Filter by Account-->
+                <div class="slds-size_12-of-12 slds-hide slds-m-bottom_x-small" aura:id="accountLookupDiv" style="margin-top: auto;">                       
+                    <c:SingleLookup aura:id="accountLookup"   
+                        allRecords="false" 
+                        sObjectAPIName="Account" 
+                        accountType="RG_Account"
+                        charLimit="2"  
+                        label="{!$Label.c.Filter_By_Account}" 
+                        listIconSVGPath="standard:account" 
+                        listIconClass="slds-icon-standard-account" 
+                        itemChange="{!c.accountLookupChanged}" 
+                        placeholder="{!$Label.c.Event_Search_Accounts}" 
+                        preSelectedIds="{!v.relatedToAccountSelected}"
+                        showCoveredAccountDetails="{!v.coveredAccountCheck}"                            
+                        displayInfo="true"
+                    />
+                </div>
+                <!-- Covered Account checkbox -->
+                <div class="slds-size_12-of-12 slds-m-bottom_x-small slds-hide" aura:id="coveredAccCheckboxDiv" style="padding-left:1%;margin-top: auto;">
+                    <ui:inputCheckbox aura:id="coveredAccountsOnly" value="{!v.coveredAccountCheck}" change="{!c.coveredAccountCheckChange}" label="Covered Accounts only"  />
+                </div>
+            </div>
+            
+        <div>
+            <lightning:select aura:id="objectSelect" name="selectItem" label="{!$Label.c.Event_Related_To}" value="{!v.relatedToObject}">
+                <option value="{!$Label.c.Event_Account}">{!$Label.c.Event_Account}</option>
+                <option value="{!$Label.c.Event_Campaign}">{!$Label.c.Event_Campaign}</option>
+                <option value="{!$Label.c.Event_Opportunity}">{!$Label.c.Event_Opportunity}</option>
+            </lightning:select>
+        </div>
+        
+        <div class="slds-size_12-of-12 slds-hide slds-m-bottom_x-small" aura:id="relatedToDiv">
+            <div class="slds-size_12-of-12 slds-hide" aura:id="relatedToSearchDiv">
+                <aura:if isTrue="{!v.relatedToObject == 'Opportunity' || v.relatedToObject == $Label.c.Event_Opportunity}">
+                    <c:SingleLookup aura:id="related-to-opportunity"   
+                                    allRecords="false" 
+                                    sObjectAPIName="Opportunity" 
+                                    charLimit="2"  
+                                    label="" 
+                                    listIconSVGPath="standard:opportunity" 
+                                    listIconClass="slds-icon-standard-opportunity" 
+                                    itemChange="{!c.relatedToOpportunityChanged}" 
+                                    placeholder="{!$Label.c.Event_Search_Opportunities}" 
+                                    preSelectedIds="{!v.relatedToOpportunitySelected}"
+                                    showCoveredAccountDetails="{!v.showCoveredAccountDetails}"
+                                    accountId="{!v.accountLookupIdSelected}"
+                                    />
+                    <aura:set attribute="else">
+                        <div></div>
+                    </aura:set>
+                </aura:if> 
+                <aura:if isTrue="{!v.relatedToObject == 'Account' || v.relatedToObject == $Label.c.Event_Account}">
+                    <c:SingleLookup aura:id="related-to-account"   
+                                    allRecords="false" 
+                                    sObjectAPIName="Account" 
+                                    accountType="RG_Account"
+                                    charLimit="2"  
+                                    label="" 
+                                    listIconSVGPath="standard:account" 
+                                    listIconClass="slds-icon-standard-account" 
+                                    itemChange="{!c.relatedToAccountChanged}" 
+                                    placeholder="{!$Label.c.Event_Search_Accounts}" 
+                                    preSelectedIds="{!v.relatedToAccountSelected}"
+                                    />
+                    <aura:set attribute="else">
+                        <div></div>
+                    </aura:set>
+                </aura:if> 
+                <aura:if isTrue="{!v.relatedToObject == 'Campaign'  || v.relatedToObject == $Label.c.Event_Campaign}">
+                    <c:SingleLookup aura:id="related-to-campaign"
+                                    allRecords="false" 
+                                    sObjectAPIName="Campaign" 
+                                    charLimit="2"  
+                                    label="" 
+                                    listIconSVGPath="standard:campaign" 
+                                    listIconClass="slds-icon-standard-campaign" 
+                                    itemChange="{!c.relatedToCampaignChanged}" 
+                                    placeholder="{!$Label.c.Event_Search_Campaigns}" 
+                                    preSelectedIds="{!v.relatedToCampaignSelected}"/> 
+                    <aura:set attribute="else">
+                        <div></div>
+                    </aura:set>
+                </aura:if>
+            </div>
+        </div>
+        <div class="slds-hide" aura:id="privateEventDiv">
+            <!-- Private Event -->
+            <lightning:input type="checkbox" name="privateEventInput" aura:id="privateEventInput" label="{!v.privateLabel}" checked="{!v.newCallReport.Private_Flag__c}"/>
+        </div>
+         <div class="slds-form-element__row">                             
+            <div class="slds-size_12-of-12 slds-hide" aura:id="relatedToSearchFundDiv">
+                  <c:SingleLookup aura:id="related-to-fund"   
+                                    allRecords="false" 
+                                    sObjectAPIName="Fund__c" 
+                                    charLimit="2"  
+                                    label="{!$Label.c.Event_Fund_Label}" 
+                                    listIconSVGPath="standard:account" 
+                                    listIconClass="slds-icon-standard-account" 
+                                    itemChange="{!c.relatedToFundChanged}" 
+                                    placeholder="{!$Label.c.Event_Fund_Search}" 
+                                   preSelectedIds="{!v.SelectedFunds}"
+                                    />
+        </div>
+        </div>
+    </lightning:layoutItem>
+    
+    <lightning:layoutItem class="fullWidth around-small">
+        <!-- Calendar Details Heading -->
+        <h3 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate slds-p-horizontal_small" title="">{!$Label.c.Attendees}</span>
+        </h3>
+    </lightning:layoutItem>
+        
+    <lightning:layoutItem class="fullWidth whiteBackground" padding="around-small">
+        <!-- Attendees Heading -->
+        
+        <div  class="slds-hide slds-m-bottom_x-small" aura:id="clientAttendeesDiv">
+            <c:Lookup aura:id="lookup-external-contact"   
+                      allRecords="false" 
+                      sObjectAPIName="Contact" 
+                      showNomuraEmployee="false" 
+                      charLimit="2" 
+                      label="{!$Label.c.Event_Custom_Client_Attendees}" pluralLabel="{!$Label.c.Event_Custom_Client_Attendees}" 
+                      listIconSVGPath="standard:contact"
+                      listIconClass="slds-icon-standard-contact" 
+                      itemChange="{!c.externalInviteesChanged}"
+                      preSelectedIds="{!v.clientAttendeesSelected}"
+                      showMetadata="true" 
+                      showCoveredAccountDetails="{!v.showCoveredAccountDetails}"
+                      accountId="{!v.accountLookupIdSelected}"/>
+        </div>
+        <div class="slds-m-bottom_x-small ">
+            <c:Lookup aura:id="lookup-internal-contact"   
+                      allRecords="false" 
+                      sObjectAPIName="User" 
+                      showNomuraEmployee="true" 
+                      charLimit="2" 
+                      label="{!$Label.c.Event_Custom_Internal_Invitees}" pluralLabel="{!$Label.c.Event_Custom_Internal_Invitees}" 
+                      listIconSVGPath="standard:contact"
+                      listIconClass="slds-icon-standard-contact" 
+                      itemChange="{!c.internalInviteesChanged}" 
+                      preSelectedIds="{!v.internalInviteesSelected}"
+                      showMetadata="false"/>
+        </div>
+        
+         <div style="margin-top: 3.5%;" class="slds-hide" aura:id="clientManagerAttendeesDiv">
+                    <c:SingleLookup aura:id="lookup-manager-contact"   
+                              allRecords="false" 
+                              sObjectAPIName="Contact"
+                              showNomuraEmployee="false"
+                              charLimit="2" 
+                              label="{!$Label.c.Event_Manager_Contact_Label}" 
+                              listIconSVGPath="standard:contact"
+                              listIconClass="slds-icon-standard-contact"                                               
+                              readOnly="false"
+                              placeholder = "{!$Label.c.Event_Manager_Contact_PH}"
+                              itemChange="{!c.externalInviteesChanged}"
+                              preSelectedIds="{!v.clientAttendeesSelected}"
+                              accountCompany="Manager"      
+                              />
+                </div>
+                <div class="slds-hide" aura:id="clientInvestorAttendeesDiv">
+                <c:SingleLookup aura:id="lookup-investor-contact"  
+                          sObjectAPIName="Contact" 
+                          showNomuraEmployee="false"
+                          charLimit="2" 
+                          label="{!$Label.c.Event_Investor_Contact_Label}"
+                          listIconSVGPath="standard:contact"
+                          listIconClass="slds-icon-standard-contact"                                            
+                          readOnly="false"
+                          placeholder = "{!$Label.c.Event_Investor_Contact_PH}"
+                          itemChange="{!c.internalInviteesChanged}"
+                          preSelectedIds="{!v.internalInviteesSelected}"
+                          accountCompany="Investor" 
+                          />
+                </div>
+    </lightning:layoutItem> 
+    
+    <!-- Call Report Form -->
+    <lightning:layoutItem class="fullWidth around-small">
+        <!-- Calendar Details Heading -->
+        <h3 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate slds-p-horizontal_small" title="">{!$Label.c.Event_Custom_Description_Information}</span>
+        </h3>
+    </lightning:layoutItem>
+    <lightning:layoutItem class="fullWidth" padding="around-small">
+        <!-- Descrption Information Heading -->
+        <!-- Objectives and Call Report -->
+        <!--Section modified for SALES -3510-->
+        <aura:if isTrue="{!v.isObjectiveMandatory}">
+            <label class="objectivemandaory">
+               * 
+            </label>
+            <label class="slds-form-element__label" for="ObjectivesAndCallReport" >
+                {!$Label.c.Event_Objectives}  
+            </label>
+            <br/>
+            <label class="objectivemandaory"  >
+                    {!$Label.c.Event_ObjectivesMandatory}
+            </label>                                   
+            <lightning:textarea name="ObjectivesAndCallReport" value="{!v.newCallReport.Description}" maxlength="32000" class="objectives" />                                  
+            <aura:set attribute="else">
+                <lightning:textarea name="ObjectivesAndCallReport" value="{!v.newCallReport.Description}" label="{!$Label.c.Event_Objectives}" maxlength="32000" class="objectives"/>                                
+            </aura:set>
+        </aura:if>
+    </lightning:layoutItem>
+    
+    <lightning:layoutItem class="fullWidth around-small">
+        <!-- Detailed Description-->
+        <h3 class="slds-section__title slds-theme_shade" >
+            <div class="slds-float--left slds-m-left_small" style="cursor: pointer;" onclick="{!c.toggleShowHide}">
+                <lightning:icon class="slds-show" aura:id="openDescSecId" iconName="utility:add" size="x-small" alternativeText="Indicates add"/>
+                <lightning:icon class="slds-hide" aura:id="closeDescSecId" iconName="utility:dash" size="x-small" alternativeText="Indicates dash"/>
+            </div>
+            <span class="slds-truncate slds-p-horizontal_small" title="Section Title">
+                {!$Label.c.Event_Detailed_Description}
+            </span>
+        </h3>
+    </lightning:layoutItem>
+    <lightning:layoutItem class="fullWidth" padding="horizontal-small">
+        
+        <div class="slds-hide" aura:id="richTextDescription">
+            <br/>
+            <lightning:inputRichText value="{!v.callReportDetailedDescription.LTA_1__c}"/>
+            <br/>
+        </div>
+        <br/>
+    </lightning:layoutItem>
+    <lightning:layoutItem class="fullWidth" padding="horizontal-small">
+        <c:SingleLookup aura:id="lookup-assigned-to"   
+                        allRecords="false" 
+                        sObjectAPIName="User" 
+                        charLimit="2"  
+                        label="{!$Label.c.Event_Assigned_To}" 
+                        listIconSVGPath="standard:user" 
+                        listIconClass="slds-icon-standard-user" 
+                        itemChange="{!c.assignedToChanged}" 
+                        placeholder="{!$Label.c.Event_Search_Users}" 
+                        preSelectedIds="{!v.assignedToSelected}"/> 
+        
+        <!-- Ticker -->
+        <label class="slds-form-element__label" for="ticker" >{!$Label.c.Ticker}
+        </label>
+        <lightning:icon iconName="utility:info" variant="info" size="xx-small" title="{!$Label.c.TickerInfo}"/>                            
+        <ui:inputText aura:id="eventTicker" value="{!v.newCallReport.Ticker__c}"/>
+    </lightning:layoutItem>
+    
+    <lightning:layoutItem class="fullWidth" padding="around-small">
+            <lightning:button label="{!$Label.c.Event_Custom_Cancel}" onclick="{!c.cancel}" variant="neutral"/>                            
+            <lightning:button aura:id="saveButton" label="{!$Label.c.Event_Custom_Save}" onclick="{!c.save}" variant="brand"/> 
+    </lightning:layoutItem>   
+</lightning:layout>
+</ui:scrollerWrapper>
+</aura:set>
+</aura:if>
+</aura:component>

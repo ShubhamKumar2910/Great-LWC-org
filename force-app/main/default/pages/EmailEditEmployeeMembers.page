@@ -1,0 +1,33 @@
+<apex:page standardController="Campaign" extensions="EmailPreviewController" action="{!initEmailEditEmployeeMembers}">
+    <!-- For Service Console -->
+    <apex:includeScript value="/support/console/20.0/integration.js"/>
+    <script type="text/javascript">
+        function setTabTitle() {
+            //Set the current tabs title
+            sforce.console.setTabTitle('{!Campaign.Name}');
+        }
+        var pageLoad = window.onload;
+        window.onload = function() {
+            if (pageLoad) {
+                pageLoad();
+            }
+            setTabTitle();
+        }
+    </script>
+    <style type="text/css">
+        td {
+            vertical-align:top;
+        }
+    </style>
+
+    <apex:form >
+        <apex:pageBlock title="{!$Label.CC}">
+            <c:UserMultiSelectComponent aLeftLabel="{!$Label.SearchResults}" aRightLabel="{!$Label.SelectedUsers}" aInitialRightList="{!InitCCList}" aCurrentRightList="{!NewCCList}" aSize="6" aWidth="100%" />
+        </apex:pageBlock>
+        <apex:pageBlock title="{!$Label.BCC}">
+            <c:UserMultiSelectComponent aLeftLabel="{!$Label.SearchResults}" aRightLabel="{!$Label.SelectedUsers}" aInitialRightList="{!InitBCCList}" aCurrentRightList="{!NewBCCList}" aSize="6" aWidth="100%" />
+        </apex:pageBlock>
+        <apex:commandButton value="{!$Label.Apply}" action="{!applyEmployeeMembers}" />
+        <apex:commandButton value="{!$Label.Cancel}" action="{!goBackToEmailEdit}" />
+    </apex:form>
+</apex:page>

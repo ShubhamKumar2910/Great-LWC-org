@@ -1,0 +1,128 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" controller="SendTaskController" >
+    <ltng:require scripts="{!join(',', 
+                           $Resource.JQuery,
+                           $Resource.SelectizeJS)}"
+                  styles="/resource/SelectizeCSS"
+                  afterScriptsLoaded="{!c.init}" />
+    <!-- Attributes -->
+    
+    <!-- Events -->
+    <aura:attribute name="TaskId" type="String"/>
+    <aura:attribute name="Sender" type="String" />
+    <aura:attribute name="Subject" type="String" />
+    <aura:attribute name="UserList" type="Object[]" />
+     <aura:attribute name="SelectedUsers" type="Object[]"/>
+    <aura:attribute name="SenderUser" type="Object[]"/>
+    <aura:handler event="c:LookupUpdateEvent" action="{!c.getUserDetailsFromLookup}"/>
+     <aura:method name="showSpinner" action="{!c.showSpinner}" /> 
+    <aura:method name="hideSpinner" action="{!c.hideSpinner}" /> 
+  
+    <div class="slds-docked-composer__header">
+                <!-- Heading -->
+                 <h3 class="slds-section__title slds-theme_shade">
+                <span class="slds-truncate slds-p-horizontal_small" title="Section Title">
+                    <!--<ui:outputText value="{!$Label.c.Event_Custom_Calendar_Details}" />-->
+                <ui:outputText value="{!$Label.c.Send_Task_Notification}" />
+                     </span>
+            </h3>
+        </div>
+    <div class="slds-grid slds-grid_pull-padded-medium">
+        <!-- Column 1 Start -->
+        <div class="slds-col slds-p-horizontal_medium">            
+            <div class="slds-col slds-p-horizontal_medium">
+                 <div class="slds-grid">
+                     <div style="width:575px">
+                         <b><label for="Subject :">{!$Label.c.Subject}</label>&nbsp;&nbsp;</b>    
+                <ui:outputText value="{!v.Subject}"/>
+                    </div>
+                    <div style="width:570px">
+                            <b><label for="Sender ">{!$Label.c.Sender}</label> &nbsp;&nbsp;</b>      
+                <ui:outputText value="{!v.Sender}"/>
+                    </div>
+                   
+                </div><br></br>          
+                
+                  <c:Lookup aura:id="lookup-users"  
+                           sObjectAPIName="User" 
+                           charLimit="2" 
+                           label="{!$Label.c.Users}" 
+                           pluralLabel="{!$Label.c.Users}"
+                           listIconSVGPath="/resource/sldsicons/standard-sprite/svg/symbols.svg#User"
+                           listIconClass="slds-icon-standard-user" 
+                           showNomuraEmployee="false" 
+                           allRecords="false"/><br/>
+                <!-- Internal Invitees  -->
+                
+                <!-- Objectives and Call Report -->
+                
+                <lightning:button variant="brand"  label="{!$Label.c.Apply_Selection}" iconName="utility:search"  onclick="{!c.AddSelectedUsers}"/>
+                
+                <lightning:button variant="destructive" label="{!$Label.c.Event_Custom_Remove}" iconName="utility:delete" onclick="{!c.RemoveSelectedRecipients}"/><br/>
+                        
+                <br></br>
+                <div class="slds-border_top slds-border_bottom slds-border_left slds-border_right">
+                    
+                <div style="height:450px;overflow-y:auto">
+                    
+                    <table class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_col-bordered slds-table_row-bordered slds-table_cell-buffer">
+                        <thead>
+                            <tr class="slds-text-title_caps">
+                                <th scope="col">
+                                    
+                                </th>
+                                <th class="slds-is-sortable" scope="col" onclick="{!c.sortByName}">
+                                    <div class="slds-truncate" title="{!$Label.c.Name}"><b>{!$Label.c.Name}</b></div>
+                                </th>                    
+                                <th scope="col">
+                                    <div class="slds-truncate" title="{!$Label.c.Email}"><b>{!$Label.c.Email}</b></div>
+                                </th>  
+                                <th scope="col">
+                                    <div class="slds-truncate" title="{!$Label.c.UserType}"><b>{!$Label.c.UserType}</b></div>
+                                </th>                                 
+                            </tr>
+                        </thead>  
+                        <tbody>
+                            <aura:iteration items="{!v.UserList}" var="item">
+                                <tr class="slds-hint-parent">
+                                    <td>
+                                        <ui:inputCheckbox aura:id="selectedUsers" name="{!item.Id}" text="{!item.Id}" value="" />            
+                                    </td>           
+                                    <td>
+                                        <div class="slds-truncate" title="{!item.Name}">{!item.Name}</div>
+                                    </td>
+                                    <td>
+                                        <div class="slds-truncate" title="{!item.Email}">{!item.Email}</div>
+                                    </td>   
+                                    <td>
+                                        <div class="slds-truncate" title="{!item.UserType}">{!item.UserType}</div>
+                                    </td> 
+                                    
+                                </tr>
+                            </aura:iteration>                
+                        </tbody>
+                    </table>
+                    
+                </div> 
+                    </div>
+               
+            </div>
+        </div>
+        <!-- Column 1 End -->
+        <!-- Column 2 Start -->
+        <div class="slds-col slds-p-horizontal_medium">
+        </div>
+        <!-- Column 2 End -->
+    </div> 
+    <div aura:id="spinnerblock" class="slds-spinner_container slds-hide">
+            <div class="slds-spinner--brand slds-spinner slds-spinner--large" aria-hidden="false" role="alert">
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+     <div class="slds-docked-form-footer">
+         
+                <lightning:button variant="destructive" label="{!$Label.c.Send_Email_Notification}" iconName="utility:email" onclick="{!c.sendEmailNotification}"/>
+                <lightning:button variant="neutral"  label="{!$Label.c.Event_Custom_Cancel}" iconName="utility:close" onclick="{!c.cancel}"/>
+        
+        </div> 
+</aura:component>

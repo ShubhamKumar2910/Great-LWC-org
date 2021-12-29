@@ -1,0 +1,97 @@
+<!-- c:AccountMiFIDIIMesage -->
+<aura:component controller="AccountMiFIDIIMesageController"  
+				implements="force:appHostable,flexipage:availableForRecordHome,force:hasRecordId" 
+                access="global">
+           
+	<aura:attribute name="isVisible" type="Boolean" default="false"/>
+    <aura:attribute name="visibleTo" type="String" default=""/>
+	
+    <aura:attribute name="warningTitle" type="String" default="{!$Label.c.Warning}"/>
+    <aura:attribute name="uploadInProgressTitle" type="String" default="{!$Label.c.Entitlement_On_Contacts_In_Progress_Message}"/>
+    <aura:attribute name="message" type="String" default="{!$Label.c.Override_All_Contacts_Entitlement_Message}"/>
+	
+	<aura:attribute name="isUploadJobRunning" type="Boolean" default="false"/>
+	<aura:attribute name="previousInProgress" type="Boolean" default="false"/>
+	<aura:attribute name="reportURL" type="String" default=""/>
+	<aura:attribute name="refreshStatusUpdPeriod" type="Integer" default="1000" access="private" />
+	
+	<aura:attribute name="uploadStatus" type="String" default=""/>
+	<aura:attribute name="bulkUploadCampaignId" type="String"/>
+	<!-- <aura:attribute name="previousBulkUploadCampaignId" type="String"/> -->
+	
+	<aura:attribute name="runningJobPercent" type="Integer"/>
+	
+    <aura:attribute name="record" type="Object"/>
+    <aura:attribute name="simpleRecord" type="Object"/>
+    <aura:attribute name="recordError" type="String"/>
+	
+	<!--EVENTS HANDLED-->
+	<aura:handler name="init" value="{!this}" action="{!c.init}"/>
+	<aura:handler name="change" value="{!v.isUploadJobRunning}" action="{!c.handleIsUploadJobRunning}"/>
+	
+	<aura:if isTrue="{!v.isVisible}">
+	
+	
+	<force:recordData aura:id="recordLoader"
+		recordId="{!v.recordId}"
+		targetFields="{!v.simpleRecord}"
+		targetError="{!v.recordError}"
+		fields="Id,Is_MiFIDII_Entitlements_In_Progress__c,Bulk_Upload_Campaign__c"
+		recordUpdated="{!c.handleRecordUpdated}"
+    />
+	
+	
+    <lightning:card class="slds-card_boundary">
+        <aura:set attribute="title">
+        	<div class="">
+	            <!-- <lightning:icon iconName="utility:warning" variant="inverse" size="small"/>
+	            <lightning:formattedText  value="{!v.title}" /> -->
+				<div class="{!if(v.isUploadJobRunning, 'inProgressClass', 'warningClass')+ ' slds-scoped-notification slds-media slds-media_center slds-scoped-notification_dark'}" role="status">
+					<div class="slds-media__figure">
+						<lightning:icon iconName="{!if(v.isUploadJobRunning, 'utility:spinner', 'utility:warning')}" variant="inverse" size="small"/>
+					</div>
+					<div class="slds-media__body">
+						<p>{!if(v.isUploadJobRunning, v.uploadInProgressTitle, v.warningTitle)}</p>
+					</div>
+				</div>
+            </div>
+        </aura:set>
+        
+        <aura:set attribute="footer">
+        	<!-- <aura:if isTrue="{!not(v.isUploadJobRunning)}">
+        		<div class="slds-m-around_small">
+        		</div>
+        	</aura:if> -->
+        </aura:set>
+        
+        <aura:if isTrue="{!not(v.isUploadJobRunning)}">
+	        <div class="slds-m-around_medium">
+		        <lightning:formattedText class="slds-text-heading_small" value="{#v.message}"/>
+		        <p class="{!if(empty(v.reportURL), 'slds-hide', 'slds-show')}">
+		        	<lightning:formattedUrl value="{!v.reportURL}" label="{!$Label.c.Entitlement_Update_Results}" target="_blank" />
+		        </p> 
+	        </div>
+	        
+	        <!-- else show the progress bar -->
+	        <aura:set attribute="else">
+				<div class="slds-m-around_medium">
+		    		<lightning:layout horizontalAlign="spread end">
+						<lightning:layoutItem flexibility="auto" size="12">
+							<lightning:progressBar variant="circular" value="{!v.runningJobPercent}" size="large" />
+						</lightning:layoutItem>
+					</lightning:layout>
+					<lightning:layout horizontalAlign="spread end">
+						<lightning:layoutItem flexibility="auto" size="6">
+							<p>{!$Label.c.Progress} : {!v.runningJobPercent}%</p>
+						</lightning:layoutItem>
+						<lightning:layoutItem flexibility="auto" size="6">
+							<p class="slds-text-align_right slds-text-color_error">{!v.uploadStatus}</p>
+						</lightning:layoutItem>
+					</lightning:layout>
+		        </div>
+			</aura:set>
+		</aura:if>        
+    </lightning:card>
+    
+    </aura:if>
+</aura:component>

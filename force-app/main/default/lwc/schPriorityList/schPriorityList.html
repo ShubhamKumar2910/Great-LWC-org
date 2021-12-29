@@ -1,0 +1,214 @@
+<template>
+    
+    <lightning-card variant="narrow" >
+        
+
+        <lightning-layout multiple-rows>
+            <lightning-layout-item size="9" small-device-size="9" medium-device-size="9" flexibility="auto" padding="horizontal-small" >
+                <lightning-card variant="narrow" icon-name="utility:list">
+                    <h1 slot="title"> {heading} </h1>
+                    <!-- <template if:true={showTable} >                         -->
+                        <!-- <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error infoSectionTextAlignment" role="alert" style="white-space: normal;">
+                                <span class="slds-assistive-text">Info</span>
+                                <span class="slds-icon_container slds-icon-utility-info slds-m-right_x-small">
+                                    <lightning-icon icon-name="utility:info" variant="inverse" size="xx-small"></lightning-icon>
+                                </span>
+                                <h2>
+                                        Please double click on remove column to delete account mapping to global tiering
+                                </h2>
+                                <br/>
+                        </div> -->
+                    <!-- </template> -->
+                    <div slot="actions">
+                        <template if:true={showFocusListBtns} >
+                            <lightning-button label="New Product Focus List" title="New Priority List" icon-name="utility:add" variant="brand" 
+                                data-name="newPriorityList" onclick={handleBtnClick} class="slds-m-around_xxx-small">
+                            </lightning-button>
+
+                            <lightning-button label="Delete Product Focus List" title="Delete Priority List" icon-name="utility:delete" variant="destructive" 
+                                data-name="deletePriorityList" onclick={handleBtnClick} class="slds-m-around_xxx-small" disabled={deletePriorityListBtnDisable}>
+                            </lightning-button>
+                        
+                        </template>
+                        <lightning-button label={Back} title={Back} icon-name="utility:back" 
+                            data-name="back" variant="neutral" onclick={handleBtnClick}>
+                        </lightning-button>
+                        <!-- <lightning-button label={Save} title={Save} icon-name="utility:save" variant="brand" 
+                            data-name="save" class="slds-m-left_xx-small" onclick={handleBtnClick}>
+                        </lightning-button> -->
+                    </div>
+                </lightning-card>
+            </lightning-layout-item>
+
+
+            <lightning-layout-item size="3" small-device-size="3" medium-device-size="3" flexibility="auto" padding="horizontal-small" class="slds-border_left">
+                <lightning-card variant="narrow" >
+                    
+                    <div slot="actions">
+                        <lightning-button label={Add} title={Add} icon-name="utility:add" variant="brand" 
+                            data-name="add" onclick={handleBtnClick} class="slds-m-around_xxx-small">
+                        </lightning-button>
+
+                        <lightning-button label={Clear} title={Clear} icon-name="utility:undo" variant="neutral" 
+                            data-name="clear" onclick={handleBtnClick} class="slds-m-around_xxx-small">
+                        </lightning-button>
+                    </div>
+                </lightning-card>
+            </lightning-layout-item>
+
+            <lightning-layout-item size="9" small-device-size="9" medium-device-size="9" flexibility="auto" padding="horizontal-small" >                
+                <template if:true={showListNameDiv}> 
+                    <div class="slds-box slds-theme_shade">{selectedPriorityListName} </div>
+                </template>
+                <template if:true={showAccountNameDiv}> 
+                    <div class="slds-box slds-theme_shade">Existing Account Tiering Details</div>
+                </template>
+            </lightning-layout-item>
+                
+            <lightning-layout-item size="3" small-device-size="3" medium-device-size="3" flexibility="auto" padding="horizontal-small" class="slds-border_left">
+                <p class="slds-p-horizontal_small">
+                    <template if:true={showEditableCategoryPicklist} >
+                        <lightning-combobox
+                            name="tieringListPicklist"
+                            label="Select Category"
+                            value={categoryValue}
+                            placeholder="Select Category"
+                            options={categoryListOptions}
+                            onchange={handleCategoryChange} 
+                            required></lightning-combobox>
+                    </template>
+                    <template if:false={showEditableCategoryPicklist}>
+                            <lightning-combobox
+                            name="tieringListPicklist"
+                            label="Select Category"
+                            value={categoryValue}
+                            placeholder="Select Category"
+                            options={categoryListOptions}
+                            onchange={handleCategoryChange} 
+                            required
+                            disabled></lightning-combobox>
+                    </template>
+                </p>
+            </lightning-layout-item>
+
+            <lightning-layout-item size="5" small-device-size="5" medium-device-size="5" flexibility="auto" padding="horizontal-small">
+            </lightning-layout-item>
+            <lightning-layout-item size="3" small-device-size="3" medium-device-size="3" flexibility="auto" padding="horizontal-small">
+                <template if:true={showChangeTieringList} >
+                    <p class="slds-p-horizontal_small">
+                        <lightning-combobox
+                            name="tierListPicklist"
+                            label="Change Tier"
+                            value={value}
+                            placeholder="Select Tier"
+                            options={tierOptions}
+                            onchange={handleTierChange}                             
+                            disabled={disableChangeTieringList}
+                            required></lightning-combobox>
+                    </p>
+                </template>
+            </lightning-layout-item>
+            
+            <lightning-layout-item size="1" small-device-size="1" medium-device-size="1" flexibility="auto" padding="horizontal-small">
+                <template if:true={showTable} >
+                    <div class="slds-text-align_center" style="padding-top: 1.3rem;">
+                        <lightning-button label="Delete" title="Delete"  variant="neutral" 
+                            data-name="delete" onclick={handleBtnClick} class="slds-m-around_xxx-small" disabled={disableDeleteBtn}>
+                        </lightning-button>
+                    </div>
+                </template>
+            </lightning-layout-item>
+
+            <lightning-layout-item size="3" small-device-size="3" medium-device-size="3" flexibility="auto" padding="horizontal-small" class="slds-border_left">
+                <p class="slds-p-horizontal_small">
+                    <!-- <lightning-combobox
+                        name="tieringList"
+                        label="Select Priority List"
+                        value=""
+                        placeholder="Select List"
+                        options={priorityListOptions}
+                        onchange={handlePriorityListChange}
+                        required
+                    ></lightning-combobox> -->
+                    <c-lookup-Lwc selection={priorityListSelection} errors={priorityListError} onsearch={handlePriorityListSearch} label="* Select Priority List"
+                        data-field="priorityList" onselectionchange={handlePriorityListSelection} placeholder="Select Priority List">
+                    </c-lookup-Lwc>
+                </p>
+            </lightning-layout-item>
+
+            <lightning-layout-item size="9" small-device-size="9" medium-device-size="9" flexibility="auto" padding="horizontal-small" class="slds-border_right">
+                <template if:true={showTable} >
+                    <c-custom-data-table 
+                        key-field="TopicAssignmentId" 
+                        data={tableData} 
+                        columns={tableColumns}                     
+                        draft-values={draftValues} 
+                        onpicklistchanged={picklistChanged}
+                        oncellchange={handleCellChange}
+                        onrowselection={handleRowSelection}
+                        onsave={handleSave}
+                        oncancel={handleCancel}
+                        column-widths-mode="auto"
+                        mincolumnwidth="500"
+                        resize-column-disabled                                              
+                    >
+                    </c-custom-data-table>   
+                </template>             
+            </lightning-layout-item>
+            
+            <lightning-layout-item size="3" small-device-size="3" medium-device-size="3" flexibility="auto" padding="horizontal-small" >
+                <p class="slds-p-horizontal_small">
+                    <c-lookup-Lwc selection={accountSelection} errors={accountError} onsearch={handleAccountSearch} label="Add Accounts"
+                        data-field="account" onselectionchange={handleAccountSelection} is-multi-entry="true">
+                    </c-lookup-Lwc>
+                </p>
+            </lightning-layout-item>
+
+        </lightning-layout>
+
+    </lightning-card>
+
+        <c-modal
+            modal-header={modalHeader} 
+            >
+            <div
+                    slot="modalContent"
+                    class="modalContent slds-modal__content slds-p-around_medium">
+                <template if:true={showNewPriorityListModal}>
+            
+                    <!-- <lightning-combobox
+                        name="priorityListAddPicklist"
+                        label="Select Category"
+                        value={value}
+                        placeholder="Select Category"
+                        options={priorityListOptions}
+                        onchange={handlePriorityListAddChange} 
+                        required></lightning-combobox> -->
+
+                    <lightning-input type="text" label="Product Focus List Name"  minlength="3" onchange={handleTextInput} value={enteredProductListName} required></lightning-input>
+               
+                    <footer class="slds-modal__footer slds-m-top_medium" >
+                            <lightning-button label={Save} title={Save} variant="brand" 
+                                data-name="addPriorityListSave" class="slds-m-left_xx-small" onclick={handleBtnClick}>
+                        </lightning-button>
+                    </footer>
+                </template>
+
+                <template if:true={showDeletePriorityListModal}>
+                    <p><lightning-formatted-text value="Are you sure you want to delete this priority list?" ></lightning-formatted-text></p>
+
+                    <footer class="slds-modal__footer slds-m-top_medium" >
+                        <lightning-button label={Yes} title={Yes} variant="brand" 
+                            data-name="deletePriorityListYes" class="slds-m-left_xx-small" onclick={handleBtnClick}>
+                        </lightning-button>
+
+                    </footer>
+
+                </template>
+
+            </div>
+        </c-modal>
+   
+    
+    
+    </template>

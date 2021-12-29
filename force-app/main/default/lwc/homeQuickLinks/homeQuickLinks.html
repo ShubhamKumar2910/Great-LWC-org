@@ -1,0 +1,461 @@
+<template>
+
+    <div style="text-align: center;">
+    <!-- <span style="margin-right:40px;"><b>{quickLinksLabel}</b></span> -->
+    <template if:true={isNotificationMessagePresent}>
+        <div class="slds-notify slds-notify_alert slds-theme_alert-texture" role="alert" style="white-space: normal;">
+            <span class="slds-assistive-text">Info</span>
+            <span class="slds-icon_container slds-icon-utility-info slds-m-right_x-small">
+                <lightning-icon icon-name="utility:info" variant="inverse" size="xx-small"></lightning-icon>
+            </span>
+            <h2>
+                {notificationMessageLabel}
+            </h2>
+            <br/>
+        </div>
+        <div>&nbsp;</div>
+    </template>
+
+    <c-wave-navigation-menu></c-wave-navigation-menu>
+
+    <lightning-button-group class="slds-m-left_xx-small">
+        <lightning-button label={contactObjectLabel} icon-name="utility:people" onclick={openTab} data-tab="Locate_Contact"></lightning-button>
+        <div class="slds-dropdown-trigger  slds-button_last slds-dropdown-trigger_click" onclick={toggleMenu}>
+            <a aria-haspopup="true" title="Show More">
+                <lightning-button-icon icon-name="utility:down" size="medium"></lightning-button-icon>
+            </a>
+            <div class="slds-dropdown slds-dropdown_right slds-dropdown_actions dropdown-bg" >
+                <ul class="slds-dropdown__list" role="menu" aria-label="Show More" >
+                    <li class="slds-dropdown__item" role="presentation">
+                        <button onclick={openTab} data-tab="Locate_Contact" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                            {searchAllContactsLabel}
+                        </button>
+                    </li>   
+                    <li class="slds-dropdown__item" role="presentation">
+                        <button onclick={openObjectAction} data-object="Contact" data-action="new" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                            {newContactLabel}
+                        </button>
+                    </li>   
+                    <li class="slds-dropdown__item" role="presentation">
+                        <button onclick={openTab} data-tab="Contact_Lists" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                            {contactListViewsLabel}
+                        </button>
+                    </li>
+                    <li>
+                        <!-- <template if:true={isETradingEnablementUser}>
+                            <button onclick={openTab} data-tab="ETradingEnablementHome" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                {eTradingEnablement}
+                            </button>
+                         </template> -->
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </lightning-button-group> 
+    
+    <lightning-button-group>
+        <template if:false={isJapanFIUser}>
+            <lightning-button label={activitiesLabel} icon-name="utility:event" onclick={openObjectAction} data-object="Event" data-action="new"></lightning-button>
+        </template>
+        <template if:true={isJapanFIUser}>
+            <lightning-button label={activitiesLabel} icon-name="utility:event" onclick={openComponent} data-component="c__ClientMemoWrapper"></lightning-button>
+        </template>
+        <div class="slds-dropdown-trigger  slds-button_last slds-dropdown-trigger_click" onclick={toggleMenu}>
+            <a aria-haspopup="true" title="Show More">
+                <lightning-button-icon  icon-name="utility:down"  size="medium"></lightning-button-icon>
+            </a>
+            <div class="slds-dropdown slds-dropdown_right slds-dropdown_actions dropdown-bg">
+                <ul class="slds-dropdown__list" role="menu" aria-label="Show More" >
+                    <li title={eventsCallReportsLabel} class="slds-dropdown__header slds-truncate slds-text-title_caps slds-theme_default header-text" role="separator">
+                        <span>{eventsCallReportsLabel}</span>
+                    </li>  
+                        <li class="slds-dropdown__item" role="presentation">
+                            <button onclick={openObjectAction} data-object="Event" data-action="new" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                {newEventLabel}
+                            </button>
+                        </li>
+                        <li class="slds-dropdown__item" role="presentation">
+                            <button onclick={openComponent} data-component="c__ClientMemoWrapper" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                {newClientMemoLabel}
+                            </button>
+                        </li>
+                        <li class="slds-dropdown__item" role="presentation">
+                            <button onclick={openObjectListView} data-object="Event" data-action="list" data-view="All" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                {eventListViewLabel}
+                            </button>
+                        </li>
+                        <li class="slds-dropdown__item" role="presentation">
+                            <button onclick={openObjectAction} data-object="Event" data-action="home" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                {eventCalendarViewLabel} 
+                            </button>
+                        </li>
+                    <li title={tasksLabel} class="slds-dropdown__header slds-truncate slds-text-title_caps slds-theme_default header-text" role="separator">
+                        <span>{tasksLabel}</span>
+                    </li>  
+                        <li class="slds-dropdown__item" role="presentation">
+                            <button onclick={openObjectAction} data-object="Task" data-action="new" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                    {newTaskLabel}
+                            </button>
+                        </li>
+                        <li class="slds-dropdown__item" role="presentation">
+                            <button onclick={openObjectAction} data-object="Task" data-action="home" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                {taskListViewsLabel} 
+                            </button>
+                        </li>
+                </ul>
+            </div>
+        </div> 
+    </lightning-button-group>
+
+    <!-- 
+
+        New Coverage Tool Navigation
+
+        <lightning-button-group>
+            <lightning-button label={coverageLabel} icon-name="utility:advertising" onclick={openTab} data-tab="coverageView"></lightning-button>
+            <div class="slds-dropdown-trigger  slds-button_last slds-dropdown-trigger_click" onclick={toggleMenu}>
+                <a aria-haspopup="true" title="Show More">
+                    <lightning-button-icon icon-name="utility:down" size="medium"></lightning-button-icon>
+                </a>
+                <div class="slds-dropdown slds-dropdown_right slds-dropdown_actions dropdown-bg" >
+                    <ul class="slds-dropdown__list" role="menu" aria-label="Show More" >
+                        <template if:true={showCoverageAndBulkUploadMenu}>
+                            <li class="slds-dropdown__item" role="presentation">
+                                <button onclick={openTab} data-tab="coverageView" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                    {viewCoverageLabel}
+                                </button>
+                            </li>   
+                            <li class="slds-dropdown__item" role="presentation">
+                                <button onclick={openTab} data-tab="coverageView" data-parameter="addCoverage" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                    {addCoverageLabel}
+                                </button>
+                            </li>   
+                        </template>  
+                        <template if:true={showEMALink}>
+                            <li class="slds-dropdown__item" role="presentation">
+                                <button onclick={openLink} data-link="EMA" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                    {emaLinkLabel}
+                                </button>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+    </lightning-button-group> -->
+
+    <lightning-button-group>
+        <lightning-button label={coverageLabel} icon-name="utility:advertising" onclick={openTab} data-tab="Coverage"></lightning-button>
+        <div class="slds-dropdown-trigger  slds-button_last slds-dropdown-trigger_click" onclick={toggleMenu}>
+            <a aria-haspopup="true" title="Show More">
+                <lightning-button-icon icon-name="utility:down" size="medium"></lightning-button-icon>
+            </a>
+            <div class="slds-dropdown slds-dropdown_right slds-dropdown_actions dropdown-bg" >
+                <ul class="slds-dropdown__list" role="menu" aria-label="Show More" >
+                    <template if:true={showCoverageAndBulkUploadMenu}>
+                        <li class="slds-dropdown__item" role="presentation">
+                            <button onclick={openTab} data-tab="Coverage" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                {viewCoverageLabel}
+                            </button>
+                        </li>   
+                        <li class="slds-dropdown__item" role="presentation">
+                            <button onclick={openComponent} data-component="c__coverageToolAdd" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                {addCoverageLabel}
+                            </button>
+                        </li>   
+                    </template>  
+                    <template if:true={showEMALink}>
+                        <li class="slds-dropdown__item" role="presentation">
+                            <button onclick={openLink} data-link="EMA" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                {emaLinkLabel}
+                            </button>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </div>
+</lightning-button-group>
+
+
+    <lightning-button-group>
+        <lightning-button label={userRequestsLabel} icon-name="action:approval" onclick={openTab} data-tab="Items_to_ApproveDesktop"></lightning-button>
+        <div class="slds-dropdown-trigger  slds-button_last slds-dropdown-trigger_click" onclick={toggleMenu}>
+            <a aria-haspopup="true" title="Show More">
+                <lightning-button-icon icon-name="utility:down" size="medium"></lightning-button-icon>
+            </a>
+            <div class="slds-dropdown slds-dropdown_right slds-dropdown_actions dropdown-bg" >
+                <ul class="slds-dropdown__list" role="menu" aria-label="Show More" >
+                    <!-- future could append number of item to approve []-->
+                    <li class="slds-dropdown__item" role="presentation">
+                        <button onclick={openTab} data-tab="Items_to_ApproveDesktop" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                            {itemsToApproveLabel}
+                        </button>
+                    </li>  
+                    <!-- future could append number of pending requests []-->
+                    <li class="slds-dropdown__item" role="presentation">
+                        <button onclick={openTab} data-tab="Pending_Requests" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                            {pendingRequestsLabel}
+                        </button>
+                    </li>                    
+                    <li title={newRequestLabel} class="slds-dropdown__header slds-truncate slds-text-title_caps slds-theme_default header-text" role="separator">
+                        <span>{newRequestLabel}</span>
+                    </li>
+                    <li class="slds-dropdown__item" role="presentation">
+                        <button onclick={openRecordType} data-component="c__CrossSellReferral" data-entityapiname="Opportunity" data-recordtypename="Cross Sell Referral"
+                        data-defaultvalue = '\{"StageName" : "Referral Requested"}'
+                        class="slds-button slds-button_neutral slds-button_stretch button-text">
+                            {crossSellReferralLabel}
+                        </button>
+                    </li>       
+                    <li class="slds-dropdown__item" role="presentation">                        
+                        <button onclick={openComponent} data-component="c__SCHRequestAura" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                            {schRequestLabel}
+                        </button>
+                    </li>
+					<template if:true={isBusinessManagementUser} >                        
+                        <li class="slds-dropdown__item" role="presentation">                        
+                                <button onclick={openComponent} data-component="c__NavigateToSCHToolEditHome" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                    {schMaintenanceToolLabel}
+                                </button>
+                        </li>
+                    </template>
+                    <!-- <li class="slds-dropdown__item" role="presentation">
+                        <button onclick={openTab} data-tab="POD_Maintenance" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                            {podMaintenanceLabel}
+                        </button>                                               
+                    </li> -->
+					<li class="slds-dropdown__item" role="presentation">
+                        <button onclick={openComponent} data-component="c__NavigateToOnboardingRequestFlow" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                            {clientOnboardingLabel}
+                        </button>                                               
+                    </li>             
+                </ul>
+            </div>
+        </div>
+    </lightning-button-group>
+
+    <template if:false={isShowBulkUploadMenuBtn_UndefinedOrNuLL}>
+        <lightning-button-group>
+            <lightning-button label={bulkUpdateLabel} icon-name="utility:upload" class="default-cursor"></lightning-button>
+            <div class="slds-dropdown-trigger  slds-button_last slds-dropdown-trigger_click" onclick={toggleMenu}>
+                <a aria-haspopup="true" title="Show More">
+                    <lightning-button-icon icon-name="utility:down" size="medium"></lightning-button-icon>
+                </a>
+                <div class="slds-dropdown slds-dropdown_right slds-dropdown_actions dropdown-bg" >
+                    <ul class="slds-dropdown__list" role="menu" aria-label="Show More" >
+                        <template if:true={isMiFIDResearchAdmin}>
+                            <li class="slds-dropdown__item" role="presentation">
+                                <button onclick={openComponent} data-component="c__bulkUpdateDeskCommentaryProhibited" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                    {contactDeskCommAllowedLabel}
+                                </button>
+                            </li>
+                            <li class="slds-dropdown__item" role="presentation">
+                                <button onclick={openTab} data-tab="MiFID_II_Flags_Bulk_Update" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                    {contactMifidFlagsLabel}
+                                </button>
+                            </li>   
+                        </template>
+                        <li class="slds-dropdown__item" role="presentation">
+                            <button onclick={openTab} data-tab="Bulk_Contact_Movement" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                {bulkMovementContactLabel}
+                            </button>
+                        </li>    
+                        <template if:true={showCoverageAndBulkUploadMenu}>
+                            <li class="slds-dropdown__item" role="presentation">
+                                <button onclick={openComponent} data-component="c__CoverageBulkUpload" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                    {uploadBulkCoverageLabel}
+                                </button>
+                            </li>
+                        </template>
+                        <li class="slds-dropdown__item" role="presentation">
+                            <button onclick={openTab} data-tab="Bulk_Contact_Pod_Mapping" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                {bulkContactPodMappingLabel}
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </lightning-button-group> 
+    </template>
+
+    <lightning-button-group>
+            <lightning-button label={helpLabel} icon-name="utility:question_mark" class="default-cursor"></lightning-button>
+            <div class="slds-dropdown-trigger  slds-button_last slds-dropdown-trigger_click" onclick={toggleMenu}>
+                <a aria-haspopup="true" title="Show More">
+                    <lightning-button-icon icon-name="utility:down" size="medium"></lightning-button-icon>
+                </a>
+                <div class="slds-dropdown slds-dropdown_right slds-dropdown_actions dropdown-bg">
+                    <ul class="slds-dropdown__list" role="menu" aria-label="Show More" >
+                        <li title={userGuideLabel} class="slds-dropdown__header slds-truncate slds-text-title_caps slds-theme_default header-text" role="separator">
+                            <span>{userGuideLabel}</span>
+                        </li>
+                        <!-- <li class="slds-dropdown__item menuItem slds-theme_default" role="presentation">
+                            <a href="https://nomura.my.salesforce.com/sfc/p/36000000qI5s/a/0I0000009GeF/uxdclV0lsH6kMUrcpGNgEr29wmksBkgG2CfPBJGkdxU">{generalCrmLabel}</a>
+    
+                        </li>    -->
+                        <template if:true={globalUserGuideData}>
+                            <template for:each={globalUserGuideData} for:item="mapData">
+                                <li key={mapData.key} class="slds-dropdown__item" role="presentation">
+                                    <button key={mapData.key} onclick={openFile} data-recordid={mapData.key} class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                        {mapData.value}
+                                    </button>
+                                </li>
+                            </template>
+                        </template>
+                        <li title={helpLabel} class="slds-dropdown__header slds-truncate slds-text-title_caps slds-theme_default header-text" role="separator">
+                            <span>{helpLabel}</span>
+                        </li>
+                        <li class="slds-dropdown__item" role="presentation">
+                            <button class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                <a href="mailto:salesforcehelp@nomura.com">
+                                    {emailHelpLabel}
+                                </a>
+                            </button>
+                        </li>   
+                        <li class="slds-dropdown__item" role="presentation">
+                            <button onclick={openObjectAction} data-object="Feedback__c" data-action="new" class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                {feebackNewRequetLabel}
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+    </lightning-button-group>
+    </div>    
+    <!--
+        ----------------------------------------------------------------------
+                    
+                    !!! KEEP FOR POTENTIAL FUTURE USAGE TO REPLACE ABOVE
+                    
+                    STANDARD LIGHTING COMPONENT IMPLEMENTATION
+
+                    ! Current ISSUE with making button and menu blue !
+
+                    If Salesforce makes this avilable with new variant options
+                    this solution would be less code and maintainance 
+
+        ----------------------------------------------------------------------
+    
+    
+    <lightning-button-group >
+    <lightning-button variant="neutral" label={activitiesLabel} icon-name="utility:event"></lightning-button>
+    <lightning-button-menu alternative-text={activitiesLabel} variant="border-filled" >
+            
+        <lightning-menu-subheader label={eventsCallReportsLabel}></lightning-menu-subheader>
+        
+            <lightning-menu-item value="NewEvent" label={newEventLabel}
+                onclick={openObjectAction} data-object="Event" data-action="new" >
+            </lightning-menu-item>
+            
+            <lightning-menu-item value="EventView" label={eventListViewLabel}
+                onclick={openObjectListView} data-object="Event" data-action="list" view="All" >
+            </lightning-menu-item>
+            
+            <lightning-menu-item value="EventCalendar" label={eventCalendarViewLabel} 
+                onclick={openObjectAction} data-object="Event" data-action="home" > 
+            </lightning-menu-item>
+            
+        <lightning-menu-subheader label={tasksLabel} ></lightning-menu-subheader>
+            
+            <lightning-menu-item value="NewTask" label={newTaskLabel}  
+                onclick={openObjectAction} data-object="Task" data-action="new" >
+            </lightning-menu-item>
+            
+            <lightning-menu-item value="TaskView" label={taskListViewsLabel} 
+                onclick={openObjectAction} data-object="Task" data-action="home" >
+
+    </lightning-menu-item>
+    </lightning-button-menu>
+    </lightning-button-group> 
+    
+    <lightning-button-group>
+    <lightning-button variant="neutral" label={contactObjectLabel} icon-name="utility:people"></lightning-button>
+    <lightning-button-menu alternative-text={contactObjectLabel} variant="border-filled" >
+
+        <lightning-menu-item value="SearchContacts" label={searchAllContactsLabel}
+            onclick={openTab} data-tab="Locate_Contact">
+        </lightning-menu-item>
+        
+        <lightning-menu-item value="NewContact" label={newContactLabel}
+            onclick={openObjectAction} data-object="Contact" data-action="new" >
+        </lightning-menu-item>
+
+        <lightning-menu-item value="ContactList" label={contactListViewsLabel}
+            onclick={openTab} data-tab="Contact_Lists">
+        </lightning-menu-item>
+
+    </lightning-button-menu>
+    </lightning-button-group> 
+    
+    
+    <!- Future highlight button if Items to Approve 
+    <lightning-button-group>
+    <lightning-button variant="neutral" label={coverageLabel} icon-name="utility:advertising"></lightning-button>
+    <lightning-button-menu alternative-text={coverageLabel} variant="border-filled" >
+
+            <lightning-menu-item value="Coverage" label={viewCoverageLabel}
+                onclick={openTab} data-tab="Coverage">
+            </lightning-menu-item>
+
+            <lightning-menu-item value="AddCoverage" label={addCoverageLabel}
+                onclick={openComponent} data-component="c__coverageToolAdd">
+            </lightning-menu-item>
+
+            <!_ future could append number of item to approve []
+            <lightning-menu-item value="ItemToApprove" label={itemsToApproveLabel}
+                onclick={openTab} data-tab="Items_to_ApproveDesktop">
+            </lightning-menu-item>
+
+            <!- future could append number of item to approve []
+            <lightning-menu-item value="PendingRequests" label={pendingRequestsLabel}
+                onclick={openTab} data-tab="Pending_Requests">
+            </lightning-menu-item>
+
+            <lightning-menu-item value="GlobalCoverage" label={globalCoverageLabel}
+                onclick={openTab} data-tab="Global_Coverage">
+            </lightning-menu-item>
+
+    </lightning-button-menu>
+    </lightning-button-group> 
+    
+
+    <lightning-button-group>
+    <lightning-button variant="neutral" label={bulkUpdateLabel} icon-name="utility:upload"></lightning-button>
+    <lightning-button-menu alternative-text={bulkUpdateLabel} variant="border-filled" >
+
+        <lightning-menu-item value="MiFID" label={contactMifidFlagsLabel}
+            onclick={openTab} data-tab="MiFID_II_Flags_Bulk_Update">
+        </lightning-menu-item>
+
+        <lightning-menu-item value="DeskCommentary" label={contactDeskCommAllowedLabel}
+            onclick={openComponent} data-component="c__bulkUpdateDeskCommentaryProhibited">
+        </lightning-menu-item>
+
+        <lightning-menu-item value="CoverageBulk" label={uploadBulkCoverageLabel}
+            onclick={openComponent} data-component="c__CoverageBulkUpload">
+        </lightning-menu-item>
+        
+    </lightning-button-menu>
+    </lightning-button-group> 
+    
+
+    <lightning-button-group>
+        <lightning-button variant="neutral" label={userGuideLabel} icon-name="utility:help_center"></lightning-button>
+        <lightning-button-menu alternative-text={userGuideLabel} variant="border-filled" >
+            <lightning-menu-item value="General" label={generalCrmLabel} href="https://nomura.my.salesforce.com/sfc/p/36000000qI5s/a/0I0000009GeF/uxdclV0lsH6kMUrcpGNgEr29wmksBkgG2CfPBJGkdxU"></lightning-menu-item>
+            <lightning-menu-item value="NFPE" label={nfpeCoverageLabel} href="https://nomura.my.salesforce.com/sfc/p/#36000000qI5s/a/0I0000005ymt/S6qqGmnvDcLEgeKvoRPGXB0MYKQtInMsy179NH0G9V0"></lightning-menu-item>
+            <lightning-menu-item value="CrossSell" label={crossSellReferralLabel} href="https://nomura.my.salesforce.com/sfc/p/36000000qI5s/a/0I000000QBmR/9ST2I4oYkBFawlob0cqqfuILk_s5cjFE5q1QXejmf1o"></lightning-menu-item>
+        </lightning-button-menu>
+    </lightning-button-group> 
+    
+
+    <lightning-button-group>
+        <lightning-button variant="neutral" label={helpLabel} icon-name="utility:question_mark"></lightning-button>
+        <lightning-button-menu alternative-text={helpLabel} variant="border-filled" >
+            <lightning-menu-item value="EmailSalesforceHelp" label={emailHelpLabel} href="mailto:salesforcehelp@nomura.com"></lightning-menu-item>
+            <lightning-menu-item value="Feedback" label={feebackNewRequetLabel} href="/lightning/o/Feedback__c/list?filterName=Recent"></lightning-menu-item>
+        </lightning-button-menu>
+    </lightning-button-group> 
+
+    -->
+
+</template>

@@ -1,0 +1,23 @@
+<apex:page >
+    <apex:pageBlock title="{!$Label.Revenue_Reports}" >
+        <div id="InternalDiv" style="height:100%;">
+            <apex:pageBlockSection columns="2" >
+                <apex:pageblocksection columns="1">
+                    <apex:outputLink value="/00O17000000GMHo" >{!$Label.Ticketed_Revenue_Client_Gross_USD}</apex:outputLink>
+                    <!--apex:outputLink value="/00O17000000GMIS" >Ticketed Revenue Client Gross YEN</apex:outputLink-->        
+                    <apex:outputLink value="/00O17000000GMI3" >{!$Label.Ticketed_Revenue_GRR_Product_Gross_USD}</apex:outputLink>
+                    <!--apex:outputLink value="/00O17000000GMIX" >Ticketed Revenue GRR Product Gross YEN</apex:outputLink-->
+                    <apex:outputLink value="/00O17000000GMI8" >{!$Label.Ticketed_Revenue_Salesperson_Gross_USD}</apex:outputLink>
+                    <!--apex:outputLink value="/00O17000000GMIw" >Ticketed Revenue Salesperson Gross YEN</apex:outputLink-->
+                </apex:pageblocksection> 
+                <apex:pageblocksection columns="1">
+                    <apex:outputLink value="/00O17000000GJOS" >{!$Label.Client_RG_Revenue_Rollup_Net_USD}</apex:outputLink>
+                    <!--apex:outputLink value="/00O17000000GMHK">Client RG Revenue Rollup Net YEN</apex:outputLink-->
+                    <apex:outputLink value="/00O17000000GJO3" >{!$Label.Client_RM_Revenue_Rollup_Net_USD}</apex:outputLink>
+                    <!--apex:outputLink value="/00O17000000GMHe" >Client RM Revenue Rollup Net YEN</apex:outputLink-->
+                    <apex:outputLink value="/00O17000000GMJ1" >{!$Label.ClientRG_RevenueRollup_Division_Net_USD}</apex:outputLink>
+                </apex:pageblocksection>     
+            </apex:pageBlockSection>
+        </div>
+    </apex:pageBlock>
+</apex:page>

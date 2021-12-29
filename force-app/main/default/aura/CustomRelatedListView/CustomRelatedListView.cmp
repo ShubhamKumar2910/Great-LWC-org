@@ -1,0 +1,32 @@
+<aura:component implements="force:appHostable,flexipage:availableForRecordHome,force:hasRecordId" access="global"  controller="CustomRelatedListViewController">
+
+    <aura:attribute name="object" type="String" />
+    <aura:attribute name="listName" type="String" default="" />
+    <aura:attribute name="customSettingsFieldName" type="String" />
+    <aura:attribute name="customLabel" type="String" default="" />
+    <aura:attribute name="nonRestrictedUser" type="Boolean" default="true" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.init}"></aura:handler>
+
+    <aura:if isTrue="{!v.nonRestrictedUser}">
+
+        <label class="slds-form-element__label" style="font-weight: bold;white-space : pre-line !important;">Please note that: </label><br/>
+        <label class="slds-form-element__label" style="font-weight: bold;white-space : pre-line !important;">{!v.customLabel}</label>
+
+        <lightning:listView
+            aura:id="customListView"
+            objectApiName="{!v.object}"
+            listName="{!v.listName}"
+            rows="100"
+            showSearchBar="true"
+            showActionBar="false"
+            enableInlineEdit="false"
+            showRowLevelActions="false"
+        />
+
+        <aura:set attribute="else">
+            <label class="slds-form-element__label" style="font-weight: bold;white-space : pre-line !important;">{!$Label.c.Legal_Agreement_Restricted_User_Note}</label>
+        </aura:set>
+
+      </aura:if>
+</aura:component>

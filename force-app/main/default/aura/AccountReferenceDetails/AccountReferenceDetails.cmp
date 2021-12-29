@@ -1,0 +1,17 @@
+<aura:component controller="AccountReferenceDetailsController" 
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global">
+    
+	<!-- Attribute for Account Reference Details -->
+    <aura:attribute name="recordId" type="Id" access="global"/>	
+    <aura:attribute name="accordionSections" type="Object[]" />
+    <aura:attribute name="activeSectionName" type="String" />
+    
+    <!-- Methods : Start -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/> 
+    <aura:method name="formAccordionSectionContent" action="{!c.formAccordionSectionContent}" />
+    <!-- Methods : End -->
+    
+    <lightning:accordion aura:id="acctAccordion" activeSectionName="{!v.activeSectionName}">
+    </lightning:accordion>
+</aura:component>

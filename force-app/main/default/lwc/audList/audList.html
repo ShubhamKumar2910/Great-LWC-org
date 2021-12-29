@@ -1,0 +1,91 @@
+<template>
+    <lightning-accordion allow-multiple-sections-open active-section-name={activeSections}>
+        <lightning-accordion-section name="Search" label="Search">
+            <div class="slds-grid slds-grid_vertical-align-start">
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning-input class="searchBar" 
+                        name="nameSearch"
+                        label="User Name" 
+                        value={nameSearchValue} 
+                        onchange={handleChangeInSearchTerms}>
+                    </lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-3">
+                    <template if:true={profileNamesData}>
+                        <lightning-combobox 
+                            name="profileSearch"
+                            label="User Profile"
+                            value={profileSearchValue}
+                            placeholder="Select Profile"
+                            options={profileNamesData}
+                            onchange={handleChangeInSearchTerms} >
+                        </lightning-combobox>
+                    </template>
+                </div>
+                <div class="slds-col slds-size_1-of-3">
+                    <template if:true={profileNamesData}>
+                        <lightning-combobox 
+                            name="roleSearch"
+                            label="User Role"
+                            value={roleSearchValue}
+                            placeholder="Select Role"
+                            options={roleNamesData}
+                            onchange={handleChangeInSearchTerms} >
+                        </lightning-combobox>
+                    </template>
+                </div>
+            </div>
+            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-start">
+                <div class="slds-col">
+                    <template if:true={searchDisabled}>
+                        <lightning-button variant="brand" title="Reset" label="Reset" disabled class="slds-m-left_x-small"></lightning-button>
+                    </template>
+                    <template if:false={searchDisabled}>
+                        <lightning-button variant="brand" title="Reset" label="Reset" onclick={handleSearchReset} class="slds-m-left_x-small"></lightning-button>
+                    </template>
+                </div>
+            </div>
+        </lightning-accordion-section>
+        <lightning-accordion-section name="Results" label="Results">
+            <lightning-datatable 
+                onrowaction={handleRowAction} 
+                data={data} 
+                columns={columns} 
+                key-field="Id" 
+                onsort={handleSort} 
+                sorted-by={sortedField} 
+                sorted-direction={sortDirection} 
+                hide-checkbox-column="true">
+            </lightning-datatable>
+            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-start">
+                <div class="slds-col">
+                    <div class="nav-buttons">
+                        <template if:false={isFirstPage}>
+                            <button onclick={handlePrevPage}>Previous Page</button>
+                        </template>
+                        <template if:false={isLastPage}>
+                            <button onclick={handleNextPage}>Next Page</button>
+                        </template>
+                    </div>
+                </div>
+                <div class="slds-col">
+                        <div class="page-info">
+                            Total Records: {totalRecordCount} Page ({pageNumber} of {totalPageCount})
+                        </div>        
+                </div>
+                <div class="slds-col">
+                    <lightning-radio-group variant="label-inline" label="Results/page" name="resultsPerPage" value={recordsPerPage} options={ResultsPerPageOptions} onchange={handleResultsPerPageSizeChange} type="button"></lightning-radio-group>
+                </div>
+            </div>
+        </lightning-accordion-section>
+        <lightning-accordion-section name="Reports" label="External Report Assignment">
+            <div class="slds-grid slds-grid_vertical-align-start">
+                <div class="slds-col slds-size_1-of-3">
+                    <c-external-reports-selection-control></c-external-reports-selection-control>
+                </div>
+            </div>
+        </lightning-accordion-section>
+    </lightning-accordion>
+    
+
+</template>

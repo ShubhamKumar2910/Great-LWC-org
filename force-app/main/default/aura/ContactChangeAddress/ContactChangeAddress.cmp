@@ -1,0 +1,133 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"
+                 access="global"
+                controller="ContactChangeAddressController">
+	<aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="hasErrors" type="Boolean" default="false" />
+    <aura:attribute name="errorMessages" type="String[]" />
+    <aura:attribute name="relatedToAccountSelected" type="String[]"/>
+    <aura:attribute name="relatedToAccount" type="String"/>
+    <aura:attribute name="contact" type="Contact" default="{ 'sobjectType': 'Contact' }"/>
+    <aura:attribute name="addressOptions" type="List" />
+    <aura:attribute name="selectedAddress" type="String" default=""/>
+    <aura:attribute name="addressQuery" type="String" default=""/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+    <aura:if isTrue="{!$Browser.formFactor == 'DESKTOP'}">
+    <div class="slds-form slds-form_compound" style="padding: 1%; margin: 1%;">            
+            <fieldset class="slds-form-element">
+                <div class="slds-form-element__group">
+                    <div class="slds-form-element__row">
+                        <div class="slds-form-element slds-size_2-of-2">
+                            <h3 class="slds-section__title slds-theme_shade">
+                                <span class="slds-truncate slds-p-horizontal_small" title="Section Title">
+                                    <ui:outputText value="{!$Label.c.Contact_Change_Address_Header}" />
+                                </span>
+                            </h3>
+                            <!-- Error Messages -->
+                            <aura:if isTrue="{!v.hasErrors}">
+                                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" role="alert" style="height:50px;">
+                                    <lightning:icon iconName="utility:warning" variant="warning" class="slds-icon slds-icon_x-small inlineTable errorMessagePadding"/>
+                                    <div id="errors" style="">
+                                    <aura:iteration items="{!v.errorMessages}" var="item">
+                                        <ui:outputText value="{!item.message}" class="blockDisplay"/>
+                                    </aura:iteration>
+                                    </div>
+                                    <lightning:buttonIcon iconName="utility:close" variant="bare" onclick="{!c.closeErrorMessages}"/>
+                                </div>
+                                <aura:set attribute="else">
+                                    <div></div>
+                                </aura:set>
+                                </aura:if> 
+                        </div>
+                    </div>
+                    <div class="slds-form-element__row">
+                        <div class="slds-form-element slds-size_2-of-2" style="    margin-left: .5rem;">
+                            <c:SingleLookup readonly="true" 
+                                            aura:id="newcontact-account" 
+                                            showRecentlyView="false" 
+                                            allRecords="false" 
+                                            sObjectAPIName="Account" 
+                                            charLimit="2"  
+                                            label="{!$Label.c.Account}" 
+                                            pluralLabel="{!$Label.c.CVGTOOL_LABEL_PLURAL_ACCOUNT}" 
+                                            listIconSVGPath="standard:account" 
+                                            accountType="RG_Account" 
+                                            listIconClass="slds-icon-standard-account" itemChange="{!c.contactAccountchanged}" placeholder="{!$Label.c.AccountPlaceholder}" 
+                                            preSelectedIds="{!v.relatedToAccountSelected}"
+                                            onReset="{!c.OnReset}"
+                                            />
+
+                    <c:Combobox aura:id="addressCombobox" selectedEvent="{!c.addressChanged}" 
+                                label="{!$Label.c.Address}" placeholder="{!$Label.c.Search_Addresses}" query="{!v.addressQuery}" sObjectAPIName="Account" 
+                                recordId="{!v.relatedToAccount}"
+                                clearIdEvent="{!c.addressCleared}"/>
+                            
+                        </div>
+                  
+                    </div>
+                    <br/><br/>
+                    <div class="slds-form-element__row">
+                        <div class="slds-form-element slds-size_1-of-2">
+                        <lightning:button label="{!$Label.c.Event_Custom_Save}" onclick="{!c.save}" variant="brand"/>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+    </div>
+
+
+
+
+    <aura:set attribute="else">
+        <lightning:layout class="whiteBackground" multipleRows="true">
+        <!-- Error Messages -->
+        <aura:if isTrue="{!v.hasErrors}">
+            <lightning:layoutItem class="fullWidth slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" size="12">
+            <div role="alert" style="display:inline-flex;">
+                <lightning:layoutItem size="4">
+                <lightning:icon iconName="utility:warning" variant="warning" class="slds-icon slds-icon_x-small inlineTable errorMessagePadding"/>
+                </lightning:layoutItem>
+            <lightning:layoutItem size="6">
+                <div id="errors" style="">
+                <aura:iteration items="{!v.errorMessages}" var="item">
+                    <ui:outputText value="{!item.message}" class="blockDisplay"/>
+                </aura:iteration>
+                </div>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="2">
+                <lightning:buttonIcon iconName="utility:close" variant="bare" onclick="{!c.closeErrorMessages}"/>
+            </lightning:layoutItem>
+            </div>
+        
+            </lightning:layoutItem>
+            <aura:set attribute="else">
+                <div></div>
+            </aura:set>
+        </aura:if> 
+        <lightning:layoutItem class="fullWidth" padding="around-small">
+            <c:SingleLookup readonly="true" 
+                                            aura:id="newcontact-account" 
+                                            showRecentlyView="false" 
+                                            allRecords="false" 
+                                            sObjectAPIName="Account" 
+                                            charLimit="2"  
+                                            label="{!$Label.c.Account}" 
+                                            pluralLabel="{!$Label.c.CVGTOOL_LABEL_PLURAL_ACCOUNT}" 
+                                            listIconSVGPath="standard:account" 
+                                            accountType="RG_Account" 
+                                            listIconClass="slds-icon-standard-account"
+                            itemChange="{!c.contactAccountchanged}" placeholder="{!$Label.c.AccountPlaceholder}" preSelectedIds="{!v.relatedToAccountSelected}"
+                            onReset="{!c.OnReset}"/>
+            <c:Combobox aura:id="addressCombobox" selectedEvent="{!c.addressChanged}" label="{!$Label.c.Address}" placeholder="{!$Label.c.Search_Addresses}" query="{!v.addressQuery}" sObjectAPIName="Account" recordId="{!v.relatedToAccount}"
+                        clearIdEvent="{!c.addressCleared}"/>
+        </lightning:layoutItem>
+                     
+
+
+        <lightning:layoutItem class="fullWidth" padding="around-small">
+            <lightning:button label="{!$Label.c.Event_Custom_Save}" onclick="{!c.save}" variant="brand"/>
+        </lightning:layoutItem>   
+  </lightning:layout>
+    </aura:set>
+</aura:if>
+</aura:component>

@@ -1,0 +1,52 @@
+<aura:component controller="CoverageMembersController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:isUrlAddressable" 
+                access="global">
+                
+    <!--attributes-->
+    <lightning:navigation aura:id="navService" /> 
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="regions" type="string[]"/>
+    <aura:attribute name="products" type="string[]"/>
+    <aura:attribute name="salesPerson" type="String" default="{!$Label.c.Lght_Cvg_Member}"/>
+    <!--<aura:attribute name="salesTeam" type="String" default="{!$Label.c.Lght_Cvg_Team}"/>-->
+    <!--<aura:attribute name="salesDeskRegion" type="String" default="{!$Label.c.Lght_Cvg_Desk}"/>-->
+    <aura:attribute name="salesDeskRegion" type="String" default="{!$Label.c.Lght_Cvg_Region}"/>
+    <!--<aura:attribute name="salesDesk" type="String" default="{!$Label.c.Lght_Cvg_Desk}"/>-->
+    
+    <!--<aura:attribute name="coverageStartDate" type="String" default="{!$Label.c.Lght_Cvg_Date}"/>-->
+    <aura:attribute name="coverageRole" type="String" default="{!$Label.c.Lght_Cvg_Role}"/>
+    <!--<aura:attribute name="division" type="String" default="{!$Label.c.Lght_Cvg_Division}"/>-->
+    <aura:attribute name="tableColumn" type="Object[]"/>
+    <aura:attribute name="cvgData" type="Object[]"/>
+    
+    <!--Methods-->
+    <aura:method name="showSpinner" action="{!c.showSpinner}" /> 
+    <aura:method name="hideSpinner" action="{!c.hideSpinner}" />  
+    <aura:method name="reloadData" action="{!c.reloadData}" /> 
+    
+    <!--handlers-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+     <div style="height:50%;">
+         <div id="tabledel" class="slds-table--header-fixed_container" style="height: 50%;" aura:id="dataTableDiv">
+            <lightning:datatable aura:id="cvgTable"
+                                 data="{!v.cvgData}"
+                                 columns="{!v.tableColumn}"   
+                                 keyField="Name"
+                                 maxColumnWidth="40%"
+                                 sortedBy="Name"
+                                 sortedDirection="asc"
+                                 onsort="{!c.updateColumnSorting}" 
+                                 hideCheckboxColumn="true"
+                                 />          
+        </div>
+        
+    </div>
+    
+     <div aura:id="spinnerblockDel" class="slds-spinner_container slds-hide">
+        <div class="slds-spinner--brand slds-spinner slds-spinner--large" aria-hidden="false" role="alert">
+            <div class="slds-spinner__dot-a"></div>
+            <div class="slds-spinner__dot-b"></div>
+        </div>
+    </div>
+   
+    
+</aura:component>

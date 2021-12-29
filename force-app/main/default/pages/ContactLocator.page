@@ -1,0 +1,17 @@
+<apex:page sidebar="false">
+	<apex:includeScript value="/lightning/lightning.out.js"/>
+  <apex:includeScript value="/support/console/40.0/integration.js"/>
+   <div id="lightning"/>
+    <div id="inputLookup"/>
+    <script>
+        $Lightning.use("c:ContactLocatorApp", function() {
+          $Lightning.createComponent("c:ContactLocator",
+          { label : "" },
+          "lightning",
+          function(cmp) {
+            
+          });
+        });
+    
+    </script>
+</apex:page>

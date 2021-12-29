@@ -1,0 +1,57 @@
+<apex:page controller="EmailImpersonatableUserController" tabStyle="Campaign" action="{!initEmailEditImpersonatableUser}">
+    <!-- For Service Console -->
+    <apex:includeScript value="/support/console/20.0/integration.js"/>
+    <script type="text/javascript">
+        function setTabTitle() {
+            //Set the current tabs title
+            sforce.console.setTabTitle('{!$Label.MassEmailImpersonation}');
+        }
+        var pageLoad = window.onload;
+        window.onload = function() {
+            if (pageLoad) {
+                pageLoad();
+            }
+            setTabTitle();
+        }
+    </script>
+    <style type="text/css">
+        td {
+            vertical-align:top;
+        }
+    </style>
+
+    <apex:includeScript value="/support/console/35.0/integration.js"/>
+    <script type="text/javascript">
+       function closeTab() {
+        	if(sforce.console.isInConsole()) {
+        		 //First find the ID of the current tab to close it
+            	sforce.console.getEnclosingTabId(closeSubtab);	
+        	}
+        	else {
+        		window.history.back();	
+        	}
+           
+        }
+         
+        var closeSubtab = function closeSubtab(result) {
+            //Now that we have the tab ID, we can close it
+            var tabId = result.id;
+            sforce.console.closeTab(tabId);
+        };
+    </script>
+
+    <apex:form >
+        <apex:pageMessages />
+        <apex:pageBlock title="{!$Label.PeopleWhoCanSendMassEmailsOnBehalfOfYou}">
+            <c:UserMultiSelectComponent aLeftLabel="{!$Label.SearchResults}" aRightLabel="{!$Label.SelectedUsers}" aInitialRightList="{!InitApprovedUserList}" aCurrentRightList="{!NewApprovedUserList}" aSize="6" aWidth="100%" />
+        </apex:pageBlock>
+        <apex:commandButton value="{!$Label.Apply}" action="{!applyImpersonatableUsers}" OnComplete="closeTab()" />
+        <apex:commandButton value="{!$Label.Cancel}" OnClick="closeTab()" />
+    </apex:form>
+    
+    <style type="text/css">
+        .pbTitle {
+            white-space: nowrap
+        }
+    </style>
+</apex:page>

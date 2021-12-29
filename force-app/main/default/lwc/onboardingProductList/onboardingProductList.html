@@ -1,0 +1,152 @@
+<template>
+    <!--<div style="height: 300px;" class="slds-box">-->
+    <div class="slds-box">
+        
+        <!--<div class="slds-text-title_caps slds-m-bottom_xx-small">
+            <lightning-icon icon-name="standard:product_request_line_item" size="small" class="slds-m-right_x-small slds-m-bottom_medium" alternative-text="Existing: Legal (RM) Entity Matches" ></lightning-icon>
+                New Requests
+                
+            <lightning-button-group style="float: right;">
+                <lightning-button label="Add"  icon-name="utility:add" onclick={handleAddClick} disabled={readOnly}></lightning-button>
+                <lightning-button label="Remove"  icon-name="utility:close" onclick={handleRemoveClick} disabled={isRemoveButtonDisabled}></lightning-button>
+            </lightning-button-group>
+        </div>-->
+        <lightning-card  variant="narrow" title={newProdReqTitle} icon-name="standard:product_request_line_item">
+            <template if:true={allowEdit}>
+                <div slot="actions">
+                    <lightning-button label="Add"  icon-name="utility:add" onclick={handleAddClick} disabled={readOnly}></lightning-button>
+                    <lightning-button label="Remove"  icon-name="utility:close" onclick={handleRemoveClick} disabled={isRemoveButtonDisabled}></lightning-button>
+                    <lightning-button label="Clone"  icon-name="utility:copy" onclick={handleCloneClick} disabled={isCloneButtonDisabled}></lightning-button>
+                </div>
+            </template>
+            <template if:false={allowEdit}>
+                <template if:true={isCurrentUserApprover}>
+                <div slot="actions">
+                    <lightning-button label="Update Priority" icon-name="utility:record_update" onclick={showPriorityModal} disabled={disablePriorityUpdateBtn}></lightning-button>
+                </div>
+                </template>
+                <template if:false={isCurrentUserApprover}>
+                    <div slot="actions">
+                        <div class="slds-text-title_caps">Read-Only</div>
+                    </div>
+                </template>
+            </template>
+        
+            <template if:true={showNewProdReqsTable}>
+                <template if:true={allowEdit}>
+                    <div style="height: 300px; clear: both;">
+                        <lightning-datatable
+                                key-field="uniqueKey"
+                                data-field="OnbProdNewReqTable"
+                                data={newOnbProdReqData}
+                                columns={newOnbProdReqCols}
+                                show-row-number-column
+                                onrowselection={onProdReqSelection}
+                                onrowaction={handleRowAction}>
+                        </lightning-datatable>
+                    </div>
+                </template>
+                <template if:false={allowEdit}>
+                    <div style="height: 300px; clear: both;">
+                        <lightning-datatable
+                                key-field="uniqueKey"
+                                data-field="OnbProdNewReqTable"
+                                data={newOnbProdReqData}
+                                columns={newOnbProdReqColsReadOnly}
+                                onrowaction={handleRowAction}
+                                hide-checkbox-column={hideCheckboxColumn}
+                                onrowselection={onProdReqSelection}
+                                selected-rows={slectedProdReqsList}
+                                show-row-number-column>
+                        </lightning-datatable>
+                    </div>
+                </template>
+            </template>
+            <template if:false={showNewProdReqsTable}>
+                <div class="slds-p-top_x-large"></div><div class="slds-p-top_x-large"></div>
+                <div class="slds-p-top_x-large slds-text-title_caps slds-text-align_center">
+                    No new Product Requests added
+                </div>
+            </template>
+        </lightning-card>
+    </div>
+    <br>
+    
+    <!--<div style="height: 300px;" class="slds-box">-->
+    <div class="slds-box">
+        <!--<div class="slds-text-title_caps slds-m-bottom_xx-small">
+            <lightning-icon icon-name="standard:product_request_line_item" size="small" class="slds-m-right_x-small" alternative-text="Existing: Legal (RM) Entity Matches" ></lightning-icon>
+                Request History
+        </div>-->
+        <lightning-card  variant="narrow" title={existingProdReqTitle} icon-name="standard:product_request_line_item">
+            <template if:true={showExistingProdReqsTable}>
+                <div style="height: 300px;">
+                    <lightning-datatable
+                            key-field="Id"
+                            data-field="OnbProdHistoryTable"
+                            data={accountProductHistoryData}
+                            columns={existingProdStatusCols}
+                            hide-checkbox-column
+                            show-row-number-column>
+                    </lightning-datatable>
+                </div>
+            </template>
+            <template if:false={showExistingProdReqsTable}>
+                <div class="slds-p-top_x-large"></div><div class="slds-p-top_x-large"></div>
+                <div class="slds-p-top_x-large slds-text-title_caps slds-text-align_center">
+                    No records found
+                </div>
+            </template>
+        </lightning-card>
+    </div>
+
+    <template if:true={showModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+            <div class="slds-modal__container">
+                <c-onboarding-product-from 
+                    ob-req-id={_obReqId}
+                    prod-code={_prodCode}
+                    prod-type={_prodType}
+                    is-edit={_isEdit}
+                    is-clone={_isClone}
+                    oncloseprodform={handlCloseProdForm}
+                    onupdateprodreqs={handleUpdateProdReqs}
+                    disable-all-fields={disableObProductFormFields}>
+                </c-onboarding-product-from>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <template if:true={displayPriorityModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+            <div class="slds-modal__container">
+              <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={showPriorityModal}>
+                  <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+                  <span class="slds-assistive-text">Close</span>
+                </button>
+                <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Update Proposed Priority</h2>
+              </header>
+              <div class="slds-modal__content slds-p-around_medium" style="overflow:initial;" id="modal-content-id-1">
+                <template if:true={showSpinner}>
+                    <lightning-spinner alternative-text="Loading" variant="brand"></lightning-spinner>
+                </template>
+                <lightning-record-edit-form id="proposedPriorityModal" density="compact" object-api-name="Onboarding_Product__c">
+                    <lightning-messages></lightning-messages>
+                    <lightning-input-field field-name='Proposed_Priority__c' onchange={handlePriorityChange} value={priorityVal} variant='label-inline'></lightning-input-field>
+                    <lightning-input-field field-name='Additional_Priority_Justification__c' onchange={handleAdditionalPriorityJustChange} value={addPriorityJustification} variant='label-inline' disabled={disablePriorityJustification}></lightning-input-field>
+                    <lightning-input-field field-name='Trade_Deadline__c' onchange={handleTradeDeadlineChange} value={tradeDeadline} varient='label-inline' disabled={disableTradeDeadline}></lightning-input-field>
+                </lightning-record-edit-form>
+              </div>
+              <footer class="slds-modal__footer">
+                <button class="slds-button slds-button_neutral" onclick={showPriorityModal}>Cancel</button>
+                <button class="slds-button slds-button_brand" onclick={updateProductPriority}>Save</button>
+              </footer>
+            </div>
+          </section>
+          <div class="slds-backdrop slds-backdrop_open">
+          </div>
+    </template>
+    
+</template>

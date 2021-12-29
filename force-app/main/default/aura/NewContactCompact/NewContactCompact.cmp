@@ -1,0 +1,141 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"
+                 access="global"
+                 controller="NewContactController">
+    <ltng:require styles="{!join(',', 
+                          $Resource.ToggleButton + '/ToggleButton/css/toggles-full.css')
+                          }"
+                  
+                  scripts="{!join(',', 
+                           $Resource.select2 + '/select2-3.5.2/jquery-2.2.4.min.js',
+                           $Resource.ToggleButton + '/ToggleButton/js/toggles.js' )
+                           }" afterScriptsLoaded="{!c.toggleScriptsLoaded}"/>
+                           
+    <aura:attribute name="recordId" type="String" default=""/>
+    <aura:attribute name="hasErrors" type="Boolean" default="false" />
+    <aura:attribute name="errorMessages" type="String[]" />
+    <aura:attribute name="contact" type="Contact" default="{ 'sobjectType': 'Contact' }"/>
+    <aura:attribute name="addressOptions" type="List" />
+    <aura:attribute name="selectedAddress" type="String" default=""/>
+    <aura:attribute name="productSubscriptions" type="String[]" default=""/>
+
+	<aura:handler name="init" value="{!this}" action="{!c.init}" />
+
+    <div class="slds-form slds-form_compound" style="padding: 1%; margin: 1%;">            
+            <fieldset class="slds-form-element">
+                <div class="slds-form-element__group">
+                    <div class="slds-form-element__row">
+                        <div class="slds-form-element slds-size_2-of-2">
+                            <h3 class="slds-section__title slds-theme_shade">
+                                <span class="slds-truncate slds-p-horizontal_small" title="Section Title">
+                                    <ui:outputText value="Contact Information" />
+                                </span>
+                            </h3>
+                            <!-- Error Messages -->
+                            <aura:if isTrue="{!v.hasErrors}">
+                                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" role="alert" style="height:50px;">
+                                    <lightning:icon iconName="utility:warning" variant="warning" class="slds-icon slds-icon_x-small inlineTable errorMessagePadding"/>
+                                    <div id="errors" style="">
+                                    <aura:iteration items="{!v.errorMessages}" var="item">
+                                        <ui:outputText value="{!item.message}" class="blockDisplay"/>
+                                    </aura:iteration>
+                                    </div>
+                                    <lightning:buttonIcon iconName="utility:close" variant="bare" onclick="{!c.closeErrorMessages}"/>
+                                </div>
+                                <aura:set attribute="else">
+                                    <div></div>
+                                </aura:set>
+                                </aura:if> 
+                        </div>
+                    </div>
+                    <div class="slds-form-element__row">
+                        
+                        <div class="slds-form-element slds-size_1-of-2">
+                            <div style="margin-left:.5em;">
+                             <c:SingleLookup aura:id="newcontact-account"   
+                    allRecords="false" 
+                    sObjectAPIName="Account"
+                    accountType="RG_Account" 
+                    charLimit="2"  
+                    label="* Account " 
+                    listIconSVGPath="standard:account" 
+                    listIconClass="slds-icon-standard-account" 
+                    itemChange="{!c.contactAccountchanged}" 
+                    placeholder="Search Accounts" />
+                </div>
+                    <div style="margin-left:.5em;">
+                        <lightning:select class="" name="addressSelect" label="* Address" aura:id="addressSelect" value="{!v.selectedAddress}" onchange="{!c.addressChanged}">
+            <aura:iteration items="{!v.addressOptions}" var="item">
+                <option text="{!item.label}" value="{!item.value}" selected="{!item.selected}"/>
+             </aura:iteration>
+        </lightning:select>
+    </div>
+                            
+                                                        
+
+
+                    </div>
+                    <div class="slds-form-element slds-size_1-of-2">
+                        <label class="slds-form-element__label" for="product">MiFID II Product Subscriptions</label>
+                        <c:SelectMultiple aura:id="product" options="{!v.productSubscriptions}"  />
+                    </div>
+                </div>
+                    <div class="slds-form-element__row">
+                        <div class="slds-form-element slds-size_1-of-2" style="">
+                            <div style="margin-left:.5em;">
+                            <lightning:select name="selectItem" label="Salutation" value="{!v.contact.Salutation}" required="true">
+                                <option value="--None--">--None--</option>
+                                <option value="Mr.">Mr.</option>
+                                <option value="Mrs.">Mrs.</option>
+                                <option value="Ms.">Ms.</option>
+                                <option value="Miss">Miss</option>
+                                <option value="M.">M.</option>
+                                <option value="Dr.">Dr.</option>
+                                <option value="Prof.">Prof.</option>
+                                <option value="Sr">Sr</option>
+                                <option value="Sra">Sra</option>
+                                <option value="Srta">Srta</option>
+                                <option value="Herr">Herr</option>
+                                <option value="Frau">Frau</option>
+                                <option value="Monsieur">Monsieur</option>
+                                <option value="Madame">Madame</option>
+                                <option value="Mademoiselle">Mademoiselle</option>
+                                <option value="Signore">Signore</option>
+                                <option value="Signora">Signora</option>
+                                <option value="Hon.">Hon.</option>
+                            </lightning:select>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-form-element__row">
+                        <div class="slds-form-element slds-size_1-of-2" style="">
+                            <lightning:input aura:id="FirstName" name="FirstName" label="First Name" 
+                         value="{!v.contact.FirstName}" required="true"/>
+                            <lightning:input aura:id="LastName" name="LastName" label="Last Name"
+                         value="{!v.contact.LastName}" required="true" class="marginLeftPadding"/>
+
+                            <lightning:input aura:id="Email" name="Email" label="Primary Email" 
+                         value="{!v.contact.Email}" required="true"/>
+                         <lightning:input aura:id="Email" name="Email" label="Research Email" 
+                         value="{!v.contact.Research_Email__c}"/>
+                     
+                            <lightning:input aura:id="Phone" name="Phone" label="Phone"
+                                             value="{!v.contact.Phone}" required="true"/>
+                            <lightning:input aura:id="KeyPerson" name="KeyPerson" label="Key Person" value="{!v.contact.Key_Person__c}" type="checkbox"/>
+         
+                            <lightning:input aura:id="MifidInScope" name="MifidInScope" label="MiFID-II Research In-Scope" value="{!v.contact.MiFIDII_in_Scope__c}" type="checkbox"/>
+                            <lightning:input aura:id="GRPAccess" name="GRPAccess" label="GRP Access" value="{!v.contact.GRP_Access__c}" type="checkbox"/>
+                            
+
+                        </div>
+                    </div>
+                    <div class="slds-form-element__row">
+                        <div class="slds-form-element slds-size_1-of-2">
+                        <lightning:button label="{!$Label.c.Event_Custom_Save}" onclick="{!c.save}" variant="brand"/>
+                        <lightning:button label="Cancel" onclick="{!c.cancel}" variant="neutral"/>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+    </div>
+
+</aura:component>

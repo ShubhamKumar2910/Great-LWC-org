@@ -1,0 +1,58 @@
+.THIS .theader{
+    background-color: #e6e6e6
+}
+.THIS .scrollable {
+    height: auto;
+    height: 1300px;
+    overflow-y:auto;
+}
+
+.THIS .legendClass {
+    width: 9px;
+    height: 9px;
+    float: left;
+    margin-left: 8px;
+}
+
+.THIS .legendLabels {
+    float:left;
+    margin-top: -5px;
+    margin-left:3px;
+}
+
+.THIS .error{
+    background-color: rgb(194, 57, 52);
+    color: #FFF;
+}
+
+.THIS .success{
+    background-color: rgb(75, 202, 129);
+    color: #FFF;
+}
+
+.THIS .warning{
+    background-color: rgb(255, 183, 93);
+    font-weight: normal;
+    color: #FFF;    
+}
+
+.THIS .columnHeader{
+    background-color: #5a5a5a;
+    color: #FFF;
+}
+.THIS .statusHeader{
+    background-color: #2f2f2f;
+    color: #FFF;
+}
+
+
+.THIS .tablediv{
+   border: 1px solid #5a5a5a;
+}
+.THIS tr{
+   border: none;
+}
+.THIS .not-active {
+   pointer-events: none;
+   cursor: default;
+}

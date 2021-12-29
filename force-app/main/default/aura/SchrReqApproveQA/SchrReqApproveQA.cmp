@@ -1,0 +1,16 @@
+<!--
+**	Author 		: Pravin Kundal
+**	Company 	: Nomura
+**	Description : AURA lightning component used to hook with Approve QA on SCH Request object on SCH Reuquest Detail Page
+-->
+
+<!--c:SchReqApproveQA-->
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"
+                access="global">
+    <aura:attribute name="recordId" type="String" default=""/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+
+    <lightning:navigation aura:id="navService"/>
+    <lightning:flow aura:id="flowData" onstatuschange="{!c.handleStatusChange}"/>
+</aura:component>

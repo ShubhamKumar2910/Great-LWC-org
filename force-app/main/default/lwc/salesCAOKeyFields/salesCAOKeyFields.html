@@ -1,0 +1,29 @@
+<template>
+    <template if:true={displaySalesCAONotification}> 
+        <lightning-card variant="Narrow" class="slds-text-color_error" title="Please be aware that the following Onboarding request has triggered the following Exception validations which require your attention:" icon-name="utility:announcement">
+            <p class="slds-p-horizontal_small"> </p>
+            <ol class="slds-list_ordered slds-has-dividers_bottom-space">
+                <template if:true={onbReqData.aumValidation}> 
+                    <li class="slds-item">The AUM selected is below $100m</li>
+                </template>
+                <template if:true={onbReqData.estRevenueValidation}> 
+                    <li class="slds-item">The Estimated Revenue is below the minimum revenue threshold for onboarding to NEHS/NSL entities</li>
+                </template>
+                <template if:true={onbReqData.noFaceToFaceValidation}> 
+                    <li class="slds-item">The requirement of a Face to Face meeting with this client has not been met</li>
+                </template>
+            </ol>
+        </lightning-card>
+    </template>
+ 
+    <template if:true={displayAdditionalApprovalNotification}> 
+        <lightning-card class="slds-text-title_caps" title={subStatus} icon-name="utility:info">
+            <div class="slds-p-horizontal_small slds-p-bottom_x-small">
+                <div>Primary Approvers: <span class="slds-p-left_xx-small">{primaryApproversString}</span></div>
+            </div>
+            <div class="slds-p-horizontal_small">
+                <div>Delegated Approvers: <span class="slds-p-left_xx-small">{secondaryApproversString}</span></div>
+            </div>
+        </lightning-card>
+    </template>
+</template>

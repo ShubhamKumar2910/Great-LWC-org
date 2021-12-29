@@ -1,0 +1,33 @@
+<aura:component controller="AddEditOnboardingRequest" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,lightning:availableForFlowScreens,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"
+    access="global">
+
+
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="status" type="String" />
+    <aura:attribute name="subStatus" type="String" />
+    <aura:attribute name="RequestDetails" type="Object" />
+    <aura:attribute name="isEdit" type="Boolean" default="false"/>
+    <aura:attribute name="navigateToRecordId" type="String" />
+    <aura:attribute name="pausedInterviewId" type="String" />
+    <aura:attribute name="displayExistingDraftNotification" type="Boolean" default="false"/>
+    <aura:attribute name="accountName" type="String" default=""/>
+    <aura:attribute name="displayNotificationButtons" type="Boolean" default="false"/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+    
+    <aura:handler name="existingObReqNotificationEvent" event="c:ExistingObReqNotificationEvent" action="{!c.handleExistingObReqNotificationEvent}"/>
+    
+    <aura:method name="navigateToRecord" action="{!c.navigateToRecord}" />
+    
+    <aura:method name="getOnbReqDetails">
+        <aura:attribute name="callback" type="Function"/>
+    </aura:method>
+    
+    <lightning:flow aura:id="onboardingFlow" onstatuschange="{!c.handleStatusChange}" class="flowCss"/>
+    
+    <aura:if isTrue="{!v.displayExistingDraftNotification}">
+        <c:ExistingObReqNotification rmAccountName="{!v.accountName}" displayButtons="{!v.displayNotificationButtons}"/>
+    </aura:if>
+    
+    <!--<lightning:flow aura:id="enrichmentFlow" onstatuschange="{!c.handleStatusChange}" class="flowCss"/>-->   	
+</aura:component>

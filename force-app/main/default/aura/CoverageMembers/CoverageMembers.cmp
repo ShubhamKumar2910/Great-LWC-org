@@ -1,0 +1,128 @@
+<aura:component controller="CoverageMembersController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:isUrlAddressable" 
+                access="global">
+                
+    <!--attributes-->
+    <lightning:navigation aura:id="navService" /> 
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="regions" type="string[]"/>
+    <aura:attribute name="products" type="string[]"/>
+    <aura:attribute name="salesPerson" type="String" default="{!$Label.c.Lght_Cvg_Member}"/>
+    <aura:attribute name="salesTeam" type="String" default="{!$Label.c.Lght_Cvg_Team}"/>
+    <!--<aura:attribute name="salesDeskRegion" type="String" default="{!$Label.c.Lght_Cvg_Desk}"/>-->
+    <aura:attribute name="salesDeskRegion" type="String" default="{!$Label.c.Lght_Cvg_Region}"/>
+    <aura:attribute name="salesDesk" type="String" default="{!$Label.c.Lght_Cvg_Desk}"/>
+    
+    <aura:attribute name="coverageStartDate" type="String" default="{!$Label.c.Lght_Cvg_Date}"/>
+    <aura:attribute name="coverageRole" type="String" default="{!$Label.c.Lght_Cvg_Role}"/>
+    <aura:attribute name="comment" type="String" default="{!$Label.c.Lght_Cvg_Comment}"/>
+    <aura:attribute name="division" type="String" default="{!$Label.c.Lght_Cvg_Division}"/>
+    <aura:attribute name="Entity" type="String" default="{!$Label.c.CVGTOOL_Type}"/>
+    <aura:attribute name="tableColumn" type="Object[]"/>
+    <aura:attribute name="cvgData" type="Object[]"/>
+    <aura:attribute name="csvData" type="Object[]"/>
+    <aura:attribute name="AccountId" type="String"/>
+    <aura:attribute name="visibility" type="String"/>
+    <aura:attribute name="displayFilters" type="boolean" default="false"/>
+    
+    <aura:attribute name="recordErrorForAcctView" type="String"/>
+    <aura:attribute name="acctViewRecord" type="Object" />
+    <aura:attribute name="simpleAcctViewRecord" type="Object" />
+    <aura:attribute name="recordTypeDeveloperName" type="String" />
+    
+    
+    <!--Methods-->
+    <aura:method name="showSpinner" action="{!c.showSpinner}" /> 
+    <aura:method name="hideSpinner" action="{!c.hideSpinner}" /> 
+    <aura:method name="callbackInit" action="{!c.doInit}" /> 
+    <aura:method name="reloadData" action="{!c.reloadData}" /> 
+    <aura:attribute name="entities" type="string[]" />
+    
+    <!--handlers-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <force:recordData aura:id="acctRecordLoader"
+        recordId="{!v.recordId}"
+		fields="Id, RecordType.DeveloperName"
+        targetRecord="{!v.acctViewRecord}"
+        targetFields="{!v.simpleAcctViewRecord}"
+        targetError="{!v.recordErrorForAcctView}"
+        mode="VIEW"
+        recordUpdated="{!c.handleRecordUpdated}"              
+    />
+    
+    <!-- Display Lightning Data Service errors for Account View Record --> 
+    <aura:if isTrue="{!not(empty(v.recordErrorForAcctView))}"> 
+        <div class="recordError"> 
+            <ui:message title="Error" severity="error" closable="true"> 
+                {!v.recordErrorForAcctView} 
+            </ui:message> 
+        </div> 
+    </aura:if> 
+    
+    <div class="slds-form slds-form_compound">
+        <fieldset class="slds-form-element">
+            
+            <div class="slds-form-element__group">
+                <div class="slds-form-element__row">
+                    <div class="slds-form-element slds-size_1-of-6">
+                        <lightning:button variant="brand" iconName="utility:open" 
+                                          label="{!$Label.c.CVGTOOL_EXPORT}" 
+                                          title="{!$Label.c.CVGTOOL_EXPORT}" class="actionButton1" disabled="{!v.buttonDisabled}" onclick="{! c.downloadCSV }"></lightning:button>
+                    </div>
+                        
+                    <div class="slds-form-element slds-size_1-of-6" >
+                        <aura:if isTrue="{!v.recordTypeDeveloperName == 'RG_Account'}">
+                            <lightning:button variant="brand"  iconName="utility:add" class="actionButton2" title="{!$Label.c.CVGTOOL_ADD}" label="{!$Label.c.CVGTOOL_ADD}" onclick="{! c.handleAdd }"></lightning:button>
+                        </aura:if>
+                    </div>
+                     
+                    
+                    <aura:renderif isTrue="{!v.displayFilters}">
+                        <div class="slds-form-element slds-size_1-of-6">
+                            <label class="slds-form-element__label" for="proRegion">{!$Label.c.CVGTOOL_LABEL_PRODUCTREGION}</label>
+                            <c:Picklist multiselect="true" aura:id="proRegion" picklistValueChanged="{!c.regionChanged}" parentID="IBD"  IDT="proRegion" objName="Coverage_Team_Member__c" picklistfieldName="Product_Region__c"/>
+                        </div>
+                        <div class="slds-form-element slds-size_1-of-6">
+                             <c:SelectMultiple aura:id="product"  setLabelName="{!$Label.c.CVGTOOL_LABEL_PRODUCT}" selectChange="{!c.productChanged}" />
+                        </div>
+                        <!--Commented for 3698 <div class="slds-form-element slds-size_1-of-6">
+                             <c:SelectMultiple aura:id="entity"  
+                                               setLabelName="{!$Label.c.CVGTOOL_Type}" 
+                                               selectChange="{!c.entityChanged}" />
+                        </div>-->
+                        <div class="slds-form-element slds-size_1-of-6">
+                            <lightning:input aura:id="active" value="ACTIVE" label ="Showing" disabled="true" />
+                        </div>
+                        
+                    </aura:renderif>
+                    
+                   
+                </div>
+            </div>
+        </fieldset>
+    </div>
+     <div style="height:50%;">
+         <div id="tabledel" class="slds-table--header-fixed_container" style="height: 50%;" aura:id="dataTableDiv">
+            <lightning:datatable aura:id="cvgTable"
+                                 data="{!v.cvgData}"
+                                 columns="{!v.tableColumn}"   
+                                 keyField="Name"
+                                 maxColumnWidth="60%"
+                                 sortedBy="Name"
+                                 sortedDirection="asc"
+                                 onsort="{!c.updateColumnSorting}" 
+                                 hideCheckboxColumn="true"
+                                 />          
+        </div>
+        
+    </div>
+    
+     <div aura:id="spinnerblockDel" class="slds-spinner_container slds-hide">
+        <div class="slds-spinner--brand slds-spinner slds-spinner--large" aria-hidden="false" role="alert">
+            <div class="slds-spinner__dot-a"></div>
+            <div class="slds-spinner__dot-b"></div>
+        </div>
+    </div>
+   
+    
+</aura:component>

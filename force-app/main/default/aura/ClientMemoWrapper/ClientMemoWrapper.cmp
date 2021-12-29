@@ -1,0 +1,8 @@
+<aura:component  implements="force:appHostable,lightning:isUrlAddressable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+access="global">
+
+ <!-- Methods : Start -->
+ <aura:handler name="render" value="{!this}" action="{!c.onRender}"/>    
+ <!-- Methods : End -->
+
+</aura:component>

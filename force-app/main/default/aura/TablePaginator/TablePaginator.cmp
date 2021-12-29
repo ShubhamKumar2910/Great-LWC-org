@@ -1,0 +1,14 @@
+<aura:component >
+    <aura:attribute name="total" type="integer"/>
+    <aura:attribute name="fromNumber" type="integer"/>
+    <aura:attribute name="ToNumber" type="integer"/>
+    <div class="slds">
+        <div class="slds-form-element" style="margin:5px;">
+            <button class="slds-button slds-button--brand" onclick="{!c.previousPage}" disabled="{!v.fromNumber &lt;= 1}">
+                {!$Label.c.Coverage_Previous_Button}
+            </button>
+            &nbsp;{!v.total}&nbsp;{!$Label.c.Coverage_Records} •  {!v.fromNumber} - {!v.ToNumber} &nbsp;
+            <button class="slds-button slds-button--brand" onclick="{!c.nextPage}" disabled="{!v.ToNumber >= v.total}"> {!$Label.c.Coverage_Next_Button}</button>
+        </div>
+    </div>
+</aura:component>

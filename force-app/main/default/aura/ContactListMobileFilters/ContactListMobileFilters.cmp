@@ -1,0 +1,85 @@
+<aura:component controller="CLMobileFilters" implements="force:appHostable,flexipage:availableForAllPageTypes">
+	 <ltng:require styles="{!$Resource.MobileStyleSheet}" />
+    
+    <aura:attribute name="accountId" type="String" default="" />
+    <aura:attribute name="accountPrePopulated" type="String" default="" />
+    <aura:attribute name="selectedAddress" type="String[]" />
+    <aura:attribute name="options" type="Object[]" default="" />    
+    <aura:attribute name="disabled" type="Boolean" default="true" />
+    <aura:attribute name="relatedToAccount" type="String"/>
+    <aura:attribute name="relatedToAccountSelected" type="String[]"/>
+    <aura:attribute name="addressOptions" type="List" />
+    <aura:attribute name="addressQuery" type="String" default=""/>
+    <aura:attribute name="myContactListSelect" type="String" />
+    <aura:attribute name="rgAccounts" type="Object[]" />
+    <aura:attribute name="rgAccountSelected" type="String" default=""/>
+    <aura:attribute name="rgAccountPreSelected" type="String" default=""/>
+    <aura:attribute name="addressId" type="String" default="" />
+    <aura:attribute name="adresses" type="ComboboxListItemWrapper[]" />
+    <aura:attribute name="adressesSelected" type="String" />
+    <aura:attribute name="adressesPreSelected" type="String"  default=""/> 
+    <aura:attribute name="selectedAddresses" type="String" default=""/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.rgAccountSelected}" action="{!c.rgAccountSelection}" />
+    <aura:handler name="change" value="{!v.addressCombobox}" action="{!c.addressChanged}" />
+    
+    <div class="subcontent" style="margin-left: 8px !important; margin-right: 8px !important;">
+        <label class="slds-text-heading--small slds-form-element__label" for="filter"> <strong>Filter By </strong></label>         
+        <table>            
+			<tr>
+                         
+                <lightning:select aura:id="rgAccountSelected" name="rgSelect" label="Account" value="{!v.rgAccountSelected}" onChange="{!c.rgAccountSelection}">
+                    <option text="Select Account" value="1" />
+                    <aura:iteration items="{!v.rgAccounts}" var="item">
+                        <aura:if isTrue="{! (v.rgAccountPreSelected == item.RGId)}">
+                            <option text="{!item.RGAccountName}" value="{!item.RGId}" selected="true"/>
+                       
+                            <aura:set attribute="else">
+                                <option text="{!item.RGAccountName}" value="{!item.RGId}" />
+                            </aura:set> 
+                        </aura:if>
+                    </aura:iteration>
+                </lightning:select>                
+            </tr>            
+            <!--
+            <tr>
+                <c:MobileAddressDropdown aura:id="selectAddress" campaignId="{!v.myContactListSelect}" 
+                                         accountId="{!v.accountId}" itemChange="{!c.adressesSelection}" 
+                                         adressesPreSelected="{!v.adressesPreSelected}"/>
+            </tr>
+            -->
+            <tr>
+              
+                <c:Combobox aura:id="selectedAddress" items="{!v.adresses}"  selectedEvent="{!c.addressChanged}" 
+                     clearIdEvent="{!c.addressCleared}" label="Address" placeholder="Search Addresses" query="{!v.addressQuery}" 
+                     showFilterData="true" sObjectAPIName="Account" recordId="{!v.relatedToAccount}"/>
+             <!--
+            	<c:Combobox aura:id="selectedAddress" selectedEvent="{!c.addressChanged}" 
+                                label="Address" placeholder="Search Addresses" query="{!v.addressQuery}" sObjectAPIName="Account" 
+                                recordId="{!v.relatedToAccount}"
+                                clearIdEvent="{!c.addressCleared}"/>
+            
+            	-->
+            </tr>
+            
+            
+        </table>
+    </div>
+     
+    
+   <div class="slds-docked_container">
+            <lightning:spinner aura:id="spinner" variant="brand"  size="medium" class="slds-hide"/>
+   </div>
+    
+    <div class="slds-docked-form-footer" style="height: 35pt;">
+    <lightning:layout horizontalAlign="center" verticalAlign="center">
+            <lightning:button label="Apply" onclick="{!c.applyClicked}" variant="brand"/>
+        	<lightning:button label="Reset" onclick="{!c.resetClicked}" variant="brand"/>
+            <br/><br/>
+        </lightning:layout>   
+
+ </div>    
+    
+    
+</aura:component>

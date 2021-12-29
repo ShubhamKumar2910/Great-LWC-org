@@ -1,0 +1,18 @@
+<apex:page standardController="Account" extensions="CoverageMembrContainerController" title="Coverage Members">
+    <apex:includeLightning />
+    <div id="lightning">
+    <script type="text/javascript">       
+      
+        $Lightning.use("c:CoverageMembersApp", function() {            
+        $Lightning.createComponent("c:CoverageMembers", {"AccountId" : "{!accountId}"}, "lightning", function(cmp){  $A.eventService.addHandler({
+                event: 'force:navigateToSObject',                 
+                handler: function(event) {
+                    if (sforce && sforce.one) {
+                        // VF page in S1 or Lightning Exp
+                        sforce.one.navigateToSObject(event.getParam("recordId"));
+                    } 
+                }
+            });});}); 
+    </script>
+  </div>
+</apex:page>

@@ -1,0 +1,44 @@
+<apex:page >
+    <apex:includeScript value="/support/console/37.0/integration.js"/>   
+    <style>
+    	.buttonClass {
+        	width:250px;
+        	height:35px;
+        	font-size:16px !important;
+        	background-color:#BA3026 !important;
+        	color:white !important;
+        	background-image:none !important;
+        }
+    </style>
+    <script type="text/javascript"> 
+    
+        function openEventPrimaryTab(){            
+            sforce.console.openPrimaryTab(null, '/apex/EventCustom', true, '{!$Label.New_Event}', '' ,'homepagecallreportprimarytab');                       
+        };  
+        function openCoverageBulkUploadTab(){
+            sforce.console.openPrimaryTab(null, '/apex/CoverageBulkUpload', true, '{!$Label.Upload_Bulk_Coverages}', '' ,'homepagecoveragebulkprimarytab');
+        }; 
+        function openContactLocatorTab(){
+            sforce.console.openPrimaryTab(null, '/apex/ContactLocator', true, '{!$Label.Contact_Locator}', '' ,'homepagecontactlocatorprimarytab');
+        };
+    	
+        
+    </script>
+
+    <apex:form id="frmAction" styleClass="topPanel">
+        <center>
+        
+        <apex:pageBlock >          
+            <apex:panelGrid columns="5" width="80%">
+                <span>&nbsp;&nbsp;&nbsp;</span> 
+                <apex:commandButton id="Event" reRender="frmAction" onclick="openEventPrimaryTab();" value="{!$Label.New_Event_Create_Call_Report}" styleClass="buttonClass" />
+                <apex:commandButton id="bulkUpload" rendered="{!IF(AND($Profile.Name != 'System Administrator',$Profile.Name != 'Nomura - Integration',$Profile.Name != 'Instinet - Business Management',$Profile.Name != 'Instinet - Sales',$Profile.Name != 'Nomura - Assistant',$Profile.Name != 'Nomura - Sales',$Profile.Name != 'Nomura - Business Management',$Profile.Name != 'Nomura - Sales Desk Heads'), false,true)}" reRender="frmAction" onclick="openCoverageBulkUploadTab();" value="{!$Label.Upload_Bulk_Coverages}" styleClass="buttonClass" />
+                <apex:commandButton id="contactLocator" reRender="frmAction" onclick="openContactLocatorTab();" value="{!$Label.Contact_Locator}" styleClass="buttonClass" />
+                <span>&nbsp;&nbsp;&nbsp;</span>
+
+            </apex:panelGrid>
+            
+        </apex:pageBlock>
+        </center>    
+    </apex:form>
+</apex:page>

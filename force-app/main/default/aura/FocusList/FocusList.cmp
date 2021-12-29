@@ -1,0 +1,47 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global">
+    
+    <!-- Attribute for Focus List -->
+    <aura:attribute name="focusList" type="String[]" />
+    <aura:attribute name="childRecordId" type="Id" />	
+    
+    <aura:attribute name="recordErrorForAccountView" type="String"/>
+    <aura:attribute name="accountViewRecord" type="Object" />
+    <aura:attribute name="simpleAccountViewRecord" type="Object" />
+    
+    <force:recordData aura:id="accountRecordLoader"
+        recordId="{!v.childRecordId}"
+		fields="Id, RDM_Org_ID__c,Focus_List__c"
+        targetRecord="{!v.accountViewRecord}"
+        targetFields="{!v.simpleAccountViewRecord}"
+        targetError="{!v.recordErrorForAccountView}"
+        mode="VIEW"
+        recordUpdated="{!c.handleRecordUpdated}"              
+    />
+    
+    <!-- Display Lightning Data Service errors for Account View Record --> 
+    <aura:if isTrue="{!not(empty(v.recordErrorForAccountView))}"> 
+        <div class="recordError"> 
+            <ui:message title="Error" severity="error" closable="true"> 
+                {!v.recordErrorForAccountView} 
+            </ui:message> 
+        </div> 
+    </aura:if> 
+    
+    <!-- Focus List Data -->
+    <div class="slds-grid">
+         <div id="focusListDiv">        
+		    <table class="slds-table slds-table_bordered">
+            	<tbody>
+                    <aura:iteration items="{!v.focusList}" var="item" indexVar="idx">
+                        <tr>
+                        	<td scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!item}</td>
+                        </tr>
+                    </aura:iteration>    
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+	
+</aura:component>

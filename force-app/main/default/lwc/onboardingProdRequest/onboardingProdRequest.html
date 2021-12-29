@@ -1,0 +1,46 @@
+<template>
+    <div style="height: 300px;" class="slds-box">	
+        <div class="slds-text-title_caps slds-m-bottom_xx-small">
+            <lightning-icon icon-name="standard:product_request_line_item" size="small" class="slds-m-right_x-small" alternative-text="Existing: Legal (RM) Entity Matches" ></lightning-icon>
+                Request History
+        </div>
+        <div style="height: 250px;">
+            <lightning-datatable
+                    key-field="Id"
+                    data-field="OnbProdHistoryTable"
+                    data={existingProdStatusData}
+                    columns={existingProdStatusCols}
+                    hide-checkbox-column
+                    show-row-number-column>
+            </lightning-datatable>
+        </div>
+    </div>
+    <br></br>
+    <div style="height: 300px;" class="slds-box">	
+        
+        <div class="slds-text-title_caps slds-m-bottom_xx-small">
+            <lightning-icon icon-name="standard:product_request_line_item" size="small" class="slds-m-right_x-small" alternative-text="Existing: Legal (RM) Entity Matches" ></lightning-icon>
+                New Requests
+                
+            <lightning-button-group style="float: right;">
+                <lightning-button label="Add"  icon-name="utility:add" onclick={handleAddClick} ></lightning-button>
+                <lightning-button label="Remove"  icon-name="utility:close" onclick={handleRemoveClick}></lightning-button>
+            </lightning-button-group>
+        </div>
+        
+        <div style="height: 250px; clear: both;">
+            <lightning-datatable
+                    key-field="Id"
+                    data-field="OnbProdNewReqTable"
+                    data={newOnbProdReqData}
+                    columns={newOnbProdReqCols}
+                    hide-checkbox-column
+                    show-row-number-column>
+            </lightning-datatable>
+        </div>
+    </div>
+
+    <template if:true={showObProdForm}>
+        <c-onboarding-product-from oncloseprodform={closeProductForm}></c-onboarding-product-from>
+    </template>
+</template>

@@ -1,0 +1,14 @@
+.THIS {
+}
+
+.THIS .sectionCls {
+    
+}
+
+.THIS .sectionCls >.slds-accordion__section {
+    padding: 0.15rem !important;
+}
+
+.THIS .sectionCls >.slds-is-open >.slds-accordion__summary {
+    margin-bottom: .2rem !important;
+}

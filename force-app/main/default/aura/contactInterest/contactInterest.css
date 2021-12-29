@@ -1,0 +1,17 @@
+.THIS .cell-error{
+    background-color: #f8c7c7;
+}
+
+.THIS .cell-passed{
+    background-color: #caf8c7;
+}
+
+.THIS .input-error{
+	border: 1px solid rgb(194, 57, 52); 
+}
+
+.THIS .button-enabled-ci{
+    background-color: rgb(75, 202, 129);
+    border: 1px solid rgb(75, 202, 129);
+    color: rgb(22, 50, 92) 
+}

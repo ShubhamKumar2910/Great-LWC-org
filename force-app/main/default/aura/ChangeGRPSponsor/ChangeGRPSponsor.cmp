@@ -1,0 +1,80 @@
+<aura:component controller="ChangeGRPSponsor" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" access="global" >
+  	<!-- RECORD ID -->
+    <aura:attribute name="recordId" type="Id" access="global"/>	
+    <aura:attribute name="searchString" type="String" access="global"/>	
+    <aura:attribute name="chosenId" type="Id" access="global"/>	
+    <aura:attribute name="availableUsersMap" type="Map" access="global"/>	
+    <aura:attribute name="availableUser" type="List" access="global"/>	
+    <aura:attribute name="selectedLookupIds" type="STRING[]" access="global"/>	
+    <aura:attribute name="selectedLookupId" type="STRING" access="global"/>
+    <aura:attribute name="contactInfo" type="Contact" default="{ 'sobjectType': 'Contact' }"/> 
+    <aura:attribute name="isGRPAccess" type="Boolean" access="global"/>
+    <aura:attribute name="existingSponsorId" type="STRING" access="global"/>
+
+    <!-- HANDLERS -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <!--Methods -->
+    <aura:method name="doSaveContact" action="{!c.doSaveContact}" />
+    <aura:method name="callInit" action="{!c.doInit}" />
+    <aura:method name="showMessage" action="{!c.showMessage}">
+      <aura:attribute name="title" type="String"/> 
+      <aura:attribute name="message" type="String"/> 
+      <aura:attribute name="type" type="String"/> 
+    </aura:method>
+    
+    
+
+    <div class="slds-modal__container" style="width:100%;padding:0px;">
+        <header class="slds-modal__header">
+          <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{!$Label.c.Change_Contact_Sponsor}</h2>
+        </header>
+
+        <div class="slds-modal__content slds-p-around_medium">
+            <lightning:layout horizontalAlign="space" verticalAlign="stretch">
+                <lightning:layoutItem size="12" class="itemPadding" >
+                      <c:SingleLookup aura:id="lookup-sponsor"   allRecords="false" sObjectAPIName="User" charLimit="2" label="{!$Label.c.Name_Coverage_Team_Member}" pluralLabel="{!$Label.c.CVGTOOL_LABEL_PLURAL_SALESPERSON}"
+                                      showNomuraEmployee="true" listIconSVGPath="standard:contact" 
+                                      listIconClass="slds-icon-standard-contact" itemChange="{!c.doApplySponsor}"/>
+                </lightning:layoutItem>
+            </lightning:layout>
+
+            <div style="clear:both;height:5px;"></div>
+
+            <lightning:layout horizontalAlign="space" verticalAlign="stretch">
+                  <lightning:layoutItem size="12" class="itemPadding" >
+                      <div style="clear:both;height:5px;"></div>
+                      <lightning:input type="String" label="{!$Label.c.Sponsor_Email}" value="{!v.contactInfo.Sponsor_Email_Text__c}" name="sponsorEmail" readonly="true" /> 
+                      <lightning:input type="String" label="{!$Label.c.Sponsor}" value="{!v.contactInfo.Sales_Sponsor__c}" name="sponsor" readonly="true" /> 
+                  </lightning:layoutItem>
+            </lightning:layout>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+           
+        </div>
+
+        <footer class="slds-modal__footer">
+          <lightning:button label="{!$Label.c.Save}" onclick="{!c.doSaveContact}" variant="brand"/>
+          <lightning:button label="{!$Label.c.Cancel}" onclick="{!c.cancel}" variant="neutral"/>
+        </footer>
+        
+   </div>
+
+   <aura:html tag="style">
+    .cuf-content {
+      padding: 0 0rem !important;
+    }
+    .slds-p-around--medium {
+      padding: 0rem !important;
+    }      
+    .slds-modal__content{
+      height:unset !important;
+      max-height:unset !important;
+    }
+</aura:html>
+
+
+  
+</aura:component>

@@ -1,0 +1,61 @@
+<aura:component implements="force:appHostable,flexipage:availableForRecordHome" 
+				controller="AccountMifidIIDetailController"
+                access="global">
+	
+	<aura:attribute name="parentAccountId" type="String" default=""/>
+	<aura:attribute name="accountData" type="Object"/>
+    <aura:attribute name="ParentAccountName" type="String"/>
+    <aura:attribute name="tableColumns" type="List"/>
+    <aura:attribute name="hasErrors" type="Boolean" default="false" />
+    <aura:attribute name="errorMessages" type="String[]" />
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+
+
+    <div class="slds-page-header slds-page-header_object-home">
+        <lightning:layout >
+            <lightning:layoutItem >
+                <lightning:icon iconName="standard:account" />
+            </lightning:layoutItem>
+            <lightning:layoutItem class="slds-m-left_small">
+                <p class="slds-text-title_caps slds-line-height_reset">Account: {!v.ParentAccountName}</p>
+                <h1 class="slds-page-header__title slds-p-right_x-small">Legal Entity MiFID-II Status</h1>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+
+    <br/>
+
+    <lightning:button variant="neutral" label="{!$Label.c.Account_MiFID_Detail_Back}" onclick="{!c.navigateBackToAccount}"/>
+    <br/><br/>
+    
+    <!-- Error Messages -->
+    <aura:if isTrue="{!v.hasErrors}">
+        <lightning:layoutItem padding="around-small" size="12">
+        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" role="alert" style="height:50px;">
+            <lightning:icon iconName="utility:warning" variant="warning" class="slds-icon slds-icon_x-small inlineTable errorMessagePadding"/>
+            <div id="errors" style="">
+            <aura:iteration items="{!v.errorMessages}" var="item">
+                <ui:outputText value="{!item.message}" class="blockDisplay"/>
+            </aura:iteration>
+            </div>
+            <lightning:buttonIcon iconName="utility:close" variant="bare" onclick="{!c.closeErrorMessages}"/>
+        </div>
+        </lightning:layoutItem>
+        <aura:set attribute="else">
+            <div></div>
+        </aura:set>
+    </aura:if>
+
+
+
+
+    <lightning:datatable data="{! v.accountData }" 
+        columns="{! v.tableColumns }" 
+        keyField="id"
+        onrowselection="{! c.getSelectedName }"
+        hideCheckboxColumn="true"
+       />
+
+       <br/><br/>
+
+</aura:component>

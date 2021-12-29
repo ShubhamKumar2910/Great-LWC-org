@@ -1,0 +1,118 @@
+<template>
+
+    <lightning-card
+        variant="narrow"
+        icon-name="standard:event">
+        <h1 slot="title">{eventQuickSearchTitle}</h1>
+
+        <div slot="actions">
+            
+            <lightning-button-icon-stateful icon-name="utility:download"   
+            alternative-text={downloadLimitAltText} onclick={download} style="margin-right: 10px;" ></lightning-button-icon-stateful>
+
+            <lightning-button-icon-stateful icon-name="utility:filterList" selected={filterState} onclick={toggleFilter} 
+            alternative-text={filterLabel}></lightning-button-icon-stateful>
+             
+        </div>
+
+    </lightning-card>
+
+    <div class="slds-grid">
+        <div class="slds-col slds-no-space" style="height: 700px; direction:ltr;">
+            <lightning-datatable 
+                key-field="id"
+                data={data}
+                show-row-number-column
+                hide-checkbox-column
+                columns={columns}
+                enable-infinite-loading
+                onloadmore={loadMoreData}
+                load-more-offset="30"
+                min-column-width="150"
+            >
+            </lightning-datatable>
+            {loadMoreStatus}
+        </div>
+
+        <div class="slds-panel slds-size_medium slds-panel_docked slds-panel_docked-right slds-is-open" aria-hidden="false" style="height: 700px;overflow: visible;">
+            <div class="slds-panel__header">
+                <h2 class="slds-panel__header-title slds-text-heading_small slds-truncate" title={filterLabel}>{filterLabel}</h2>
+
+                <lightning-button variant="base" icon-name="utility:close" class="slds-m-left_x-small" onclick={toggleFilter}></lightning-button>
+
+            </div>
+
+            <div class="slds-panel__body">
+
+                <div class="slds-clearfix">
+                    <div class="slds-form-element slds-float_right">
+                        <lightning-input onchange={excludeInactiveChange} type="toggle" label={excludeInactiveLabel} name="input1" checked={excludeInactive} message-toggle-active="" message-toggle-inactive="" ></lightning-input>
+                    </div>
+                </div>
+                        
+                <c-lookup-Lwc selection={initialRSAccountSelection} errors={rsAccountError} onsearch={handleSearch}
+                    onselectionchange={handlefilter} label={rsAccountLabel} placeholder={searchAccPlaceholder} data-field="rsAccount">
+                </c-lookup-Lwc>
+                
+                <lightning-record-edit-form object-api-name="Contact" >
+                    {rgAccountLabel}
+                    <lightning-input-field name='accountId' value={accountId} field-name="RG_Account__c" data-field="accountId" onchange={handlefilter} variant="label-hidden" ></lightning-input-field>
+                </lightning-record-edit-form>  
+
+
+                
+                <lightning-record-edit-form object-api-name="Contact" >
+                    {rmAccountLabel}
+                    <lightning-input-field name='rmAccountId' value={rmAccountId} field-name="AccountId" data-field="rmAccountId" onchange={handlefilter} variant="label-hidden" ></lightning-input-field>
+                </lightning-record-edit-form>
+
+                <lightning-record-edit-form object-api-name="Contact" >
+                    {podAccountLabel}
+                    <lightning-input-field name='podAccountId' value={podAccountId} field-name="POD_Account__c" data-field="podAccountId" onchange={handlefilter} variant="label-hidden" ></lightning-input-field>
+                </lightning-record-edit-form>
+
+
+
+                <c-lookup-Lwc selection={initialClientSelection} errors={clientError} onsearch={handleSearch} onselectionchange={handlefilter}
+                    label={clientAttendeeLabel} placeholder={searchClientAttendeePlaceholder} data-field="clientAttendee" >
+                </c-lookup-Lwc>
+                        
+                <c-lookup-Lwc selection={initialInternalSelection} errors={internalError} onsearch={handleSearch} onselectionchange={handlefilter}
+                        label={internalInviteeLabel} placeholder={searchInternalInviteePlaceholder} data-field="internalInvitee"  >
+                </c-lookup-Lwc>
+
+                {dateLabel}
+                <div class="slds-grid">
+                        <div class="slds-col">
+                            <lightning-input variant="label-stacked" type="date" name="startDate" value={startDate} data-field="startDate" label={startDateLabel} onchange={handlefilter} autocomplete="off"></lightning-input>
+                        </div>
+                        <div class="slds-col" style="padding-top:30px;">
+                            -
+                        </div>
+                        <div class="slds-col">
+                            <lightning-input variant="label-stacked" type="date" name="endDate" value={endDate} data-field="endDate" label={endDateLabel} onchange={handlefilter} autocomplete="off"></lightning-input>
+                        </div>
+                </div>
+
+                {activityTypeLabel}
+                <lightning-dual-listbox name="Activity Type" size="4"
+                    source-label={availableFilterLabel}
+                    selected-label={selectedFilterLabel}
+                    options={eventTypes}
+                    value={selectedActivityType}
+                    data-field="activityType"
+                    onchange={handlefilter}
+                    disable-reordering="true"
+                    min-column-width="500"
+                    >
+                </lightning-dual-listbox>
+
+            </div>
+
+        </div>
+
+    </div>
+    
+    <br/><br/><br/>
+
+</template>

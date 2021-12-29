@@ -1,0 +1,204 @@
+<apex:page standardcontroller="Account">
+</apex:page>
+<!--
+<apex:page standardcontroller="Account" extensions="KeyContactController" tabStyle="Contact">
+    <apex:slds />
+    <apex:includeScript value="/support/console/40.0/integration.js"/>
+    
+    <Style>
+    body .pbBody table.list tr.headerRow td, body .pbBody table.list tr.headerRow th {
+        background: rgb(253, 253, 253);
+        border-width: 0 0 1px 1px;
+        border-color: #e0e3e5;
+        color: rgb(84, 105, 141);
+        font-size: .9em;
+        font-weight: normal;
+        padding: 5px 2px 4px 5px;
+    }
+    </Style>
+    
+ <script type="text/javascript">
+/*  
+     var keyContactsTabId = null;
+
+    function OpenKeyContactList(AccountId) 
+    {
+        if (sforce.console.isInConsole()) // console action
+        {
+            sforce.console.getEnclosingTabId(
+                function(enclosingResult)
+                {
+                    sforce.console.getEnclosingPrimaryTabId(function(primaryResult){  
+                        sforce.console.openSubtab(primaryResult.id, '/apex/FullKeyContact?id={!Account.id}', true, 'Key Contacts', '', getSubtabId,'KeyContactList');
+                    }); 
+                }
+            );    
+        }
+        else // classic SF action
+        {
+            window.top.location.href = '/apex/FullKeyContact?id={!Account.id}';     
+        }
+        
+    }
+            
+    function viewAllContacts()
+    {
+        if (sforce.console.isInConsole()) // console action
+        {
+            sforce.console.getEnclosingTabId(
+                function(enclosingResult)
+                {
+                    Visualforce.remoting.Manager.invokeAction(
+                        '{!$RemoteAction.KeyContactController.getAllContactReportId}', 
+                        function(result, event){
+                            if (event.status) {
+                                console.log(result);
+                                var url = '/' + result + '?pv0={!Account.Name}';
+
+                                console.log(url);
+                                sforce.console.getEnclosingPrimaryTabId(function(primaryResult){  
+                                    sforce.console.openSubtab(primaryResult.id, url, true, 'All Contacts', '', getSubtabId,'All Contacts');
+                                }); 
+                            } else if (event.type === 'exception') {
+                                document.getElementById("responseErrors").innerHTML = event.message;
+                            } else {
+                                document.getElementById("responseErrors").innerHTML = event.message;
+                            }   
+                        }, 
+                        {escape: true}
+    );
+
+                    
+                }
+            );    
+        }
+        else // classic SF action
+        {
+            Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.KeyContactController.getAllContactReportId}', 
+        function(result, event){
+            if (event.status) {
+                console.log(result);
+                var url = '/' + result + '?pv0={!Account.Name}' ;
+                console.log(url);
+                window.top.location.href = url;
+            } else if (event.type === 'exception') {
+                document.getElementById("responseErrors").innerHTML = event.message;
+            } else {
+                document.getElementById("responseErrors").innerHTML = event.message;
+            }
+        }, 
+        {escape: true}
+    );
+        }
+    }
+    
+    function viewRecentViewedContacts()
+    {
+        if (sforce.console.isInConsole()) // console action
+        {
+            sforce.console.getEnclosingTabId(
+                function(enclosingResult)
+                {
+                    sforce.console.getEnclosingPrimaryTabId(function(primaryResult){  
+                        sforce.console.openSubtab(primaryResult.id, '/apex/AccountRecentViewedContacts?id={!Account.id}', true, 'Recently Viewed Contacts', '', getSubtabId,'RecentlyViewedContacts');
+                    }); 
+                }
+            );    
+        }
+        else // classic SF action
+        {
+            window.top.location.href = '/apex/AccountRecentViewedContacts?id={!Account.id}';     
+        }
+    }
+    
+    function newContact() 
+    {
+        var redirectUrl = '{!URLFOR($Action.Contact.NewContact)}';
+        
+        if (sforce.console.isInConsole()) // console action
+        {
+            sforce.console.getEnclosingTabId(
+                function(enclosingResult)
+                {
+                    sforce.console.getEnclosingPrimaryTabId(function(primaryResult){  
+                        sforce.console.openSubtab(primaryResult.id, redirectUrl, true, 'New Contact', '', getSubtabId,'NewContact');
+                    });
+                }
+            );
+        }
+        else // classic SF action
+        {
+            window.top.location.href = '{!URLFOR($Action.Contact.NewContact, null, [retURL=Account.Id])}' ;    
+        }
+        
+    }
+    
+    function OpenContactCoverageList(accountId) 
+    {
+        var redirectUrl = '/apex/ContactCoverageData?Id='+ accountId;
+        if(sforce.console.isInConsole()) // console action
+        {
+            sforce.console.getEnclosingTabId(
+                function(enclosingResult)
+                {
+                    sforce.console.getEnclosingPrimaryTabId(function(primaryTabResult){  
+                        sforce.console.openSubtab(primaryTabResult.id, redirectUrl, true, 'Contact Coverage', null, getSubtabId,'Contact Coverage');
+                    }); 
+                }
+            );    
+        }
+        else // classic SF action
+        {
+            window.top.location.href = redirectUrl;     
+        }
+    }
+
+    function mifidAdmin()
+    {
+        if (sforce.console.isInConsole()) // console action
+        {
+            sforce.console.getEnclosingTabId(
+                function(enclosingResult)
+                {
+                    sforce.console.getEnclosingPrimaryTabId(function(primaryResult){  
+                        sforce.console.openSubtab(primaryResult.id, '/apex/ContactMifid2InScopeBulkSet?id={!Account.id}', true, 'MiFID-II Bulk Update', '', getSubtabId,'RecentlyViewedContacts');
+                    }); 
+                }
+            );    
+        }
+        else // classic SF action
+        {
+            window.top.location.href = '/apex/ContactMifid2InScopeBulkSet?id={!Account.id}';     
+        }
+    }
+    
+    var getSubtabId = function getSubtabId (result) 
+    {
+        keyContactsTabId = result.id;  
+    }
+   */
+</script>
+    <apex:pageBlock mode="maindetail" > 
+        <apex:form >
+            <apex:panelGrid styleClass=".DesktopFrameCommon.css" style="font-size:90%"   columns="8">
+                <a onClick="viewRecentViewedContacts()" href="javascript:;" style="padding-right:20px;">Recently Viewed Contacts »</a>   
+                <a onClick="viewAllContacts()" href="javascript:;" style="padding-right:20px;">All Contacts »</a> 
+                <a onClick="OpenKeyContactList('{!parentId}')" href="javascript:;" style="padding-right:20px;">Key Contacts »</a> 
+                <a onClick="OpenContactCoverageList('{!parentId}')" href="javascript:;" style="padding-right:20px;">Contact Coverage »</a>
+                <!--<a onClick="newContact()" href="javascript:;" style="padding-right:20px;">New Contact »</a>
+                <apex:outputPanel rendered="{!IF($Profile.Name!='Nomura - Production Services',True,False)}">
+                    <a onClick="newContact()" href="javascript:;" style="padding-right:20px;">New Contact »</a>
+                </apex:outputPanel>
+
+                 <apex:outputPanel rendered="{!$User.SingletrackMIFIDII_ResearchAdmin__c}">
+                    <a onClick="mifidAdmin()" href="javascript:;" style="padding-right:20px;">{!$Label.MiFID_II_Bulk_Update_Title} »</a>
+                </apex:outputPanel>
+
+            </apex:panelGrid>
+
+        </apex:form>
+    </apex:pageBlock>
+</apex:page>
+
+-->

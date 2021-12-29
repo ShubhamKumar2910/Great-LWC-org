@@ -1,0 +1,22 @@
+<design:component label="Home Page Activities And Wave Fixed Height">
+    <flexipage:template >
+            <flexipage:region name="left" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+            <flexipage:region name="bottomLeft" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+            <flexipage:region name="bottomRight" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+            <flexipage:region name="bottomMiddle" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+        	<flexipage:region name="middle" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+        <flexipage:region name="right" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+       </flexipage:template>
+</design:component>

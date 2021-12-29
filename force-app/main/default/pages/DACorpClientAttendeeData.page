@@ -1,0 +1,34 @@
+<apex:page standardController="Event" extensions="DACorpClientAttendeeController" tabStyle="Event">
+    <apex:includeScript value="/support/console/29.0/integration.js"/>
+    
+    <apex:pageBlock mode="maindetail">
+        <apex:form >
+            <apex:pageBlockTable styleClass=".DesktopFrameCommon.css"   value="{!DACorpClientAttendees}" var="index" style="font-size: 90%"> 
+                <apex:column headerValue="{!$Label.Corporate_Client_Name}" value="{!index.Corporate_Client_Name__c}" />
+                <apex:column headerValue="{!$Label.Corporate_Client_Contact_Name}" value="{!index.Corporate_Client_Contact_Name__c}" styleClass="dataCell" />
+                <apex:column headerValue="{!$Label.Corporate_Client_Contact_Title}" value="{!index.Corporate_Client_Contact_Title__c}" />
+                <apex:column headerValue="{!$Label.Corporate_Client_Contact_Status}" value="{!index.Corporate_Client_Contact_Status__c}" />
+            </apex:pageBlockTable>     
+				
+            <apex:panelGrid columns="5" styleClass=".DesktopFrameCommon.css" style="font-size: 90%">
+            	<apex:outputText rendered="{!(corpClientAttendeeRecords.hasPrevious)}">
+                    <apex:commandLink action="{!corpClientAttendeeRecords.previous}">Previous</apex:commandLink>
+                    | 
+				</apex:outputText>
+                
+                 <apex:outputText rendered="{!(corpClientAttendeeRecords.hasNext)}">
+                    <apex:commandLink action="{!corpClientAttendeeRecords.next}">Next</apex:commandLink>
+                    | 
+				</apex:outputText>
+
+                <apex:outputText >
+                    {!IF((corpClientAttendeeRecords.pageNumber * size)>noOfRecords, noOfRecords,(corpClientAttendeeRecords.pageNumber * size))} 
+                    / {!noOfRecords} Records
+                </apex:outputText> 
+
+            </apex:panelGrid>
+            
+        </apex:form>
+    </apex:pageBlock>    
+    
+</apex:page>

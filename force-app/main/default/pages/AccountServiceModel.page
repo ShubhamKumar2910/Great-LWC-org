@@ -1,0 +1,29 @@
+<apex:page standardController="Account_Service_Model__c" recordSetVar="accounts">
+    <apex:includeLightning />
+    <div id="lightning" />
+        <script>
+        $Lightning.use("c:AccountServiceModelApp", function() {
+            $Lightning.createComponent("c:AccountServiceModel",
+                                       { label : "" },
+                                      "lightning",
+                                      function(cmp) {
+                                          $A.eventService.addHandler({
+                                            event: 'force:navigateToSObject',
+                                            handler: function(event){
+                                                if(sforce && sforce.one){
+                                                    sforce.one.navigateToSObject(event.getParam("recordId"));
+                                                }
+                                            }
+                                          });
+                                      
+                                          $A.eventService.addHandler({
+                                          event: 'force:navigateToList',
+                                          handler: function(event){
+                                            if(sforce && sforce.one){
+                                                    sforce.one.navigateToList(event.getParam("listViewId"), event.getParam("listViewName"), event.getParam("scope"));
+                                                }
+                                          }
+                                          });
+                                      });});
+    </script>
+</apex:page>

@@ -1,0 +1,79 @@
+/* STYLE FOR ICONS*/
+.THIS button .slds-icon-text-default {
+    fill: white;
+}
+.THIS .slds-form-element__row{
+    align-items: flex-start !important;
+}
+.THIS li .slds-icon-text-default {
+    fill: black;
+}
+
+.THIS .headerTitle {
+    margin-left: 0.5rem;
+}
+.THIS .custombadgeHeader{
+    padding: 0.60rem 1.5rem;
+    border-radius: 15rem;
+    font-size: .625rem;
+    line-height: normal;
+    text-transform: uppercase;
+    letter-spacing: .0625em;
+    color: rgb(62, 62, 60);
+    vertical-align: bottom;
+    white-space: nowrap;
+    background-color: rgb(112, 110, 107);
+    color: rgb(255, 255, 255);
+        float: left;
+    margin-right: 3px;
+}
+.THIS .validationNote{
+    background-color: #dddcdc;
+    color: black;
+    padding-left: 6px;
+    clear: both;
+}
+
+.THIS .note{
+    color:white;
+}
+
+.THIS footer .footerStyle{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgb(249, 249, 250);
+    box-shadow: 0 -2px 2px 0 rgba(0, 0, 0, 0.16);
+    z-index: 8000;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.THIS .customModal {
+    margin: 0 auto;
+    max-width: 72rem !important;
+    min-width: 20rem !important;
+    position: relative;
+    -ms-transform: translate(0, 0);
+    transform: translate(0, 0);
+    transition: transform .1s linear,opacity .1s linear;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    flex-direction: column;
+    -webkit-box-pack: center;
+    justify-content: center;
+    height: 100%;
+    padding: 3rem 0;
+    border-radius: .25rem;
+}
+.THIS .customModalContent{
+    background: rgb(255, 255, 255);
+}
+
+.THIS .modalPLarge{
+    padding: 1.0rem;
+}

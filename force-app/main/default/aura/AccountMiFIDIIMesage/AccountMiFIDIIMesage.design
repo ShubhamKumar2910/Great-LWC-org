@@ -1,0 +1,3 @@
+<design:component>
+    <design:attribute name="visibleTo" label="Visible To" description="Comma seperated list of Profile Names Or Permission Set Developer Name to whom this component should be visible" />
+</design:component>

@@ -1,0 +1,45 @@
+<aura:component implements="lightning:homeTemplate" description="Preferred Wave Home">
+    <aura:attribute name="left" type="Aura.Component[]" />
+    <aura:attribute name="bottomLeft" type="Aura.Component[]" />
+    <aura:attribute name="bottomRight" type="Aura.Component[]" />
+    <aura:attribute name="bottomMiddle" type="Aura.Component[]" />
+    <aura:attribute name="topTileLeft" type="Aura.Component[]" />
+    <aura:attribute name="topTileRight" type="Aura.Component[]" />
+    <aura:attribute name="middleTileLeft" type="Aura.Component[]" />
+    <aura:attribute name="middleTileRight" type="Aura.Component[]" />
+    <aura:attribute name="wave" type="Aura.Component[]" />
+    <aura:attribute name="news" type="Aura.Component[]" />
+    <div>
+        <lightning:layout horizontalAlign="auto">
+            <lightning:layoutItem flexibility="auto" class="slds-m-right_small" size="8">
+                {!v.left}
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="auto" class="slds-m-right_small" size="6">
+
+                <lightning:layout horizontalAlign="auto">
+                    <lightning:layoutItem flexibility="grow" class="slds-m-right_small" size="3">
+                        {!v.topTileLeft}
+                    </lightning:layoutItem>
+                    <lightning:layoutItem flexibility="grow" class="slds-m-right_small" size="3">
+                        {!v.topTileRight}
+                    </lightning:layoutItem>
+                </lightning:layout><br/>
+                <lightning:layout horizontalAlign="auto">
+                    <lightning:layoutItem flexibility="auto" class="slds-m-right_small" size="3">
+                        {!v.middleTileLeft}
+                    </lightning:layoutItem>
+                    <lightning:layoutItem flexibility="auto" class="slds-m-right_small" size="3">
+                        {!v.middleTileRight}
+                    </lightning:layoutItem>
+                </lightning:layout><br/>
+
+
+                <lightning:layout horizontalAlign="auto">
+                    <lightning:layoutItem flexibility="auto" class="slds-m-right_small" size="6">
+                        {!v.news}
+                    </lightning:layoutItem>
+                </lightning:layout>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+</aura:component>

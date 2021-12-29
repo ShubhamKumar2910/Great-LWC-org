@@ -1,0 +1,96 @@
+<apex:page standardcontroller="Account"   extensions="CoverageMembersRGController">   
+    <apex:includeScript value="/support/console/29.0/integration.js"/>
+<script type="text/javascript">
+ var CoverageListTabId = null;
+    // Opens a subtab 
+    /*function openAccountUserSubtab(caseId) {
+   	// Check if user is in the Console, otherwise open as a regular URL
+        //if (sforce.console.isInConsole()) {
+        // alert("in colsole");
+    	sforce.console.getEnclosingPrimaryTabId(function(result){
+     		sforce.console.openSubtab(result.id, '/' + caseId, true, '', null);
+      	});
+          //} else {
+          //alert("not");
+        //window.open('/' + caseId);
+          //}
+  	}; */
+    
+      function OpenCoverageList(AccountId) {
+           //Open a new primary tab with the Customer Search page
+           var redirectUrl = '/apex/CoverageMemberList?AccountId='+ AccountId;
+
+                sforce.console.getEnclosingTabId(function(enclosingResult){
+                    sforce.console.getEnclosingPrimaryTabId(function(primaryResult){  
+                         if(CoverageListTabId !== null && CoverageListTabId !== undefined);
+                        {
+                        sforce.console.focusSubtabById(CoverageListTabId);
+                            } 
+                        
+                        sforce.console.openSubtab(primaryResult.id, redirectUrl, true, 'Coverage Team Members', '', getSubtabIdCvg,'CoverageList');
+                    });
+                });
+         };
+    
+    var getSubtabIdCvg = function getSubtabIdCvg (result) {
+    CoverageListTabId = result.id;  
+}  
+    
+    /* if(keyContactsTabId !== null && keyContactsTabId !== undefined);
+                        {
+                        sforce.console.focusSubtabById(keyContactsTabId);
+                            }                       
+                        sforce.console.openSubtab(primaryResult.id, redirectUrl, true, 'Key Contacts','', getSubtabId,'KeyContactList');  
+    });*/
+    
+    /* function OpenCoverageList(AccountId) {
+           //Open a new primary tab with the Customer Search page
+           var primaryTabName = 'salesforceTab';
+               sforce.console.openPrimaryTab(null, '/apex/CoverageMemberList?AccountId='+ AccountId, true, 'Coverage Team Members (G)', null, primaryTabName );           
+      
+       } */
+ </script>
+    <apex:pageBlock mode="maindetail" >    
+        <apex:form >
+        <!--<apex:commandButton value="Save" action="{!customSave}"/>--> <!-- This is the Custom Save Button -->
+               <!-- <apex:pageBlockTable styleClass=".DesktopFrameCommon.css" style="font-size:90%"   value="{!coverageMem}" var="index">   
+                  <apex:column headerValue="{!$Label.Name_Coverage_Team_Member}"> 
+                      <a onClick="openAccountUserSubtab('{!CoverageMem[index]}')" href="javascript:;">{!index.Display_Name__c}</a>
+                   </apex:column> 
+                    <apex:column headerValue="{!$Label.Sales_Team_Name}" value="{!index.Sales_Team_Name__c}" />                  
+                   <apex:column headerValue="{!$Label.RM_Account_Coverage_Team_Member}">
+                       <a onClick="openAccountUserSubtab('{!index.Account__c}')" href="javascript:;">{!index.Account__r.Name}</a>                       
+                   </apex:column>
+                    <apex:column value="{!index.Product_Group__c}"/>
+                    <apex:column value="{!index.Product2__c}"/>
+                    <apex:column value="{!index.Product_Region__c}"/>                    
+                    <apex:column value="{!index.Team_Role__c}"/>
+                    <apex:column value="{!index.Start_Date__c}"/>
+                    <apex:column value="{!index.End_Date__c}"/>
+                    
+                </apex:pageblocktable>-->      
+        
+          <!--  <apex:pageBlockTable styleClass=".DesktopFrameCommon.css" style="font-size:90%" value="{!coverageMem}" var="index" >
+                 <apex:column headerValue="{!$Label.Name_Coverage_Team_Member}"> 
+                      <a onClick="openAccountUserSubtab('{!index.MemberId}')" href="javascript:;">{!index.Name}</a>
+                   </apex:column> 
+                <apex:column headerValue="{!$Label.Sales_Team_Name}"  value="{!index.SalesTeam}"/>
+                <!--<apex:column headerValue="{!$Label.Sales_Code_Coverage_Team_Member}" value="{!index.SalesCode}"/>
+            </apex:pageBlockTable>
+
+            <apex:panelGrid styleClass=".DesktopFrameCommon.css" style="font-size:90%"   columns="8">
+                <apex:commandLink action="{!previous}" rendered="{!(HasPrevious)}">Previous</apex:commandlink>
+                <apex:outputText rendered="{!(HasPrevious)}">|</apex:outputText>
+                <apex:commandLink action="{!next}" rendered="{!(HasNext)}">Next</apex:commandlink>
+                 <apex:outputText rendered="{!(HasNext)}">|</apex:outputText>
+                <apex:outputText styleClass=".DesktopFrameCommon.css" style="font-size:90%"   >                     
+                      {!IF((pageNumber * pageSize) > resultSize, resultSize,(pageNumber * pageSize))} 
+                 / {!resultSize} records |
+                </apex:outputText>-->
+            <apex:panelGrid styleClass=".DesktopFrameCommon.css" style="font-size:90%"   columns="8">
+                <a onClick="OpenCoverageList('{!parentId}')" href="javascript:;">Coverage Members »</a>               
+            </apex:panelGrid>
+             
+        </apex:form>
+    </apex:pageBlock>
+</apex:page>

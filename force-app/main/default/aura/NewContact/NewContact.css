@@ -1,0 +1,36 @@
+.THIS {
+}
+
+.THIS .errorMessagePadding {
+    align-self: normal;
+    margin-right: 60px;
+}
+
+.THIS .marginLeftPadding {
+   
+    margin-left: .5rem;
+}
+
+.THIS .disabledCheckbox {
+   
+    /*background: currentColor;*/
+}
+
+.THIS.scrollerSize {
+    height: 100%;
+    padding: 0.5em;
+}
+
+.THIS .marginLeftPaddingMobile {
+   
+    margin-left: .5rem;
+    width: 98%;
+}
+/*Added for JIRA SALES-3004 */
+.THIS .slds-form-element__row  {
+    align-items:flex-start;
+}
+
+.THIS .noWrapCls {
+    white-space: nowrap;
+}

@@ -1,0 +1,163 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride" >
+    <aura:method name="initialiseProducts" action="{!c.initialiseProducts}">
+        <aura:attribute name="products" type="Object"/>
+    </aura:method>
+    <aura:method name="initialiseSalesCodes" action="{!c.initialiseSalesCodeIds}">
+        <aura:attribute name="salesCodes" type="String[]"/>
+    </aura:method>
+    <aura:method name="initialiseClearingHouses" action="{!c.initialiseClearingHouses}">
+        <aura:attribute name="clearingHouses" type="String[]" />
+    </aura:method>
+    <aura:method name="initialiseClearingBilateralProducts" action="{!c.initialiseClearingBilateralProducts}">
+        <aura:attribute name="clearingBilateralProducts" type="String[]" />
+    </aura:method>
+    <aura:method name="initialiseGlobalMarginRequirements" action="{!c.initialiseGlobalMarginRequirements}">
+        <aura:attribute name="globalMarginRequirements" type="String[]" />
+    </aura:method>
+    <aura:method name="initialiseCollateralCurrencies" action="{!c.initialiseCollateralCurrencies}">
+        <aura:attribute name="collateralCurrencies" type="String[]" />
+    </aura:method>
+    <aura:method name="initialiseCollateralTypes" action="{!c.initialiseCollateralTypes}">
+        <aura:attribute name="collateralTypes" type="String[]" />
+    </aura:method>
+
+    <aura:handler name="products" event="c:ETradingEnablementProductEvent" action="{!c.handleProductsEvent}"/>
+
+    <aura:handler name="change" value="{!v.cashRDM}" action="{!c.handleCashRDMChange}"/>
+    <aura:handler name="change" value="{!v.cashRDMEntity}" action="{!c.handleCashRDMEntityChange}"/>
+    <aura:handler name="change" value="{!v.irsRDM}" action="{!c.handleIRSRDMChange}"/>
+    <aura:handler name="change" value="{!v.irsRDMEntity}" action="{!c.handleIRSRDMEntityChange}"/>
+    <aura:handler name="change" value="{!v.repoRDM}" action="{!c.handleRepoRDMChange}"/>
+    <aura:handler name="change" value="{!v.repoRDMEntity}" action="{!c.handleRepoRDMEntityChange}"/>
+
+    <aura:registerEvent name="salesCodeProducts" type="c:ETradingEnablementSalesRequestEvent"/>
+    <aura:registerEvent name="salesCodeRemove" type="c:ETradingEnablementSalesRequestRemoveEvent" />
+    
+    <aura:attribute name="salesCodeIds" type="String[]"/>
+    <aura:attribute name="productIds" type="String[]"/>
+    <aura:attribute name="cashRDM" type="String" default=""/>
+    <aura:attribute name="cashRDMEntity" type="String" default="" />
+    <aura:attribute name="irsRDM" type="String" default="" />
+    <aura:attribute name="irsRDMEntity" type="String" default="" />
+    <aura:attribute name="repoRDM" type="String" default="" />
+    <aura:attribute name="repoRDMEntity" type="String" default="" />
+    <aura:attribute name="displayClearingBilateral" type="Boolean" default="false" />
+    <aura:attribute name="clearing" type="Boolean" default="false" />
+    <aura:attribute name="bilateral" type="Boolean" default="false" />
+    <aura:attribute name="clearingBilateral" type="String[]" />
+    <aura:attribute name="clearingHouseOptions" type="Object[]" />
+    <aura:attribute name="selectedClearingHouses" type="String[]" />
+    <aura:attribute name="clearingHouses" type="String[]"/>
+    <aura:attribute name="globalMarginRequirementsOptions" type="Object[]" />
+    <aura:attribute name="globalMarginRequirement" type="String"/>
+    <aura:attribute name="collateralCurrenciesOptions" type="Object[]" />
+    <aura:attribute name="selectedCollateralCurrencies" type="String[]" />
+    <aura:attribute name="collateralCurrencies" type="String[]" />
+    <aura:attribute name="collateralTypesOptions" type="Object[]" />
+    <aura:attribute name="collateralType" type="String" />
+    <aura:attribute name="tenorRestriction" type="String" default="" />
+    <aura:attribute name="breakClause" type="String" default="" />
+    
+    <lightning:layout aura:id="Select" horizontalAlign="spread" class="fullWidth">
+        <lightning:layoutItem aura:id="filter" padding="around-small" size="12">
+            <lightning:card title="Sales Request" iconName="custom:custom18">
+                <aura:set attribute="actions">
+                    <lightning:buttonIcon iconName="utility:close" onclick="{!c.handleClose}" variant="border-filled"
+                        alternativeText="Close" />
+                </aura:set>
+                <div class="flexDisplay">
+                    <lightning:layoutItem padding="around-small" size="6">
+                        <div class="slds-p-bottom_small">
+                            <c:SingleLookup aura:id="salesCodeAdd" 
+                                            allRecords="true" 
+                                            sObjectAPIName="Sales_Team_for_Coverage__c"
+                                            charLimit="2" label="* Sales Code " 
+                                            listIconSVGPath="custom:custom52" 
+                                            listIconClass="slds-icon-custom-custom52"
+                                            itemChange="{!c.handleSalesCodeChange}" 
+                                            placeholder="Search Sales Codes" 
+                                            preSelectedIds="{!v.salesCodeIds}"
+                                            withSharing="false" />
+                        </div>
+                        <c:ETradingEnablementProduct aura:id="product" />
+                        <lightning:card>
+                            <ul class="slds-list_horizontal">
+                                <li>
+                                    <lightning:input name="cashRDM" label="Cash RDM" value="{!v.cashRDM}" />
+                                </li>
+                                <li>
+                                    <div class="slds-p-left_small">
+                                        <lightning:input name="cashRDMEntity" label="Entity" value="{!v.cashRDMEntity}" />
+                                    </div>
+                                </li>
+                            </ul>
+                            <ul class="slds-list_horizontal">
+                                <li>
+                                    <lightning:input name="irsRDM" label="IRS RDM" value="{!v.irsRDM}" />
+                                </li>
+                                <li>
+                                    <div class="slds-p-left_small">
+                                        <lightning:input name="irsRDMEntity" label="Entity" value="{!v.irsRDMEntity}" />
+                                    </div>
+                                </li>
+                            </ul>
+                            <ul class="slds-list_horizontal">
+                                <li>
+                                    <lightning:input name="repoRDM" label="Repo RDM" value="{!v.repoRDM}" />
+                                </li>
+                                <li>
+                                    <div class="slds-p-left_small">
+                                        <lightning:input name="repoRDMEntity" label="Entity" value="{!v.repoRDMEntity}" />
+                                    </div>
+                                </li>
+                            </ul>
+                        </lightning:card>
+                    </lightning:layoutItem>
+
+                    <lightning:layoutItem padding="around-small" size="5">
+                        
+                        <aura:if isTrue="{!v.displayClearingBilateral}">
+                            <div>
+                                <div class="slds-align_absolute-center" style="height: 5rem;">
+                                    <div>
+                                        <ui:inputCheckbox aura:id="clearingCheckbox" labelClass="slds-p-horizontal_small slds-float_left" label="Clearing" change="{!c.handleClearingChange}" />
+                                    </div>
+                                    <div>
+                                        <ui:inputCheckbox aura:id="bilateralCheckbox" labelClass="slds-p-horizontal_small slds-float_left" label="Bilateral" change="{!c.handleBilateralChange}" />
+                                    </div>
+                                </div>
+                            </div>
+                        </aura:if>
+
+                        <aura:if isTrue="{!v.clearing}">
+                            <lightning:card title="Clearing" iconName="custom:custom24">
+                                <c:SelectMultiple aura:id="clearingHouses" setLabelName="Clearing House" options="{!v.clearingHouseOptions}"
+                                                  selectChange="{!c.handleClearingHouseChange}" selectedItems="{!v.selectedClearingHouses}" disabled="false" />
+                            </lightning:card>
+                        </aura:if>
+
+                        <aura:if isTrue="{!v.bilateral}">
+                            <lightning:card title="Bilateral" iconName="custom:custom16">
+                                
+                                <lightning:combobox aura:id="globalMarginRequirement" name="globalMarginRequirement" label="Global Margin Requirement" value="inProgress" placeholder="-- None --"
+                                    options="{!v.globalMarginRequirementsOptions}" onchange="{!c.handleGlobalMarginRequirementChange}" />
+
+                                <c:SelectMultiple aura:id="collateralCurrencies" setLabelName="Collateral Currencies" options="{!v.collateralCurrenciesOptions}"
+                                    selectChange="{!c.handleCollateralCurrenciesChange}" selectedItems="{!v.selectedCollateralCurrencies}" disabled="false" />
+
+                                <lightning:combobox aura:id="collateralType" name="collateralType" label="Collateral Type" value="inProgress"
+                                    placeholder="-- None --" options="{!v.collateralTypesOptions}"
+                                    onchange="{!c.handleCollateralTypeChange}" />
+
+                                <lightning:input label="Tenor Restriction" value="{!v.tenorRestriction}" onblur="{!c.handleTenorRestrictionBlur}"/>
+                                <lightning:input label="Break Clause" value="{!v.breakClause}" onblur="{!c.handleBreakClauseBlur}"/>
+
+                             </lightning:card>   
+                        </aura:if>
+                    </lightning:layoutItem>
+                </div>
+            </lightning:card>
+        </lightning:layoutItem>
+    </lightning:layout>
+
+</aura:component>

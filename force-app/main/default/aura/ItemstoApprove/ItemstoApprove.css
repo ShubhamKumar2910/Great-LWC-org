@@ -1,0 +1,35 @@
+.THIS  .slds-text-heading--small {
+    font-size: 14px;
+    line-height: 1.25;
+}
+.THIS.mainContainer{
+    width:101%;
+    height:32px;
+    background-color:#808080;
+    margin:-1px
+}
+.THIS .subContent{
+font-size: 13px;
+}
+
+.THIS .approve{
+    background-color:#2fa02f;
+    color:#fff;
+}
+.THIS .reject{
+    background-color:#b30808;
+    color:#fff;
+}
+.THIS .headerIcon{
+    background-color:#808080;
+    border-color:#808080;
+    color:white;
+}
+.THIS .slds-card+.slds-card {
+    margin-top: 1px;
+}
+.THIS.scrollerSize{    
+   width:100%;
+    height:100%;
+    overflow:hidden;
+}

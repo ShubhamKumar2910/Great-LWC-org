@@ -1,0 +1,5 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,lightning:isUrlAddressable" access="global">
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <wave:sdk aura:id="sdk"/>
+    <c:auraPubSub aura:id="pubsub"/>
+</aura:component>

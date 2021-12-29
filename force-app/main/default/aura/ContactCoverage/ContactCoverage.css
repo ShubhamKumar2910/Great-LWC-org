@@ -1,0 +1,29 @@
+.THIS {
+    width: 100% !important;
+}
+.THIS.footerAlign {
+	text-align: left !important;
+    padding: .2rem .2rem !important;
+}
+.THIS .slds-scrollable_y {
+    min-height: 450px;
+}
+.THIS.dataTableDiv {
+    width: 100% !important;
+}
+.THIS.sendEmailBtn {
+    width:auto !important;
+    margin: 5px 0;
+}
+.THIS .iconMargin {
+    margin-right: 12px !important;
+}
+.THIS .labelFormat {
+    font-size: 13px;
+    margin: 0; 
+    padding: 0;
+}
+.THIS .outputTextFormat {
+    font-size: 18px;
+    font-weight: bold;
+}

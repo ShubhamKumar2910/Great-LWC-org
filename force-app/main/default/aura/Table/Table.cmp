@@ -1,0 +1,292 @@
+<aura:component implements="flexipage:availableForAllPageTypes"   access="public">
+    
+    <!-- EVENTS -->
+    <aura:registerEvent name="wrapperLoadEvent" type="c:TableWrapperEvent"/>
+    
+    <!-- HANDLERS -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    
+    <!-- SCRIPTS -->
+    <aura:registerEvent name="actionChange" type="c:TableActionLinkEvent" />   
+    
+    <!-- ATTRIBUTES -->
+    <aura:attribute name="isJqueryLoaded" type="Boolean" description="Flag to indicate jquery is loaded"/>
+    <aura:attribute name="needToProcessReRenderLogic" type="Boolean" description="Flag to indicate need to process the logic rerender since it is called many times during the component's lifecycle"/>
+    <aura:attribute name="mouseStart" type="string" />
+    <aura:attribute name="showRowNo" default="false" type="Boolean"/>
+    <aura:attribute name="parentId" default="" type="string"/>
+    <aura:attribute name="showAction" default="false" type="Boolean"/>
+    <aura:attribute name="showActionText" default="View" type="string"/>
+    <aura:attribute name="oldWidth" type="string" />
+    <aura:attribute name="width"
+                    type="Integer" default="100"/>
+    <aura:attribute name="columnWidth"
+                    type="Integer[]"/>
+    
+    <!-- METHODS -->
+    <aura:method name="selectIDs" action="{!c.checkboxSelect}" access="PUBLIC" />
+    <aura:method name="callInit" action="{!c.doInit}" access="PUBLIC" />
+    <aura:method name="callWrapperAction" action="{!c.callWrapperAction}" access="PUBLIC">
+        <aura:attribute name="successCallback" type="Function" />
+        <aura:attribute name="failureCallback" type="Function" />
+    </aura:method>
+    <aura:method name="OnNext" action="{!c.OnNext}">
+        <aura:attribute name="isSortable" type="boolean"  default="false"/>
+    </aura:method>
+    <aura:attribute name="tableSortable" type="boolean"  default="true"/>
+    <aura:method name="OnPrev" action="{!c.OnPrev}" />
+    <aura:method name="callSOQLAction" action="{!c.callSOQLAction}">
+        <aura:attribute name="isSelected" type="Boolean" default="false"/> 
+    </aura:method>
+    <aura:method name="showSpinner" action="{!c.showSpinner}" /> 
+    <aura:method name="hideSpinner" action="{!c.hideSpinner}" /> 
+    <aura:method name="showTable" action="{!c.showTable}" /> 
+    <aura:method name="hideTable" action="{!c.hideTable}" /> 
+    <aura:method name="callWrapperSort" action="{!c.CallSOQLSortEvent}"/>
+    
+    <!-- Table basic attributes -->
+    <aura:attribute name="showCheck" type="Boolean" default="true" description="To display action checkbox" />
+    <aura:attribute name="summaryColumns" type="Integer[]" description="Summary Columns" />
+    <aura:attribute name="tableClass" type="String" default="slds-table slds-table--bordered slds-table--fixed-layout" description="CSS classes to apply to table tag."/>
+    <aura:attribute name="headerClass" type="String" default="" description="Any CSS classes to add to the table column header cell."/>
+    <aura:attribute name="tableHeaderRowClass" type="String" default="slds-text-title--caps" description="CSS classes to apply to table TR tags in THEAD section."/>
+    <aura:attribute name="tableBodyRowClass" type="String" default="slds-hint-parent" description="CSS classes to apply to table TR tags in TBODY section."/>
+    <aura:attribute name="query" type="string" description="soql query for object"  access="global"/>
+    <aura:attribute name="columnLabels" type="string[]" description="Table column labels to display"/>
+    <aura:attribute name="columnLinks" type="string" access="global" description="Columns to display as link seperated by comma"/>
+    <aura:attribute name="columnAPIs" type="string[]" description="Used for wrapper class variables to access data seperated by comma"/>
+    <aura:attribute name="maxHeight" type="Integer" default="300"/>
+    <aura:attribute name="showFooter" type="Boolean" default="false" />
+    <aura:attribute name="isWrapper" type="Boolean" default="false" description="To use custom wrapper set = true" />
+    <aura:attribute name="wrapperMethod" type="string"  description="Developer apex method to call - wrapper method" />
+    <aura:attribute name="wrapperParams" type="Object" description="Params to apex method" />
+    <aura:attribute name="wrapperProperty" type="string" description="determine wrapper to binfd to current cell" />
+    
+    
+    <!-- Table data attributes -->
+    <aura:attribute name="dataList" type="CoverageRowsWrapper[]" access="global"/>
+    <aura:attribute name="result" type="CoverageResult" access="global"/>
+    <aura:attribute name="wrapperList" type="CoverageRowsWrapper[]" access="global"/>
+    <aura:attribute name="selectedIDs" type="String" /> 
+    <aura:attribute name="selectedObjects" type="Object[]" /> 
+    <aura:attribute name="tempLabelAttr" type="string" default=""/>
+    <aura:attribute name="softLimit" type="Integer" default="200" />
+    
+    
+    <!-- scrolling and pagination attributes -->
+    <aura:attribute name="pageNumber" type="Integer" default="0" description="For pagination, which page of records to display."/>
+    <aura:attribute name="pageSize" type="Integer" default="30" description="For pagination, how many records per page to display."/>
+    <aura:attribute name="sortColumnName" type="String" description="For sorting, last known requested sort preference. A value that matches the name attribute of a DataTableColumnCmp."/>
+    <aura:attribute name="sortDirection" default="asc" type="String" description="For sorting, last known requested sort preference. Value must be 'asc' or 'desc'."/>
+    <aura:attribute name="scrollCheckIntervalId" type="String" description="In the renderer.js, the interval id for periodically checking scroll position. Used when unrendering component to cancel interval check." access="private"/>
+    
+    
+    <!-- DESIGN -->
+    
+   
+    
+    
+    <div aura:id="tableSection" class="slds-table--header-fixed_container">    
+         <!-- DESIGN - SPINNER -->
+        <div aura:id="spinnerblock" class="slds-spinner_container slds-hide">
+            <div class="slds-spinner--brand slds-spinner slds-spinner--large" aria-hidden="false" role="alert">
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+        <div id="{!v.parentId+'parentDiv'}" class="slds-scrollable--x slds-scrollable--y" style="{!'overflow-y: scroll;max-height:' + v.maxHeight +'px'}">        
+            <table  class="slds-table slds-table_bordered slds-table_resizable-cols slds-table_fixed-layout slds-table--striped slds-table--header-fixed" id="{!v.parentId+'customTable'}"   role="grid">
+                <!-- TABLE - HEADER -->
+                <thead>
+                    <tr class="slds-line-height_reset">
+                        <aura:if isTrue="{!v.showCheck}">
+                            <th scope="col" class="slds-text-align_center" style="width: 3.25rem;">
+                                <label  class="slds-checkbox slds-cell-fixed" style="margin-left: -8px;margin-top: 9px;">
+                                    <ui:inputCheckbox aura:id="selectCheckBox" change="{!c.selectAll}"/>
+                                    <span class="slds-checkbox_faux"></span>
+                                    <span class="slds-form-element__label slds-assistive-text">Select All</span>
+                                </label>
+                                
+                            </th>
+                        </aura:if>
+                        <aura:if isTrue="{!v.showRowNo}">
+                            <th class="slds-is-sortable slds-is-resizable slds-text-title_caps" style="width:62px;" scope="col">
+                                <div class="slds-cell-fixed" style="width:62px;">
+                                    <a href="javascript:void(0);" class="slds-th__action slds-text-link_reset disable" tabindex="0">
+                                        <div class="slds-truncate" title="ROW NO">ROW NO</div>
+                                    </a>
+                                </div>
+                            </th>
+                        </aura:if>
+                        <aura:iteration items="{!v.columnLabels}" var="column" indexVar="i">
+                            <aura:iteration items="{!v.columnAPIs}" var="apicolumn" indexVar="j">
+                                <aura:if isTrue="{!equals(i,j)}">
+                                    <aura:iteration items="{!v.columnWidth}" var="colWidth" indexVar="k">
+                                        <aura:if isTrue="{!equals(j,k)}">
+                                            <th class="slds-is-sortable slds-is-resizable slds-text-title_caps" style="{!'width:' + colWidth +'px'}" scope="col">
+                                                <aura:if isTrue="{!v.tableSortable}">
+                                                    <div class="slds-cell-fixed" style="{!'width:' + colWidth +'px'}">
+                                                        <a href="javascript:void(0);"   data-value="{!apicolumn}" data-index="{!j}" class="slds-th__action slds-text-link_reset" onclick="{!c.CallSOQLSortEvent}" tabindex="0">
+                                                            <div class="slds-assistive-text">Sort </div>
+                                                            <span class="slds-truncate" title="{!column}"> {!column}</span>
+                                                            <div class="slds-icon_container">
+                                                                <lightning:icon aura:id="{!'arrowUp' + j}"  iconName="utility:arrowup"
+                                                                                size="xx-small"
+                                                                                class="{! if( and( v.sortDirection == 'asc', v.sortColumnName == apicolumn), 'slds-icon slds-icon_x-small slds-icon-text-default', 'slds-hide') }"
+                                                                                alternativeText="Sorted descending"/>
+                                                                
+                                                                <lightning:icon aura:id="{!'arrowdown' + j}"  iconName="utility:arrowdown"
+                                                                                size="xx-small"
+                                                                                class="{! if( and( v.sortDirection == 'desc', v.sortColumnName == apicolumn ), 'slds-icon slds-icon_x-small slds-icon-text-default', 'slds-hide') }"
+                                                                                alternativeText="Sorted ascending"/>
+                                                            </div>
+                                                        </a>
+                                                        <div class="slds-resizable">
+                                                            <input type="range" min="20" max="1000" class="slds-resizable__input slds-assistive-text" tabindex="0" />
+                                                            <span class="slds-resizable__handle" onmousedown="{!c.calculateWidth}" ondrag="{!c.setNewWidth}">
+                                                                <span class="slds-resizable__divider"></span>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <aura:set attribute="else">
+                                                        <div class="cellFixedCustom" style="{!'width:' + colWidth +'px'}">
+                                                            <span class="slds-truncate" title="{!column}"> {!column}</span>
+                                                            <div class="slds-resizable">
+                                                                <input type="range" min="20" max="1000" class="slds-resizable__input slds-assistive-text" tabindex="0" />
+                                                                <span class="slds-resizable__handle" onmousedown="{!c.calculateWidth}" ondrag="{!c.setNewWidth}">
+                                                                    <span class="slds-resizable__divider"></span>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </aura:set>
+                                                </aura:if>
+                                            </th>
+                                        </aura:if>
+                                    </aura:iteration>
+                                </aura:if>
+                            </aura:iteration>
+                        </aura:iteration>
+                        <aura:if isTrue="{!v.showAction}">
+                            <th class="slds-is-sortable slds-is-resizable slds-text-title_caps" style="width:40px;" scope="col">
+                                <div class="slds-cell-fixed" style="width:40px;">
+                                    <a href="javascript:void(0);" class="slds-th__action slds-text-link_reset disable" tabindex="0">
+                                        <div class="slds-truncate" title=""></div>
+                                    </a>
+                                </div>
+                            </th>
+                        </aura:if>
+                    </tr>
+                </thead>
+                
+                <!-- TABLE - BODY background-color: #ecebea;-->
+                <tbody>
+                    
+                    <aura:iteration items="{!v.dataList}" var="row" indexVar="rowIdx">
+                        <tr class="slds-hint-parent">
+                            <aura:if isTrue="{!v.showCheck}">
+                                <aura:if isTrue="{!equals(row.coverageData.status,'Pending Approval')}">
+                                    <td class="slds-text-align_center" role="gridcell" style="background-color: #d6d2ce;">
+                                        <label class="slds-checkbox" >
+                                            <ui:inputCheckbox aura:id="entity-ids" disabled="true" value="{!row.isChecked}" text="{!row.recordId}" change="{!c.checkboxSelect}"/>
+                                            <span class="slds-checkbox_faux"></span>
+                                            <span class="slds-form-element__label slds-assistive-text">Select item 1</span>
+                                        </label>
+                                    </td>
+                                    <aura:set attribute="else">
+                                        <td class="slds-text-align_center" role="gridcell">
+                                            <label class="slds-checkbox" >
+                                                <ui:inputCheckbox aura:id="entity-ids" value="{!row.isChecked}" text="{!row.recordId}" change="{!c.checkboxSelect}"/>
+                                                <span class="slds-checkbox_faux"></span>
+                                                <span class="slds-form-element__label slds-assistive-text">Select item 1</span>
+                                            </label>
+                                        </td>
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+                            <aura:if isTrue="{!v.showRowNo}">
+                                 <aura:if isTrue="{!equals(row.coverageData.status,'Pending Approval')}">
+                                     <td role="gridcell" data-label="test" style="width:62px;background-color: #d6d2ce;">
+                                         <div class="slds-truncate" style="width:62px;">
+                                             {!rowIdx+1} 
+                                         </div>
+                                     </td>
+                                     <aura:set attribute="else">
+                                         <td role="gridcell" data-label="test" style="width:62px;">
+                                             <div class="slds-truncate" style="width:62px;">
+                                                 {!rowIdx+1} 
+                                             </div>
+                                         </td>
+                                     </aura:set>
+                                </aura:if>
+                                
+                            </aura:if>
+                            <aura:iteration items="{!v.columnAPIs}" var="column" indexVar="colIdx">
+                                <aura:iteration items="{!v.columnWidth}" var="colWidth" indexVar="k">
+                                    <aura:if isTrue="{!equals(colIdx,k)}">
+                                    	<aura:if isTrue="{!row.isWrapper}">
+                                        <c:TableCell row="{!row}"
+                                                     wrapperRowPropertyToAccess="{!v.wrapperProperty}"
+                                                     TableColumnsLink="{!v.columnLinks}"
+                                                     columnWidth="{!colWidth}"
+                                                     rowIdx="{!rowIdx}"
+                                                     column="{!column}"
+                                                     colIdx="{!colIdx}"/>
+                                        <aura:set attribute="else">
+                                            <c:TableCell row="{!row.sobjectData}"
+                                                         TableColumnsLink="{!v.columnLinks}"
+                                                         columnWidth="{!colWidth}"
+                                                         rowIdx="{!rowIdx}"
+                                                         column="{!column}"
+                                                         colIdx="{!colIdx}"/>
+                                        </aura:set>
+                                    </aura:if>
+                                    </aura:if>
+                                </aura:iteration>
+                            </aura:iteration>
+                            <aura:if isTrue="{!v.showAction}">
+                                <td class="slds-text-align_center" role="gridcell" style="width:40px;">
+                                    <!--<button class="actionsbutton" data-index="{!rowIdx}" onclick="{!c.actionDetails}">
+                                        {!v.showActionText}
+                                    </button> -->
+                                    <a data-index="{!rowIdx}" onclick="{!c.actionDetails}">
+                                        <lightning:icon class="slds-button__icon"  iconName="utility:groups" size="x-small" alternativeText="Indicates search"/>
+                                    </a> 
+                                </td>
+                            </aura:if>
+                        </tr>
+                    </aura:iteration>
+                </tbody>
+                
+                <!-- TABLE - FOOTER -->
+                <aura:if isTrue="{!v.showFooter}">
+                    <tfoot>
+                        <tr>
+                            <aura:if isTrue="{!v.showCheck}">
+                                <td></td>
+                            </aura:if>
+                            <aura:iteration items="{!v.columnAPIs}" var="column" indexVar="colIdx">
+                                <td>$180</td>
+                            </aura:iteration>
+                        </tr>
+                    </tfoot>
+                    <!--  <tfoot>
+                        <tr>
+                            <td></td>
+                            <td>TOTAL</td>
+                            <td>$180</td>
+                            <td>$1500</td>
+                            <td>$0</td>
+                            <td>$0</td>
+                            <td>$0</td>
+                            <td>$1000</td>
+                        </tr>
+                    </tfoot>-->
+                </aura:if>
+            </table>        
+        </div>
+    </div>
+    
+    <div style="height:5px;clear:both;"></div>
+    
+</aura:component>

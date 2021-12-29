@@ -1,0 +1,381 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,lightning:isUrlAddressable" access="global" 
+    controller="BulkApprovalController">
+	<aura:handler name="init" value="{!this}" action="{!c.init}"/>
+
+    <lightning:navigation aura:id="navigationService"/>
+    <ltng:require scripts="{!$Resource.ApprovalsCount}" afterScriptsLoaded="{!c.onApprovalsCountScriptLoaded}"/>
+    
+    <aura:attribute name="showCoverageRequestTab" type="Boolean" default="true" />
+    <aura:attribute name="showETradingRequestTab" type="Boolean" default="true" />
+    <aura:attribute name="showCrossSellRequestTab" type="Boolean" default="true" />
+    <aura:attribute name="showObPendingRequests" type="Boolean" default="false" />
+    <aura:attribute name="showPendingRequests" type="Boolean" default="false"/>
+    <aura:attribute name="pendingRequestsWrapper" type="Object" default ="{}"/>
+    <aura:attribute name="showSCHApprovalTab" type="Boolean" default="true" /> 
+    <aura:attribute name="showOnbReqApprovalTab" type="Boolean" default="true" />
+    <aura:attribute name="showFenergoTaskItemsToApproveTab" type="Boolean" default="true"/>
+    <aura:attribute name="showBackButton" type="Boolean" default="false" />
+    <aura:attribute name="pageReference" type="Object"/>
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+    <aura:attribute name="isApproval" type="String" default="true" />
+    <aura:attribute name="approvalList" type="Object[]" />
+    <aura:attribute name="selectAllCheckboxValue" type="Boolean" default="false" />
+    <aura:attribute name="HeaderText" type="String" />
+    <aura:attribute name="showApprovalButtons" type="Boolean" default="false" />
+    <aura:attribute name="showSalesButton" type="Boolean" default="false"/>
+    <aura:attribute name="ApprovalRequest" type="String" default="{!$Label.c.ApprovalRequest}"/>
+    <aura:attribute name="CreatedDate" type="DateTime" default="{!$Label.c.SubmittedDate}"/>
+    <aura:attribute name="RequestedFor" type="String" default="{!$Label.c.RequestedFor}"/>
+    <aura:attribute name="RequestedBy" type="String" default="{!$Label.c.RequestedBy}"/>
+    <aura:attribute name="AccountName" type="String" default="{!$Label.c.Account}"/>
+    <aura:attribute name="Product" type="String" default="{!$Label.c.Product}"/>
+    <aura:attribute name="ProductRegion" type="String" default="{!$Label.c.ProductRegion}"/>
+    <aura:attribute name="RequestType" type="String" default="{!$Label.c.RequestType}"/>
+    <aura:attribute name="Role" type="String" default="{!$Label.c.CVGTOOL_LABEL_ROLE}"/>
+    <aura:attribute name="Approvers" type="String" default="{!$Label.c.APPROVAL_APPROVERS}"/>
+    <aura:attribute name="FromDate" type="String" default="{!$Label.c.CVGTOOL_FROM_DATE}"/>
+    <aura:attribute name="tableColumn" type="Object[]"/>
+    <aura:attribute name="IDList" type="String[]"/>
+    <aura:attribute name="RGIDList" type="String" default = "" />
+    <aura:attribute name="RMIDList" type="String" default="" />
+    <aura:attribute name="PODIDList" type="String" default="" />
+	<aura:attribute name="scode" type="String" default = "" />
+	<aura:attribute name="type_label" type="String" default="{!$Label.c.CVGTOOL_Type}"/>
+    <!--Added for JIRA 3422-->
+    <aura:attribute name="FromLink" type="String" default=""/>
+    <aura:attribute name="approvalCountJson" type="String" default="" />
+    <aura:attribute name="coverageReqCount" type="String" default=""/>
+    <aura:attribute name="eTradingCount" type="String" default=""/>
+    <aura:attribute name="crossSellCount" type="String" default=""/>
+    <aura:attribute name="schReqCount" type="String" default=""/>
+    <aura:attribute name="onbReqCount" type="String" default=""/>
+    <aura:attribute name="fenTaskCount" type="String" default=""/>
+    <aura:attribute name="scriptsLoaded" type="Boolean" default="false" />
+    <aura:attribute name="refreshCount" type="Boolean" default="false" />
+    <aura:attribute name="refreshSCHTab" type="Boolean" default="false" />
+    <aura:attribute name="refreshOnbTab" type="Boolean" default="false" />
+    <aura:attribute name="refreshFenTaskTab" type="Boolean" default="false"/>
+    <aura:attribute name="subscription" type="Map" /> <!-- Holds the streaming event subscription -->
+    <aura:attribute name="source" type="String" default=""/>
+
+    <lightning:empApi aura:id="empApi" />
+
+    <aura:method name="displayApprovalsCount" action="{!c.displayApprovalsCount}" />
+    
+    <aura:method name="showToast" action="{!c.showToast}"> 
+        <aura:attribute name="title" type="String"/> 
+        <aura:attribute name="type" type="String" default="success"/> 
+        <aura:attribute name="message" type="String"  default="This is test message."/>
+        <aura:attribute name="mode" type="String"  default="dismissible"/>
+        <aura:attribute name="key" type="String"/>
+    </aura:method>
+    
+    <aura:method name="getSelectedApprovals" action="{!c.getSelectedApprovals}">
+        <aura:attribute name="selecteditems" type="Object"/> 
+    </aura:method>
+    
+    <aura:method name="setDataTableCheckboxValues" action="{!c.setDataTableCheckboxValues}">
+        <aura:attribute name="headerCheckboxValue" type="Boolean" />
+    </aura:method>
+    
+    <aura:method name="loadBulkCoverage" action="{!c.reInit}" /> 
+    <aura:method name="showSpinner" action="{!c.showSpinner}" /> 
+    <aura:method name="hideSpinner" action="{!c.hideSpinner}" /> 
+    <aura:method name="showCount" action="{!c.showCount}" />
+   
+
+	<aura:attribute name="tabId" type="String" default="coverageTab"/>
+	<aura:attribute name="displayETradingNoCoverageList" type="Boolean"/>
+	<aura:attribute name="displayETradingApprovalList" type="Boolean"/>
+	<aura:attribute name="eTradingNoCoverageList" type="Object[]"/>
+	<aura:attribute name="eTradingApprovalList" type="Object[]"/>
+	<aura:attribute name="eTradingNoCoverageListSortedBy" type="String" default="createdDate"/>
+	<aura:attribute name="eTradingApprovalListSortedBy" type="String" default="createdDate"/>
+	<aura:attribute name="eTradingNoCoverageListSortedDirection" type="Boolean" default="true"/>
+	<aura:attribute name="eTradingApprovalListSortedDirection" type="Boolean" default="true"/>
+	<aura:attribute name="eTradingNoCoverageTableColumns" type="Object[]"/>
+    <aura:attribute name="eTradingTableColumns" type="Object[]"/>
+	<aura:attribute name="eTradingSelectedIds" type="String[]"/>
+	<aura:attribute name="eTradingSelectedView" type="String"/>
+	<aura:attribute name="eTradingOptions" type="List" default="[]"/>
+
+    <!--Added for JIRA SALES 1588 -->
+    <aura:attribute name="opptapprovalList" type="Object[]" />
+    <aura:attribute name="oppttableColumn" type="Object[]"/>
+    <aura:attribute name="UserId" type="String" default=""/>
+    <aura:attribute name="selectedOppIDList" type="String[]"/>
+    <aura:attribute name="show" type="boolean" default="false"/>
+    <aura:attribute name="RejectComments" type="String" default=""/>
+    <aura:attribute name="ShowCrossSellApproval" type="String" default="{!$Label.c.ShowCrossSellTab}"/>
+    
+	<lightning:spinner aura:id="spinner" variant="brand" size="large" class="slds-hide"/>
+    
+	<div class="verticalHeader" style="background-color:rgb(91, 100, 138);color: #FFF;padding:6px;">
+		<section class="slds-clearfix">
+			<div class="slds-float--left ">
+				<lightning:icon aura:id="articleOne" iconName="utility:tabset" size="x-small" alternativeText="Indicates dash"/>
+			</div>
+			
+			<div class="slds-m-left--large">
+				<ui:outputText value="{!v.HeaderText}" />
+			</div>   
+			
+		</section>
+	</div>
+
+    <lightning:tabset aura:id="tabs">
+    	<aura:If isTrue="{!v.showCoverageRequestTab}">
+    		<lightning:tab onactive="{!c.coverageRequestsSelected}" id="coverageTab">
+    		<aura:set attribute="label">
+	   			Coverage Requests ({!v.coverageReqCount})
+	   		</aura:set>
+		    <lightning:layoutItem size="12">
+		        <div id="table" class="slds-table_header-fixed_container" style="height:580px;margin-bottom: 45px;" aura:id="dataTableDiv">
+		            <lightning:datatable aura:id="approvalTable"
+		                                 data="{!v.approvalList}"
+		                                 columns="{!v.tableColumn}"   
+		                                 keyField="processInstanceWorkItemID"
+		                                 maxColumnWidth="1100px"
+		                                 sortedBy="CreatedDate"
+		                                 sortedDirection="desc"
+		                                 onsort="{!c.updateColumnSorting}"
+		                                 onrowselection="{!c.getSelectedId}"
+		                                 />          
+		        </div>
+		    </lightning:layoutItem>
+		    
+		    <div class="slds-docked-form-footer" style=" bottom: 45px;">  
+		        <lightning:button variant="neutral" label="{!$Label.c.CVGTOOL_BACK}" iconName="utility:back" onclick="{!c.Cancel}"/>                      
+		        <aura:if isTrue="{!v.showApprovalButtons}">
+		            <lightning:button variant="brand"  label="{!$Label.c.ButtonApprove}" iconName="utility:approval"   onclick="{!c.ApproveSelectedRequests}"/>        
+		            <lightning:button variant="destructive" label="{!$Label.c.ButtonReject}" name="reject" iconName="action:reject" onclick="{!c.RejectSelectedRequests}"/>
+		        </aura:if>
+		        
+		        <aura:if isTrue="{!v.showSalesButton}">
+		            <lightning:button variant="destructive"  label="{!$Label.c.Cancel_Requests}" name="cancel" iconName="action:reject"  onclick="{!c.RejectSelectedRequests}"/>        
+		        </aura:if>
+		    </div>
+		    
+		    <div aura:id="spinnerblock" class="slds-spinner_container slds-hide">
+		        <div class="slds-spinner_brand slds-spinner slds-spinner_large" aria-hidden="false" role="alert">
+		            <div class="slds-spinner__dot-a"></div>
+		            <div class="slds-spinner__dot-b"></div>
+		        </div>
+		    </div>
+    	</lightning:tab>
+    	</aura:If>
+        
+        <aura:If isTrue="{!v.showETradingRequestTab}">
+            <lightning:tab onactive="{!c.eTradingEnablementRequestsSelected}" id="eTradingEnablementTab">
+                <aura:set attribute="label">
+                    {!$Label.c.ETradingEnablementRequests} ({!v.eTradingCount})
+                </aura:set>
+                <lightning:combobox aura:id="selectItem" name="viewOptions" label="View"
+                                    placeholder="Choose View"
+                                    value="myApprovals"
+                                    onchange="{!c.setETradingView}"
+                                    options="{!v.eTradingOptions}" 
+                                    style="padding-bottom:8px;" > 
+                </lightning:combobox>
+                
+                <lightning:layoutItem size="12">
+                    
+                    <aura:if isTrue="{!v.displayETradingNoCoverageList}">
+                        
+                        <div class="verticalHeader" style="background-color:rgb(91, 100, 138);color: #FFF;padding:6px;">
+                            <section class="slds-clearfix">
+                                <div class="slds-float--left ">
+                                    <lightning:icon aura:id="articleOne" iconName="utility:table" size="x-small" alternativeText="Indicates dash"/>
+                                </div>
+                                
+                                <div class="slds-m-left--large">
+                                    {!$Label.c.ETradingEnablementRequestsWithoutCoverage}
+                                </div>   
+                                
+                            </section>
+                        </div>
+                        <div id="table2" aura:id="dataTableETradingNoCoverageDiv">
+                            <lightning:datatable aura:id="eTradingNoCoverageTable" 
+                                                 data="{!v.eTradingNoCoverageList}"
+                                                 columns="{!v.eTradingNoCoverageTableColumns}" 
+                                                 keyField="id"
+                                                 maxColumnWidth="1100px"
+                                                 sortedBy="{!v.eTradingNoCoverageListSortedBy}" 
+                                                 sortedDirection="{!v.eTradingNoCoverageListSortedDirection}"
+                                                 hideCheckboxColumn="true" 
+                                                 onrowaction="{!c.coverageRowAction}">
+                            </lightning:datatable>
+                        </div>
+                        <hr/>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!v.displayETradingApprovalList}">
+                        
+                        <div class="verticalHeader" style="background-color:rgb(91, 100, 138);color: #FFF;padding:6px;">
+                            <section class="slds-clearfix">
+                                <div class="slds-float--left ">
+                                    <lightning:icon aura:id="articleOne" iconName="utility:table" size="x-small" alternativeText="Indicates dash"/>
+                                </div>
+                                
+                                <div class="slds-m-left--large">
+                                    {!$Label.c.ETradingEnablementRequestsWithCoverage}
+                                </div>   
+                                
+                            </section>
+                        </div>
+                        <div id="table3" aura:id="dataTableETradingDiv">
+                            <lightning:datatable aura:id="eTradingApprovalTable" 
+                                                 data="{!v.eTradingApprovalList}"
+                                                 columns="{!v.eTradingTableColumns}" 
+                                                 keyField="id"
+                                                 maxColumnWidth="1100px"
+                                                 sortedBy="{!v.eTradingApprovalListSortedBy}" 
+                                                 sortedDirection="{!v.eTradingApprovalListSortedDirection}" 
+                                                 onsort="{!c.eTradingUpdateColumnSorting}" 
+                                                 onrowselection="{!c.setETradingSelectedId}" 
+                                                 onrowaction="{!c.coverageRowAction}">
+                            </lightning:datatable>
+                        </div>	 
+                    </aura:if>
+                    
+                </lightning:layoutItem>
+                
+                <div class="slds-docked-form-footer" style=" bottom: 40px;">
+                    <lightning:button variant="Neutral" label="{!$Label.c.CVGTOOL_CANCEL}" iconName="action:close" onclick="{!c.cancel}"/>
+                    <lightning:button variant="success"  label="{!$Label.c.ButtonApprove}" iconName="action:approval" onclick="{!c.approve}"/>
+                    <lightning:button variant="destructive" label="{!$Label.c.ButtonReject}" name="reject" iconName="action:reject" onclick="{!c.reject}"/>
+                </div>
+            </lightning:tab>
+        </aura:If>
+        
+        <!--Added for JIRA SALES 1588-->
+         <aura:If isTrue="{!v.showCrossSellRequestTab}">
+      		<lightning:tab id="OpportunityTab" onactive="{!c.crossSellReqSelected}">
+            <aura:set attribute="label">
+	   			{!$Label.c.OpportunityRequest} ({!v.crossSellCount})
+	   		</aura:set>
+            <lightning:layoutItem size="12">
+                <div id="opptTable" class="slds-table_header-fixed_container" style="height:580px" aura:id="oppdataTableDiv">
+		             <lightning:datatable aura:id="oppapprovalTable"
+		                                  data="{!v.opptapprovalList}"
+		                                  columns="{!v.oppttableColumn}"   
+		                                  keyField="processInstanceWorkItemID"
+		                                  maxColumnWidth="1100px"
+		                                  sortedBy="CreatedDate"
+		                                  sortedDirection="desc"
+                                          onsort="{!c.updateOpptColumnSorting}"
+		                                  onrowselection="{!c.getOppSelectedId}"/>          
+		        </div>
+		    </lightning:layoutItem>
+            <div class="slds-docked-form-footer" style=" bottom: 45px;">
+                <lightning:button variant="Neutral" label="{!$Label.c.CVGTOOL_CANCEL}" iconName="action:close" onclick="{!c.cancel}"/>
+		        <lightning:button variant="Brand"  label="{!$Label.c.ButtonApprove}" iconName="utility:approval"  onclick="{!c.approveRequest}"/>        
+		        <lightning:button variant="Destructive" label="{!$Label.c.ButtonReject}" name="reject" iconName="action:reject" onclick="{!c.showpopup}"/>		     
+		    </div>
+             <aura:if isTrue="{!v.show}">
+               <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                  <div class="slds-modal__container">
+                     <header class="slds-modal__header">                        
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{!$Label.c.RejectionComments}</h2>                        
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                         <lightning:textarea name="Comments" value="{!v.RejectComments}" required="true" label="{!$Label.c.Comments}" maxlength="300" />
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button label="{!$Label.c.CVGTOOL_CANCEL}" onclick="{!c.hidepopup}" class="slds-button slds-button_neutral"/>
+                        <lightning:button variant="destructive" label="{!$Label.c.ButtonReject}" name="reject" iconName="action:reject" onclick="{!c.rejectRequest}" class="slds-button slds-button_neutral"/>
+                    </footer>
+                  </div>                  
+               </section>
+             </aura:if>
+        </lightning:tab>  
+        </aura:If>
+
+        <aura:If isTrue="{!v.showSCHApprovalTab}" >
+            <lightning:tab id="SCHTab" onactive="{!c.schRequestSelected}">
+                <aura:set attribute="label">
+                    SCH Requests ({!v.schReqCount})
+                </aura:set>
+                <lightning:layoutItem size="12">
+                    <aura:If isTrue="{!v.refreshSCHTab}" > <!-- If is used to refresh below list view, as changing the attribute results in reloading of list -->
+                        <aura:If isTrue="{!v.showPendingRequests}">
+                            <lightning:listView aura:id="pendingRequestListViewSCH"
+                                objectApiName="SCH_Request__c"
+                                listName="My_Pending_Requests"
+                                rows="50"
+                                showSearchBar="true"
+                                showActionBar="false"
+                                enableInlineEdit="false"
+                                showRowLevelActions="false"
+                                />
+                            <aura:set attribute="else">
+                                <lightning:listView aura:id="listViewSCH"
+                                    objectApiName="SCH_Request__c"
+                                    listName="Requires_Review"
+                                    rows="50"
+                                    showSearchBar="true"
+                                    showActionBar="true"
+                                    enableInlineEdit="true"
+                                    showRowLevelActions="false"
+                                    />
+                            </aura:set>
+                        </aura:If>
+                    </aura:If>
+                </lightning:layoutItem>
+            </lightning:tab>                
+        </aura:If>
+      		
+        <aura:If isTrue="{!v.showOnbReqApprovalTab}" >
+            <lightning:tab id="OnbReqTab" onactive="{!c.onbRequestSelected}">
+            <aura:set attribute="label">
+                Onboarding Requests ({!v.onbReqCount})
+            </aura:set>
+            <lightning:layoutItem size="12">
+                <aura:If isTrue="{!v.refreshOnbTab}" >
+                    <aura:If isTrue="{!v.showPendingRequests}">
+                        <lightning:listView aura:id="pendingRequestsListView"
+                            objectApiName="Onboarding_Request__c"
+                            listName="Pending_Requests"
+                            rows="50"
+                            showSearchBar="true"
+                            showActionBar="false"
+                            enableInlineEdit="false"
+                            showRowLevelActions="false"/>
+                        <aura:set attribute="else">
+                            <lightning:listView aura:id="listViewOnboarding"
+                                objectApiName="Onboarding_Request__c"
+                                listName="Requires_Review"
+                                rows="50"
+                                showSearchBar="true"
+                                showActionBar="true"
+                                enableInlineEdit="false"
+                                showRowLevelActions="false"/>
+                        </aura:set>
+                    </aura:If>
+                </aura:If>
+            </lightning:layoutItem>
+        </lightning:tab>
+        </aura:If>
+
+        <aura:If isTrue="{!and(v.showFenergoTaskItemsToApproveTab, v.showPendingRequests == false)}" >
+            <lightning:tab id="fenergoTasksTab" onactive="{!c.fenTaskTabSelected}">
+            <aura:set attribute="label">
+                Fenergo Tasks ({!v.fenTaskCount})
+            </aura:set>
+            <lightning:layoutItem size="12">
+                <aura:If isTrue="{!v.refreshFenTaskTab}" >
+                    <lightning:listView aura:id="fenTaskItemsToApprove"
+                        objectApiName="Fenergo_Task__c"
+                        listName="Items_To_Approve"
+                        rows="50"
+                        showSearchBar="true"
+                        showActionBar="true"
+                        enableInlineEdit="false"
+                        showRowLevelActions="false"/>
+                </aura:If>
+            </lightning:layoutItem>
+        </lightning:tab>
+        </aura:If>
+        
+    </lightning:tabset>    
+</aura:component>

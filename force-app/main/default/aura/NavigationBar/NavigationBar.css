@@ -1,0 +1,17 @@
+.THIS .nomuraButton{
+	background-color: #CA2420;
+	border-color: #CA2420;
+    line-height : 1 rem;
+	padding-left : 0.25rem;
+    padding-right : 0.25rem;
+   
+}
+
+.THIS .nomuraButton:hover{
+	background-color: #b01e1c;
+	border-color: #C64033;
+    color: #fff;
+    line-height : 1 rem;
+	padding-left : 0.25rem;
+    padding-right : 0.25rem;
+}

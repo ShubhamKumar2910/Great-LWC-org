@@ -1,0 +1,12 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"
+                 access="global"
+                controller="ActivityEditController">
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="eventDetails" type="SObject" default=" { 'sobject' : 'Event' }" />
+    <aura:attribute name="campaignId" type="String" />
+    <aura:attribute name="massActivityFlag" type="Boolean" default="false" />
+    <aura:attribute name="calledFrom" type="String" default="Other" />
+    <aura:attribute name="saveNewCheck" type="Boolean" default="false"/> 
+    <aura:attribute name="isClientMemo" type="Boolean" default="false"/> 
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+</aura:component>

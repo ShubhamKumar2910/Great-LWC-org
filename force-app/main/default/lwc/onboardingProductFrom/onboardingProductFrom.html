@@ -1,0 +1,172 @@
+<template>
+    <template if:true={showSpinner}>
+        <lightning-spinner alternative-text="Loading"></lightning-spinner>
+    </template>
+    <lightning-card  variant="narrow" title="Onboarding Product Form " icon-name="standard:product">
+        <div slot="actions">
+            <lightning-button-icon icon-name="utility:close" size="x-small" 
+                alternative-text="close" onclick={handleCancelClick}>
+            </lightning-button-icon>
+        </div>
+        <template if:true={loadComplete}>
+            <template if:true={hasErrors}>
+                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+                    <span class="slds-assistive-text">error</span>
+                    <span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small" title="Description of icon when needed">
+                        <lightning-icon icon-name="utility:error" variant="inverse" size="xx-small"></lightning-icon>
+                    </span>
+                    <h2>
+                        There are errors in saving this Product Request:<br/>{errors}
+                    </h2>
+                    <div class="slds-notify__close">
+                        <lightning-button-icon icon-name="utility:close"  
+                            variant='bare-inverse' alternative-text="close" onclick={handleCloseErrClick}>
+                        </lightning-button-icon>
+                    </div>
+                </div>
+            </template>
+
+            <div class="slds-p-horizontal_large slds-box slds-scrollable" style="height: 600px;">
+                <!--<lightning-record-edit-form id="schReqClientLoc" record-id={existingObProdReqId} density="compact" object-api-name="Onboarding_Product__c">-->
+                <lightning-record-edit-form id="schReqClientLoc" density="compact" object-api-name="Onboarding_Product__c">
+                    <lightning-messages></lightning-messages>
+                    <lightning-input-field field-name='Products_Category__c' onchange={handleProdCategoryChange}
+                        value={prodCategory} variant='label-inline' data-field="prodCategory" disabled={isEdit}>
+                    </lightning-input-field> <!--8ai-->
+                    <lightning-input-field field-name='Product_Type__c' onchange={handleProdTypeChange}
+                        value={prodTypeSel} variant='label-inline' data-field="prodType" disabled={isEdit}>
+                    </lightning-input-field><!--8aii-->
+                    <!--<lightning-formatted-text value="Given the nature of the client and the need to minimise market risk from failed settlement, would you recommend we restrict the client to market standard settlement date only or Extended?"> </lightning-formatted-text>-->
+                    <!--<lightning-input-field field-name='Market_Standard_Settlements__c' onchange={handleMktStandSettleChange}
+                        value={mktStandSettle} variant='label-inline' data-field="mktStandSettle" required={isMktStandReqd}>-->
+                    <!--</lightning-input-field>--><!--8aiii-->
+                    <div class="slds-m-bottom_xx-large slds-form">
+                        <div class="slds-form-element slds-form-element_horizontal">
+                          <label class="slds-form-element__label" for="horizontal-input-id-01">Given the need to minimise market risk from failed settlement, would you recommend we restrict the client to market standard settlement date only? <b>Please only change the answer to ‘standard’ if you wish to put this restriction in place.</b></label>
+                          <div class="slds-form-element__control">
+                            <lightning-combobox
+                                name="mktStandSettle"
+                                label="MSS"
+                                value={mktStandSettle}
+                                placeholder="--None--"
+                                options={marketStandardSettlementOptions}
+                                onchange={handleMktStandSettleChange}
+                                variant='label-hidden'
+                                required={isMktStandReqd}
+                                disabled={isMktSettleDisabled}
+                            ></lightning-combobox>
+                          </div>
+                        </div>
+                    </div>
+                    <template if:true={isMktStandJustificationReqd}>
+                        <lightning-input-field field-name='Market_Standard_Settlement_Justification__c' onchange={handleMktStandSettleJustificationChange}
+                            value={mktStandSettleJustification} variant='label-inline' data-field="mktStandSettleJustification" maxlength=255 required>
+                        </lightning-input-field><!--8aiii-->
+                    </template>
+                    <lightning-input-field field-name='Trading_conditions_for_Swap_Transactions__c' onchange={handleTradCondForSwapTranChange}
+                        value={tradCondForSwapTran} variant='label-inline' data-field="tradCondForSwapTran" required={isTradCondForSwapTranReqd}>
+                    </lightning-input-field><!--8b-->
+                    <lightning-input-field field-name='Proposed_Priority__c' onchange={handlePropPriorityChange}
+                        value={proposedPriority} variant='label-inline' data-field="propPriority">
+                    </lightning-input-field><!--8c-->
+                    <lightning-input-field field-name='Additional_Priority_Justification__c' onchange={handleAdditionalPriorityJustChange}
+                        value={additionalPriorityJustification} variant='label-inline' data-field="addPropPriority" disabled={disableAddPriorityJustification}>
+                    </lightning-input-field><!--8c-->
+                    <lightning-input-field field-name='Trade_Deadline__c' onchange={handleTradDeadlineChange}
+                        value={tradDeadline} variant='label-inline' data-field="tradeDeadline" disabled={disbleTradeDeadLine} required={isTradeDeadlineReq}>
+                    </lightning-input-field><!--8ci-->
+                    <!--<lightning-input-field field-name='Nomura_Entity_client_being_onboarded_to__c' onchange={handleNomEntClntBngOnbToChange}
+                        value={nomEntClntBngOnbTo} variant='label-inline' data-field="nomEntClntBngOnb">
+                    </lightning-input-field>--> <!--8d-->
+                    <lightning-dual-listbox name="languages" 
+                                label="Nomura Entity client being onboarded to?"
+                                source-label="Available for Onboarding"
+                                selected-label="Selected for Onboarding"
+                                field-level-help="Which Nomura Entity is the client being on-boarded to?"
+                                options={nomuraBookingEntities}
+                                min="1"
+                                value={nomEntClntBngOnbTo}
+                                required
+                                disable-reordering
+                                add-button-label="Add"
+                                remove-button-label="Remove"
+                                message-when-range-underflow="Select at least one Nomura Booking Entity"
+                                variant="label-inline"
+                                onchange={handleNomEntClntBngOnbToChange}
+                                size="5"> 
+                    </lightning-dual-listbox>
+                    <lightning-input-field field-name='Justification_for_the_entity__c' onchange={handleJustForTheEntChange}
+                        value={justForTheEnt} variant='label-inline' data-field="justForTheEnt" disabled={isBEJustificationNotReq}>
+                    </lightning-input-field> <!--8e-->
+                    <template if:true={displayOtherReason}>
+                        <lightning-input-field field-name='Other_Reason_Justification_For_Entity__c' onchange={handleJustForEntOtherReasonChange}
+                            value={otherReasonTextValue} variant='label-inline' data-field="otherReasonTextValue" required>
+                        </lightning-input-field> <!--8e-->
+                    </template>
+                    <lightning-input-field field-name='New_or_existing_business_activity__c' onchange={handleNewOrExtBussActChange}
+                        value={newOrExtBussAct} variant='label-inline' data-field="newOrExtBussAct">
+                    </lightning-input-field> <!--8f-->
+                    <lightning-input-field field-name='Are_you_trading_in_principal_with_client__c' onchange={handleAreYouTradInPrinWithClntChange}
+                        value={areYouTradInPrinWithClnt} variant='label-inline' data-field="areYouTradInPrinWithClnt">
+                    </lightning-input-field> <!--8g-->
+                    <lightning-input-field field-name='Approx_no_of_underlying_funds_if_app__c' onchange={handleApprxNoOfUndLyinFundsChange}
+                        value={apprxNoOfUndLyinFunds} variant='label-inline' data-field="apprxNoOfUndlyingFunds">
+                    </lightning-input-field> <!--8h-->
+                    <lightning-input-field field-name='Anticipated_Avg_Monthly_Frequency__c' onchange={handleAntAvgMonthlyFreqChange}
+                        value={antAvgMonthlyFreq} variant='label-inline' data-field="antAvgMonthlyFreq">
+                    </lightning-input-field> <!--8i-->
+                    <lightning-combobox
+                        name="antAvgMonthlyTransSize"
+                        label="Anticipated Avg Monthly Transaction Size (USD)"
+                        value={antAvgMonthlyTransSize}
+                        placeholder="--None--"
+                        options={avgMonthlyTransactionSizeOptions}
+                        onchange={handleAntAvgMonthlyTransSizeChange}
+                        variant='label-inline'
+                        field-level-help={avgMonthlyTransactionHelperText}
+                        required
+                    ></lightning-combobox>
+                    <!--<lightning-input-field field-name='Anticipated_Avg_Monthly_Transaction_Size__c' onchange={handleAntAvgMonthlyTransSizeChange}
+                        value={antAvgMonthlyTransSize} variant='label-inline' data-field="antAvgMonthlyTransSize">
+                    </lightning-input-field>-->
+                    <lightning-input-field field-name='Are_You_Registered_As_Authorised_Person__c' onchange={handleAreYouRegAsAuthPersonChange}
+                        value={areYouRegAsAuthPerson} variant='label-inline' data-field="regAsauthPerson">
+                    </lightning-input-field> <!--8k-->
+                    <lightning-input-field field-name='Sales_Location__c' onchange={handleSalesLocChange}
+                        value={salesLoc} variant='label-inline' data-field="salesLocation">
+                    </lightning-input-field> <!--8l-->
+                    <lightning-input-field field-name='Trader_Location__c' onchange={handleTraderLocChange}
+                        value={traderLoc} variant='label-inline' data-field="traderLocation">
+                    </lightning-input-field> <!--8m-->
+                    <lightning-input-field field-name='Trading_Desk_Rank_Relevance_To_Market__c' onchange={handleTradDeskRankRelToMarketChange}
+                        value={tradDeskRankRelToMarket} variant='label-inline' data-field="tradDeskMRelevance">
+                    </lightning-input-field> <!--8n-->
+                    <lightning-input-field field-name='Trading_Desk_Rank_Monetisation_Of_Flow__c' onchange={handleTradDeskRankMonOfFlowChange}
+                        value={tradDeskRankMonOfFlow} variant='label-inline' data-field="tradDeskMonetisation">
+                    </lightning-input-field> <!--8o-->
+                    <lightning-layout pull-to-boundary="medium">
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" flexibility="auto" padding="horizontal-small">
+                            <lightning-input-field field-name='Trader_Consulted__c' onchange={handleTraderConsSrchChange}
+                                value={traderConsSrch} variant='label-inline' data-field="traderConstSrch" disabled={isTraderConsSrchReq}>
+                            </lightning-input-field> <!--8p-1-->
+                        </lightning-layout-item>
+                        <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" flexibility="auto" padding="horizontal-small">
+                            <lightning-input-field field-name='Trader_Consulted_Free_Text__c' onchange={handleTraderConsFreeTxtChange}
+                                value={traderConsFreeTxt} variant='label-inline' data-field="traderConstFreeTxt" disabled={isTraderConsFreeTxtReq}>
+                            </lightning-input-field> <!--8p-2-->
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </lightning-record-edit-form>
+            </div>
+        </template>
+        <div slot="footer">
+            <template if:false={disableAllFields}>
+                <lightning-button label="Cancel"  icon-name="utility:close" onclick={handleCancelClick}></lightning-button>
+                <lightning-button label="Save" variant="brand" icon-name="utility:save" onclick={handleSaveClick}></lightning-button>
+            </template>
+            <template if:true={disableAllFields}>
+                <lightning-button label="Close"  icon-name="utility:close" onclick={handleCancelClick}></lightning-button>
+            </template>
+        </div>
+    </lightning-card>
+</template>

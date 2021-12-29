@@ -1,0 +1,43 @@
+<aura:component controller="SalesTeamTreeFilterController" access="global">
+   <ltng:require styles="{! $Resource.select2 + '/select2-3.5.2/select2.css'}" 
+                  scripts="{!join(',', 
+                           $Resource.CVGBulkJQueryMinJS,
+                           $Resource.select2 + '/select2-3.5.2/select2.js' )
+                           }" afterScriptsLoaded="{!c.scriptsLoaded}"/>
+    
+  <!--init handler event call "doInit" function on component load and fetch picklist values-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:method name="reset"  action="{!c.reset}"/>  
+     
+    <!--Declare Attributes--> 
+    <aura:attribute name="placeHolder" type="String" />   
+    <aura:attribute name="pluralLabel" type="String" />   
+    <aura:attribute name="label" type="String" />
+    <aura:attribute name="highlightError" type="String" default="false" />
+    <aura:attribute name="highlightErrorMessage" type="String" default="false" />
+    <aura:attribute name="parentID" type="string"  description="store object Info." />
+    <aura:attribute name="searchText" type="String" default=""/>
+    
+    <aura:attribute name="isHelperTreeScriptLoaded" type="Boolean" description="Flag to indicate jquery is loaded"/>
+    <aura:attribute name="nTRTreeHelperLogic" type="Boolean" description="Flag to indicate need to process the logic rerender since it is called many times during the component's lifecycle"/>
+    
+    <!--	Declare events -->
+    <aura:registerEvent name="treeChange" type="c:treeChange" />    
+    
+    <!--Declare Methods--> 
+    <aura:method name="highlightErrorMethod" action="{!c.highlightErrorMethod}">
+        <aura:attribute name="highlightErrorParam" type="String" default="false"/>
+        <aura:attribute name="highlightErrorMessageParam" type="String" />
+    </aura:method>
+
+   <!--for multi-select picklist [select2] -->    
+    <label class="slds-form-element__label" for="treePickList">{!v.label} </label>
+    <div class="slds-form-element__control " id="{!v.parentID+'_'+'team_treePickList_span'}">
+        <input aura:id ="{!v.parentID+'_team_treePickList'}" id="{!v.parentID+'_team_treePickList'}" type="text" />
+    </div>    
+    <aura:if isTrue="{!v.highlightError}">
+        <ul class="has-error uiInputDefaultError uiInput uiInputText uiInput--default uiInput--input" >
+            <li class="form-element__help" >{!v.highlightErrorMessage}</li>
+        </ul>    
+    </aura:if> 
+</aura:component>

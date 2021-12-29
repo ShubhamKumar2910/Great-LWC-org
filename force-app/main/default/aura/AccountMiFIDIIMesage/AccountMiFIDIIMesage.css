@@ -1,0 +1,14 @@
+.THIS {
+    
+}
+
+
+.THIS .warningClass {
+	background-color:rgb(135, 5, 0);
+	color: white;
+}
+
+.THIS .inProgressClass {
+	background-color:rgb(22, 50, 92);
+	color: white;
+}

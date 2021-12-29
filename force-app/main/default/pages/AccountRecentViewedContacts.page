@@ -1,0 +1,102 @@
+<apex:page ></apex:page>
+<!-- SHIELD - START : 
+<apex:page standardcontroller="Account" lightningStylesheets="true" extensions="AccountRecentViewedContactsController" title="Recently Viewed Contacts" tabStyle="Contact">
+    
+    <apex:includeScript value="/support/console/34.0/integration.js"/>
+    
+    <script type="text/javascript">
+    
+        window.onload = function onloadJS()
+        {   
+            var imgUrl = '{!URLFOR($Resource.VFContactIcon)}';   
+            sforce.console.setTabIcon(imgUrl, null, null);  
+        } 
+    
+        function newContact() 
+        {
+            var redirectUrl = '{!URLFOR($Action.Contact.NewContact)}';
+            
+            if (sforce.console.isInConsole()) // console action
+            {
+                sforce.console.getEnclosingTabId(function(enclosingResult)
+                {
+                    sforce.console.getEnclosingPrimaryTabId(function(primaryResult){  
+                        sforce.console.openSubtab(primaryResult.id, redirectUrl, true, 'New Contact', '', null,'NewContact');
+                    });
+                });
+            }
+            else // classic SF action
+            {
+                window.top.location.href = '{!URLFOR($Action.Contact.NewContact, null, [retURL=Account.Id])}' ;    
+            }
+
+        }
+        
+        function viewContact(id) 
+        {
+          
+            if (sforce.console.isInConsole()) // console action
+            {
+                sforce.console.getEnclosingPrimaryTabId(
+                    function(primaryResult)
+                    {
+                        sforce.console.openSubtab(primaryResult.id, '/' + id, true, '', null);
+                    }
+                );
+            }
+            else // classic SF action
+            {
+                window.top.location.href = '/' + id;    
+            }
+        }
+    
+    </script>
+    
+    <apex:form >
+    
+        <apex:sectionHeader title="{!Account.Name}" rendered="{!isView}" subtitle="Recently Viewed Contacts (Active)" />
+        <apex:pageBlock mode="maindetail" >    
+        
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton onclick="newContact()" rendered="{!isView}" value="New Contact"  />
+            </apex:pageBlockButtons>
+            
+            <apex:pageBlockTable styleClass=".DesktopFrameCommon.css"  value="{!Contacts}" var="cont" >
+                
+                <apex:column value="{!cont.Salutation}"/>  
+                
+                <apex:column headerValue="{!$ObjectType.Contact.fields.Name.Label}" > 
+                    <a href="#" onclick="viewContact('{!cont.id}')">{!cont.Name}</a>
+                </apex:column>  
+                
+                <apex:column headerValue="{!$ObjectType.Contact.fields.Local_Language_Full_Name__c.Label}" > 
+                    <a href="#" onclick="viewContact('{!cont.id}')">{!cont.Local_Language_Full_Name__c}</a>
+                </apex:column>  
+                  
+                <apex:column value="{!cont.AccountId}"/>   
+                <apex:column value="{!cont.Position__c}"/>    
+                <apex:column value="{!cont.Email}"/> 
+                <apex:column value="{!cont.GRP_Access__c}"/> 
+                <!-PREVIOUS COMMENT-<apex:column value="{!cont.Phone}"/>-PREVIOUS COMMENT-> 
+                <apex:column value="{!cont.Key_Person__c}"/> 
+                
+            </apex:pageBlockTable>
+            
+            <apex:panelGrid styleClass=".DesktopFrameCommon.css"   columns="8">
+                <apex:commandLink action="{!contactSetCont.previous}" rendered="{!(contactSetCont.HasPrevious)}">Previous </apex:commandLink>
+                <apex:outputText rendered="{!(contactSetCont.HasPrevious)}">|</apex:outputText>
+                <apex:commandLink action="{!contactSetCont.next}" rendered="{!(contactSetCont.HasNext)}">Next</apex:commandLink>
+                <apex:outputText rendered="{!(contactSetCont.HasNext)}">|</apex:outputText>
+                <apex:outputText styleClass=".DesktopFrameCommon.css" >                     
+                      {!IF((contactSetCont.pageNumber * contactSetCont.pageSize) > contactSetCont.resultSize, contactSetCont.resultSize,(contactSetCont.pageNumber * contactSetCont.pageSize))} 
+                 / {!contactSetCont.resultSize} records
+                </apex:outputText> 
+            </apex:panelGrid> 
+            
+            
+        </apex:pageBlock>
+    
+    </apex:form> 
+    
+</apex:page>
+SHIELD - END :  -->

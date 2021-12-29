@@ -1,0 +1,3347 @@
+<apex:page docType="html-5.0" showHeader="false" standardController="Event">
+    
+    <!--JQUERY Script-->
+    <apex:includeScript value="{!$Resource.jqueryminjs}"/>
+    
+    <!--BOOTSTRAP Script-->
+    <apex:stylesheet value="{!$Resource.bootstrapmincss}" />
+    <apex:includeScript value="{!$Resource.bootstrapminjs}"/>  
+    <apex:includeScript value="{!$Resource.bootboxminjs}"/> 
+    
+    <!--Open CTI Script-->
+    <apex:includeScript value="/support/api/37.0/interaction.js"/>
+    <script src="/soap/ajax/37.0/connection.js" type="text/javascript"></script>
+    
+    
+    <script>
+        function toggler(divId) 
+    {
+        $("#" + divId).toggle();
+    }
+    </script>
+    
+    <!-------------------------------SFDC Call Dialler ---------------------------------------------------------->               
+    
+    <!-- Soft Phone Styling -->
+    <style>
+        body .sffont{
+        font-family: 'SalesforceSans-Regular',Helvetica,Arial,sans-serif;
+        font-size: 12.5px;
+        font-weight: normal;
+        }
+        
+        .btn-hidden{
+        display : none ;
+        }
+        
+        body .btn-show{
+        font-family: 'SalesforceSans-Regular',Helvetica,Arial,sans-serif;
+        font-size: 12.5px;
+        font-weight: normal;
+        width : 80px;
+        color : white;
+        background: #0070d2;
+        }
+        
+        body .btn-red{
+        font-family: 'SalesforceSans-Regular',Helvetica,Arial,sans-serif;
+        font-size: 12.5px;
+        font-weight: normal;
+        width : 80px;
+        color : white;
+        background: #CA2420;
+        }
+        
+       
+        
+    </style>
+    
+    <!-- Soft Phone Body -->
+    <div id="softphonebody">     
+        <!-- From Dropdown -->
+        <div style="padding-left: 10px;padding-top: 5px;padding-right: 10px;"  >
+            <label  for="callbacknumbertag">From</label><!--<img id="resetsoftphonebtn" data-toggle="tooltip" title="Reset Softphone"  style="float: right;" src="{!$Resource.restartbtn}" width="15px" height="15px" />-->
+            <select style="background-color: #D5D5D5;color: black;border: 0;height: 30px;" class="form-control sffont"  id="callbacknumbertag">
+            </select>
+        </div>   
+        
+        <!-- Buttons: Voice Msg Setup / Callback Calls / End Session / End button-->
+        <div style="padding-left: 10px;padding-top: 5px;padding-right: 10px;">
+            <button class="sffont"  id="voicemsgsetuptogglebutton" onclick="toggler('voicemessagesetuptag')" style="display: none;;height: 30px;background: #0070d2;border: 1px #4a90e2 solid;border-radius: 5px;color: white;height : 30px;width:150px;">Voice Msg Setup</button>
+            <button class="sffont"  id="callbuttontag" style=";height: 30px;background: #0070d2;border: 1px #4a90e2 solid;border-radius: 5px;color: white;height : 30px;width:150px;">Call Back Call</button>
+            <button class="sffont"  id="endbuttontag" style=";height: 30px;display: none;background: #CA2420 ;border: 1px solid;border-radius: 5px;color: white;height : 30px;width:150px;">End Call</button>
+            <button class="sffont"  id="endsessiontag" style=";display: none;;height: 30px;background: #CA2420 ;border: 1px solid;border-radius: 5px;color: white;;height : 30px;width:150px;">End Session</button>
+        </div> 
+        
+        <!-- Voice Msg Setup - List Messages / Record Messages & Play-Stop buttons-->
+        <div id="voicemessagesetuptag" style="display: none;;padding-left: 10px;padding-top: 5px;;padding-right: 10px;">
+            <hr style="border-top: 1px solid #8c8b8b;;margin-top: -2px;" />        
+            <ul class="nav nav-tabs " style="margin-left: 0px;">
+                <li style="margin-left: 0px;" class="active">
+                    <a class="sffont" data-toggle="pill" href="#listvoicemessage"  >List Messages</a>
+                </li>
+                <li>
+                    <a class="sffont"  data-toggle="pill" href="#recordvoicemessage" >Record Messages</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div id="recordvoicemessage" class="tab-pane fade ">
+                    <div style="padding-top: 5px;;" >
+                        <label class="sffont" for="recordfilemsgname">Name</label>
+                        <input style="height: 30px;" maxlength="50" class="form-control sffont" id="recordfilemsgname"/>
+                    </div>   
+                    
+                    <div style="padding-top: 5px;;" >
+                    </div>  
+                    
+                    <div style="padding-top: 5px;;" >
+                        <label class="sffont" for="recordfiledescription">Description</label>
+                        <input   style="height: 30px;" maxlength="100" class="form-control sffont" id="recordfiledescription"/> 
+                    </div> 
+                    
+                    <div style="padding-top: 5px;;" >
+                        <button class="sffont"  id="btnstartrecording" style="background: #0070d2;border: 1px #4a90e2 solid;border-radius: 5px;;color : white;;height : 30px;width:150px;"   >Record</button>  
+                        <button class="sffont"   id="btncancelrecording" style=";background: gray;border: 1px solid;border-radius: 5px;;color : white;;height : 30px;width:150px;" >Close</button>
+                    </div> 
+                </div>
+                <div id="listvoicemessage" class="tab-pane fade in active">
+                    <div style="padding-top: 5px;;" >
+                        <label for="voicemsglisttag"></label>
+                        <select style="background-color: #D5D5D5;color: black;height: 32px;" class="form-control sffont" id="voicemsglisttag">
+                        </select>
+                    </div>
+                    <div style="padding-top: 5px;;" >
+                        <button class="sffont" id="audiomsgtestbtn" style=";background: #0070d2;border: 1px #4a90e2 solid;border-radius: 5px;;color : white;;height : 30px;width:98px;">Play</button>
+                        <button class="sffont" id="deleteaudiofilebtn" style=";background: #CA2420 ;border: 1px solid;border-radius: 5px;;color : white;;height : 30px;width:98px;">Delete </button>
+                        <button class="sffont" id="closemsglistbtn" style=";background: gray;border: 1px solid;border-radius: 5px;;color : white;;height : 30px;width:98px;">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Client Call Connected block-->
+        <div id="clientcallconnectedblock" style="display: none;" >
+            <div style=";padding-left: 10px;padding-top: 5px;;padding-right: 10px;">
+                <hr style="border-top: 1px solid #8c8b8b;;margin-top: 0px;margin-bottom: -2px;" />
+                <div style="padding-top: 5px;;" >
+                    <label  for="contactnametag">To</label>
+                </div>
+                <div style="padding-top: 5px;;" >
+                    <input style=";height: 30px;background-color: #C8C8C8;color: black;border: 0;margin-bottom: 3px;" type="text"  id="contactnametag" class="form-control sffont"  readonly="true"/>
+                    <input style=";height: 30px;background-color: #C8C8C8;color: black;border: 0;margin-bottom: 3px;" type="text"  id="contactaccountnametag" class="form-control sffont"  readonly="true"/>
+                    <input style=";height: 30px;background-color: #C8C8C8;color: black;border: 0;" type="text"  id="clientcallstag" class="form-control sffont"  readonly="true"/>
+                </div>
+                <div>
+                    <p class="sffont" style="margin-top: 5px;" ><b style="margin-left:0px;color : black" >Duration :</b><b id="callminutestag" style="padding-left: 10px;">00</b><b>:</b><b id="callsecondstag" >00</b> </p>
+                </div>
+            </div>  
+        </div>
+        
+        <!-- Call Notes Block - Save Event Form -->
+        <div id="incallnotesanddropblock" style="display: none;">
+            <div style="padding-left: 10px;padding-top: 5px;;padding-right: 10px;">   
+                
+                <ul class="nav nav-tabs " style="margin-left: 0px;">
+                    <li id="tabcallnotesblock"  style="margin-left: 0px;" >
+                        <a class="sffont" data-toggle="pill" href="#callnotesblock">Call Notes</a>
+                    </li>
+                    <li id="tabdropmessageblock" class="active">
+                        <a class="sffont"  data-toggle="pill" href="#dropmessageblock">Drop Message</a>
+                    </li>
+                </ul>
+                
+                <div class="tab-content">
+                    <!-- Save Event -->
+                    <div id="callnotesblock" class="tab-pane fade ">
+                        <div style="padding-top: 5px;;" >
+                            <apex:form >
+                                <table style="margin-bottom: 0px;" class="table sffont" width="330px">
+                                    <tr>
+                                        <td>
+                                            Live Interaction 
+                                        </td>
+                                        <td>
+                                            <select   id="isliveinteractionselect">
+                                                <option value=" " selected='true'>--None--</option>
+                                                <option value="Yes" >Yes</option>
+                                                <option value="No">No</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Private
+                                        </td>
+                                        <td>
+                                            <apex:inputField id="sfprivatetagid"   value="{!Event.Private__c}"  />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Related To
+                                        </td>
+                                        <td>
+                                            <apex:inputField id="sfrelatedtotagid"         value="{!Event.WhatId}"  />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Subject
+                                        </td>
+                                        <td>
+                                            <apex:inputField id="sfsubjecttagid"          value="{!Event.Subject}"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Ticker
+                                        </td>
+                                        <td>
+                                            <apex:inputField id="sftickertagid"       style="height: 23px;"     value="{!Event.Ticker__c}"/> 
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Description
+                                        </td>
+                                        <td>
+                                            <apex:inputField id="sfdescriptiontagid"  style="width: 228px;height: 69px;"  value="{!Event.Description}"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                
+                                
+                                
+                            </apex:form>
+                            <button class="sffont" id="saveeventbtn" style="margin-top: -10px;background: #0070d2;border: 1px #4a90e2 solid;border-radius: 5px;color : white;;height : 30px;width:150px;">Save</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Drop Voice Message and buttons -->
+                    <div id="dropmessageblock" class="tab-pane fade in active">
+                        <div style="padding-top: 5px;;" >
+                            <label class="sffont" for="voicemsgdroptag"><b>Voice Messages To Drop</b></label>
+                            <select style="background-color: #D5D5D5;color: black;height: 32px;" class="form-control sffont" id="voicemsgdroptag">
+                            </select>
+                        </div>
+                        <div style="padding-top: 5px;;" >
+                            <button class="sffont" id="dropaudiomsgbtn" style="background: #0070d2;border: 1px #4a90e2 solid;border-radius: 5px;color : white;;height : 30px;width:150px;"  >Drop</button>
+                            <button class="sffont" id="autodropaudiomsgbtn" style="background: gray;border: 1px solid;border-radius: 5px;color : white;;height : 30px;width:150px;"  >Auto Drop</button>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>     
+        </div>
+        
+        <!-- Events Messages --> 
+        <div style="padding-left: 10px;padding-top: 5px;padding-right: 10px;" >
+            <hr style="border-top: 1px solid #8c8b8b;margin-top: 0px;margin-bottom: -2px;" />
+            <div style="padding-top: 5px;">
+                <label for="softphonemsg">Events</label><br/>
+                <i class="sffont" style="color: blue;"  id="softphonemsg"></i>
+            </div>
+        </div>
+    </div>
+    
+    
+    <!-------------------------------Javascript Code---------------------------------------------------------->               
+    <script>
+    $(document).ready(function () {
+        $(document).ajaxStart(function(){
+            console.log('hi');  
+        });
+        
+        $(document).ajaxComplete(function(){
+            console.log('bi');  
+        });
+        sforce.connection.sessionId='{!GETSESSIONID()}';
+        
+        //////////Variables////////////////////
+        var EventClientName = "";
+        var EventClientContactId="";
+        var clientName = '';
+        var voicemessageSubjectName = "";
+        var subjectline = "";        
+        var isCallBackCallActive = false ;
+        var isClientCallActive = false ;
+        var isCallNotesBlockOpen = false ;
+        var isCallNotesSaved = false ;
+        var softphoneEventID = "";
+        var liveInteractionMandatory = false;
+        var callStartTime ;
+        var callEndTime ;
+        var hasClientUpdatedNotes = false;
+        var accountParentId = '';
+        /** ADDED - SAGAR**/
+        var isPlayRec = false;
+        var isDeleteRec = false;
+        var isRecordMessage = false;
+        var contactResultOnClick;
+        var proceedtoCall= true;
+		var manualSessionActive = false;
+        /***************************/
+        var callDurationMin = 0 ;
+        var isVoiceDrop = false ;
+        var isAutoVoicedrop = false ;
+        var isEventUpdated = false ;
+        
+        var isJAPANEventCreated = false ;
+        var isEventCreated = false ;
+        var isJAPANEventUpdated = false ;
+        
+        var isAudioMessageNamePresent ;
+        
+        var totalSeconds = 0;
+        var isVoiceDrop = false;
+        var endSession = false;
+        var userRole = "{!$UserRole.Name}";
+        console.log("Current User`s Role :"+userRole);
+        
+        $("#isliveinteractionselect").css("width", "70px");
+        $('[id$=sfrelatedtotagid_mlktp]').css("width", "175px");
+        $('[id$=sfrelatedtotagid]').css("width", "175px");
+        $('[id$=sfsubjecttagid]').css("width", "175px");
+        $('[id$=sftickertagid]').css("width", "175px");
+        $('[id$=sfdescriptiontagid]').css("width", "175px");
+        $('<br />').insertBefore($('[id$=sfrelatedtotagid]'));
+        
+        var calledNameId = "" ;
+        var CalledContactName = "";
+        var CalledContactAccountName = "";
+        var CalledContactRGAccountName = "";
+        
+        var webSocket;
+        var data = "";
+        
+        ////////////////////Initialize and Load soft phone/////////////////////
+        var softphoneReset = false ;
+        document.getElementById("softphonebody").onload = openSocket(); 
+        
+        // Open Socket Initialization to softphone body
+        // Populate From Dropdown list with phone numbers
+        function getAndSetCBCNumbers(){
+            var mobile             = "{!$User.MobilePhone}"
+            var Phone              = "{!$User.Phone}"
+            var extension          = "{!$User.Extension}"
+            var other1             = "{!$User.Other_Phone_1__c}"
+            var other2             = "{!$User.Other_Phone_2__c}"
+            var other3             = "{!$User.Other_Phone_3__c}"
+            
+            var cbcnumarray = new Array();
+            
+            
+            if(!(mobile === ""))   { cbcnumarray.push(mobile); }
+            if(!(Phone  === ""))   { cbcnumarray.push(Phone); }
+            if(!(extension === "")){ cbcnumarray.push(extension); }
+            if(!(other1 === ""))   { cbcnumarray.push(other1); }
+            if(!(other2 === ""))   { cbcnumarray.push(other2); }
+            if(!(other3 === ""))   { cbcnumarray.push(other3); }
+            
+            setValueinSelect(cbcnumarray);
+        } // Open Socket - From   
+        function setValueinSelect(cbcnumarray){
+            
+            $.each(cbcnumarray, function(key, value) {   
+                $('#callbacknumbertag')
+                .append($("<option></option>")
+                        .val(value)
+                        .text(value)); 
+            });
+            
+            
+        } // Open Socket -From
+        function openSocket(){
+            // Open server socket
+            if (webSocket !== undefined && webSocket.readyState !== WebSocket.CLOSED) {
+                return;
+            }
+            
+            try {
+                
+                //disable the callbackcall button till it connectes to service or try to connect
+                $("#callbuttontag").prop("disabled",true);
+                
+                //get the ipport of cti adapter service 
+                var ipport = "{!$CurrentPage.parameters.serveripport}" ;
+                
+                console.log("Connecting To CTI Adapter Service");
+                $("#softphonemsg").html("Connecting To CTI Adapter Service...");
+                
+                //Open the websocket connection 
+                webSocket = new WebSocket("wss://" + ipport + "/NomuraCPDialerWS/endpoint");
+                //webSocket = new WebSocket("ws://" + ipport + "/NomuraCPDialerWS/endpoint");
+                //webSocket = new WebSocket("wss://echo.websocket.org");
+                
+            } catch (err) {
+                console.log("Error Connecting To CTI Adapater Service : " + err);
+                $("#softphonemsg").html("Error Connecting To CTI Adapater Service :" + err);
+                
+            }
+            
+            if (webSocket === undefined)
+            {
+                setTimeout(function () {
+                    openSocket();
+                }, 3000);
+                return;
+            }
+            
+            webSocket.onopen = function (){    
+                console.log("Service Connected  Successfully: "+getCookie("sflastcbcnum")); 
+                getAudioMessagesList() ; //-Added Sagar
+						                
+                //enable the callback call button
+                $("#callbuttontag").prop("disabled",false);
+                
+                $("#softphonemsg").html("Service Connected  Successfully");  
+                
+                //(**** - By Sagar)
+                //disableClickToDialOnSalesforce(); 
+                enableClickToDialOnSalesforce(); 
+                
+                //make the softphone visible
+                //setSoftphoneVisible(true);
+                
+                //set numbers to selectlist of cbcnumber
+                getAndSetCBCNumbers();
+                
+                //set the last call back number used from the cookies
+                setLastCallbackNumberForSoftphone();   
+            };            
+            webSocket.onmessage = function (event){
+                data += event.data;
+                processMessage();
+            };
+            webSocket.onclose = function (){ 
+                //disable everything on disconnection of CTI adapter service
+                $("#voicemsgsetuptogglebutton").css("display","none");
+                $("#callbuttontag").css("display","inline");
+                $("#endbuttontag").css("display","none");
+                $("#endsessiontag").css("display","none");
+                $("#voicemessagesetuptag").css("display","none");
+                $("#clientcallconnectedblock").css("display","none");
+                //$("#incallnotesanddropblock").css("display","none");
+                //callbackcall is not active
+                isClientCallActive = false;
+                isCallBackCallActive = false ;
+                if((isCallNotesBlockOpen === true)){
+                    
+                    //make the call notes tab active
+                    $('#tabcallnotesblock').removeClass().addClass('active');
+                    $('#callnotesblock').removeClass().addClass('tab-pane fade in active');
+                    $("#isliveinteractionselect").val("No");
+                    
+                    
+                    //make the drop message notes tab inactive
+                    $('#tabdropmessageblock').removeClass().addClass('inactive');
+                    $('#dropmessageblock').removeClass().addClass('tab-pane fade');
+                    //hide the drop message tab 
+                    $("#tabdropmessageblock").css("display","none"); 
+                    
+                    
+                }
+                //(**** - By Sagar)
+                //disableClickToDialOnSalesforce(); 
+                enableClickToDialOnSalesforce(); 
+                $("#softphonemsg").html("Service Disconnected ");  
+                
+                
+                setTimeout(function () {
+                    openSocket();
+                }, 10000);
+            };
+        } // Open Socket - Connection to CTI Service
+        
+        $("#resetsoftphonebtn").click(function resetSoftphone() {
+            
+            bootbox.confirm({
+                message: "Are you sure you want to reset softphone? Any unsaved call notes will be discarded.",
+                buttons: {
+                    cancel: {
+                        label: 'No&nbsp;',
+                        className: 'btn-show'
+                    },
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn-red'
+                    }
+                    
+                },
+                callback: function (result) {
+                    
+                    if(result === true){
+                        endSession = false;
+                        $("#incallnotesanddropblock").css("display","none");
+                        console.log("Closing Socket");
+                        endTelephonySession();
+                        webSocket.close();
+                        softphoneReset = true ;
+                        //set numbers to selectlist of cbcnumber
+                        //getAndSetCBCNumbers();
+                        
+                        //set the last call back number used from the cookies
+                        //setLastCallbackNumberForSoftphone();   
+                        
+                    }
+                    if(result === false){
+                        
+                        
+                    }
+                    
+                }
+            });
+            
+            
+            
+        });
+        
+        
+        function processMessage(){
+            if (endsWith(data, "\r\n"))
+            {
+                var msgs = data.split("\r\n");
+                var index = 0;
+                
+                while (msgs[index])
+                {    
+                    console.log(msgs[index])
+                    var parsed_data = JSON.parse(msgs[index]);
+                    handleEVentType(parsed_data); 
+                    
+                    index++;
+                }
+                data = "";
+            } else {
+                // Message(s) not complete
+                return;
+            }
+        } // Open Socket - Process Message
+        function replacePhoneSpecialChar(dialNumber)
+        {
+            //var phoneRegEx = /\`|[\A-Za-z]|\~|\!|\-|\@|\#|\$|\%|\^|\&|\*|\(|\)|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\.|\>|\?|\/|\""|\;|\:|\s/g; 
+            var phoneRegEx = /[^0-9+]/g;
+            return dialNumber.replace(phoneRegEx,'');
+        }
+        
+        
+        ////////////////////Event Handling/////////////////////
+        function handleEVentType(eventdata){            
+            switch (eventdata.eventtype){
+                    
+                case 'TelephonySessionStarted' :
+                    console.log(eventdata.eventtype);
+                    
+                    $("#softphonemsg").html("Telephony Session Started");
+                    
+                    $("#callbuttontag").css("display","none");
+                    //show the end session button
+                    $("#endsessiontag").css("display", "inline");  
+                    
+                    
+                    //dial call back call on telephony session start
+                    var cbcnumber = $("#callbacknumbertag").val();
+                    dialCallbackCall(cbcnumber);
+                    
+                    break;
+                    
+                case 'TelephonySessionError'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Telephony Session Error");
+                    
+                    //display callback button and enable select cbc num
+                    $("#callbuttontag").css("display","inline");
+                    $("#callbacknumbertag").prop("disabled",false);
+                    //enablethe call back button 
+                    $("#callbuttontag").prop("disabled", false);
+                    break;
+                    
+                case 'TelephonySessionEnded'   :
+                    endSession = true;
+                    console.log(eventdata.eventtype);
+                    
+                    
+                    
+                    //callbackcall is not active
+                    isClientCallActive = false;
+                    isCallBackCallActive = false ;
+                    
+                    $("#softphonemsg").html("Telephony Session Ended");
+                    
+                    //hidethe voice message setup toggle button button
+                    $("#voicemsgsetuptogglebutton").css("display", "none");
+                    
+                    //hide the clientcall block
+                    $("#clientcallconnectedblock").css("display", "none");
+                    
+                    //hide the voice msg setup block
+                    $("#voicemessagesetuptag").css("display", "none");
+                    
+                    
+                    
+                    //hide the end call button 
+                    $("#endbuttontag").css("display", "none");
+                    
+                    //show the callback call button tag
+                    $("#callbuttontag").css("display", "inline");
+                    
+                    //hide the end session tag
+                    $("#endsessiontag").css("display", "none");
+                    
+                    //enable the select tag for cbc number selection
+                    $('#callbacknumbertag').prop('disabled', false);
+                    
+                    //enablethe call back button 
+                    $("#callbuttontag").prop("disabled", false);
+                    
+                    
+                    $("#btnstartrecording").text("Record") ;
+                    $("#btnstartrecording").prop("disabled",false);
+                    $("#recordfiledescription").val("");
+                    $("#recordfilemsgname").val("");
+                    
+                    
+                    if(isCallNotesBlockOpen === true){
+                        
+                        //make the call notes tab active
+                        $('#tabcallnotesblock').removeClass().addClass('active');
+                        $('#callnotesblock').removeClass().addClass('tab-pane fade in active');
+                        
+                        
+                        //make the drop message notes tab inactive
+                        $('#tabdropmessageblock').removeClass().addClass('inactive');
+                        $('#dropmessageblock').removeClass().addClass('tab-pane fade');
+                        //hide the drop message tab 
+                        $("#tabdropmessageblock").css("display","none"); 
+                        
+                        
+                    }
+                    //disableClickToDialOnSalesforce(); // -- SAGAR
+                    enableClickToDialOnSalesforce();
+                    manualSessionActive = false;
+                        
+                    break;
+                    
+                case 'CallbackCallStarted'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Call Back Call Started");
+                    //disable the call back button 
+                    $("#callbuttontag").prop("disabled", true);
+                    disableClickToDialOnSalesforce(); //-SAGAR
+                    break;
+                    
+                case 'CallbackCallRinging'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Call Back Call Ringing");
+                    //disable the call back button 
+                    $("#callbuttontag").prop("disabled", true);
+                    break;
+                    
+                case 'CallbackCallConnected'   :
+                    /* var normalUser = true;
+                    if((userRole.indexOf("Japan - FI - Sales") === -1) && (userRole.indexOf("Japan - FI - Team") === -1) && (userRole.indexOf("Japan - FI - Desk") === -1) && (userRole.indexOf("Japan - FI Sales") === -1)){
+                        normalUser = true;
+                    }
+                    else
+                    {
+                        normalUser = false; // an japan user
+                    }
+                    */
+                    //hasClientUpdatedNotes = false;
+                    
+                    
+                    
+                    //hide the call back button 
+                    $("#callbuttontag").css("display", "none");
+                    enableClickToDialOnSalesforce();
+						
+                    //make callbackcall flag true
+                    isCallBackCallActive = true;
+                    
+                    //make the clientcall active flag to false
+                    isClientCallActive = false;
+                    
+                    
+                    $("#softphonemsg").html("Call Back Call Connected");
+                    
+                    
+                    /*console.log('************************************************');
+                    console.log('Session Ended : '+endSession);
+                    console.log('isCallNotesSaved : '+isCallNotesSaved);
+                    console.log('isCallNotesBlockOpen : '+isCallNotesBlockOpen);
+                    console.log('hasClientUpdatedNotes : '+hasClientUpdatedNotes);
+                    console.log('************************************************');
+                    console.log('************************************************');
+                    console.log('************************************************');
+                    
+                    var isliveInteractionTimeVal = totalSeconds ; //calculate the call time in seconds SAGAR
+                    if(isliveInteractionTimeVal > 20 )
+                    {
+                        console.log('ClientCallHungup : hasClientUpdatedNotes: '+hasClientUpdatedNotes);
+                        if(totalSeconds > 20 && $("#isliveinteractionselect").val() != ' ' && hasClientUpdatedNotes === true)
+                        {
+                            if((userRole.indexOf("Japan - FI - Sales") === -1) && (userRole.indexOf("Japan - FI - Team") === -1) && (userRole.indexOf("Japan - FI - Desk") === -1) && (userRole.indexOf("Japan - FI Sales") === -1)){
+                                if($('[id$=sfprivatetagid]').val() === "True"){
+                                    var opportunityid = $('[id$=sfrelatedtotagid_mlktp] option').filter(function () { return $(this).html() == "Opportunity"; }).val();
+                                    console.log('opportunityid: '+opportunityid);
+                                    if(($('[id$=sfrelatedtotagid_mlktp]').val() === opportunityid && $('[id$=sfrelatedtotagid_lkid]').val().trim()!='')){
+                                        console.log(''+matched);
+                                        if(isCallBackCallActive===true)
+                                            enableClickToDialOnSalesforce();
+                                    }
+                                }
+                                else
+                                {
+                                    if(isCallBackCallActive===true)
+                                        enableClickToDialOnSalesforce();
+                                }
+                            }
+                            else
+                            {
+                                //JAPAN
+                                if(hasClientUpdatedNotes  === true && $("#isliveinteractionselect").val() != ' ' && $('[id$=sfrelatedtotagid_lkid]').val().trim()!='')
+                                {
+                                    enableClickToDialOnSalesforce();
+                                }
+                                else
+                                {
+                                    disableClickToDialOnSalesforce();
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if((userRole.indexOf("Japan - FI - Sales") === -1) && (userRole.indexOf("Japan - FI - Team") === -1) && (userRole.indexOf("Japan - FI - Desk") === -1) && (userRole.indexOf("Japan - FI Sales") === -1)){
+                            
+                            console.log("$('[id$=sfprivatetagid]').val(): "+$('[id$=sfprivatetagid]').val());
+                            if($('[id$=sfprivatetagid]').val() === "True"){
+                                var opportunityid = $('[id$=sfrelatedtotagid_mlktp] option').filter(function () { return $(this).html() == "Opportunity"; }).val();
+                                console.log('opportunityid: '+opportunityid);
+                                if(($('[id$=sfrelatedtotagid_mlktp]').val() === opportunityid && $('[id$=sfrelatedtotagid_lkid]').val().trim()!='')){
+                                   if(isCallBackCallActive===true)
+                                    enableClickToDialOnSalesforce();
+                                }
+                            }
+                            else
+                            {
+                                if(isCallBackCallActive===true)
+                                enableClickToDialOnSalesforce();
+                            }
+                            
+                            
+                        }
+                        else
+                        {
+                            if(isCallNotesBlockOpen && hasClientUpdatedNotes===false)
+                            disableClickToDialOnSalesforce();
+                            else
+                            enableClickToDialOnSalesforce();    
+                                
+                        }
+                    }
+                   */
+                    
+                    //enable click to dial on salesforce console
+                    //enableClickToDialOnSalesforce();
+                    
+                    //list the message recordings
+                    listVoiceRecordings();  
+                    
+                    //disable the select tag for cbc number selection
+                    $('#callbacknumbertag').prop('disabled', true);
+                    
+                    var cbcnumber = $("#callbacknumbertag").val();
+                    //set callback number in cookie for 365 days
+                    setCookie("sflastcbcnum",cbcnumber,365);
+                    
+                    console.log(isPlayRec);
+                    console.log(isDeleteRec);
+                    console.log(isRecordMessage);
+                    console.log(manualSessionActive);
+                    if(isPlayRec === true || isDeleteRec === true || isRecordMessage === true)
+                    {
+                        enableClickToDialOnSalesforce();
+                        if(isPlayRec === true)
+                        {
+                            playRecording();
+                            
+                        }
+                        else if(isDeleteRec === true)
+                        {
+                            deleteRecording();
+                            
+                        }
+                            else //Recording message
+                            {
+                                startRecording();
+                                
+                            }
+                    }
+                    else
+                    {
+                        if(!manualSessionActive)
+                            //make client call
+                            placeClientCall();	
+                    }
+                    //show the voice message setup toggle button button
+                    $("#voicemsgsetuptogglebutton").css("display", "inline");
+                    
+                    
+                    
+                    
+                    //getAudioMessagesList() ;
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    // -- SAGAR
+                    
+                    break;
+                    
+                case 'CallbackCallHungup'   :
+                    console.log(eventdata.eventtype);
+                    if(isCallNotesBlockOpen)
+						setSoftphoneVisible(true);
+						
+                    //make the clientcall active flag to false
+                    //isClientCallActive = false;
+                    
+                    //disable the on click to dial in salesforce 
+                    //disableClickToDialOnSalesforce();
+                    enableClickToDialOnSalesforce(); //-Added Sagar
+                    
+                    $("#softphonemsg").html("Call Back Call Hungup");
+                    
+                    //hide the clientcall block
+                    $("#clientcallconnectedblock").css("display", "none");
+                    
+                    
+                    //hide the end button tag 
+                    $("#endbuttontag").css("display", "none");
+                    
+                    // hide the voice msg setup block on client call start
+                    $("#voicemessagesetuptag").css("display","none");
+                    
+                    //enable the select tag for cbc number selection
+                    $('#callbacknumbertag').prop('disabled', false);
+                    //enablethe call back button 
+                    $("#callbuttontag").prop("disabled", false);
+                    
+                    $("#btnstartrecording").text("Record") ;
+                    $("#btnstartrecording").prop("disabled",false);
+                    $("#recordfiledescription").val("");
+                    $("#recordfilemsgname").val("");
+                    
+                    
+                    if((isCallNotesBlockOpen === true)){
+                        
+                        //make the call notes tab active
+                        $('#tabcallnotesblock').removeClass().addClass('active');
+                        $('#callnotesblock').removeClass().addClass('tab-pane fade in active');
+                        
+                        
+                        //make the drop message notes tab inactive
+                        $('#tabdropmessageblock').removeClass().addClass('inactive');
+                        $('#dropmessageblock').removeClass().addClass('tab-pane fade');
+                        //hide the drop message tab 
+                        $("#tabdropmessageblock").css("display","none"); 
+                    }
+                    
+                    break;
+                    
+                    
+                case 'ClientCallStarted'   :
+                    //--sagar
+                    console.log('ClientCallStarted: isCallNotesBlockOpen: '+isCallNotesBlockOpen);
+                    
+                    if(isEventCreated === true)
+                    {
+                        if((userRole.indexOf("Japan - FI - Sales") === -1) && (userRole.indexOf("Japan - FI - Team") === -1) && (userRole.indexOf("Japan - FI - Desk") === -1) && (userRole.indexOf("Japan - FI Sales") === -1)){
+                            console.log('Update called for Normal user.');
+                            updateSoftphoneEventForNormalRoleUsers();
+                            $("#incallnotesanddropblock").css("display","none");
+                        }
+                        else
+                        {
+                            console.log('isCallNotesSaved : '+isCallNotesSaved+' hasClient:'+hasClientUpdatedNotes);
+                            if(isJAPANEventCreated == true){
+                                updateSoftphoneEventForJAPANRoleUsers();
+                                
+                            }
+                            else
+                            {
+                                createSoftphoneEventForJAPANRoleUsers();									
+                            }
+                            $("#incallnotesanddropblock").css("display","none");
+                           
+                        }
+                        isCallNotesBlockOpen = false;
+                        
+                    }
+                    else
+                    {
+                        if((userRole.indexOf("Japan - FI - Sales") === -1) && (userRole.indexOf("Japan - FI - Team") === -1) && (userRole.indexOf("Japan - FI - Desk") === -1) && (userRole.indexOf("Japan - FI Sales") === -1)){
+                        }	
+                        else
+                        {
+                            if(isCallNotesBlockOpen){
+                                createSoftphoneEventForJAPANRoleUsers();
+                                $("#incallnotesanddropblock").css("display","none");
+                                isCallNotesBlockOpen = false;
+                            }
+                        }
+                    }
+                    
+                    isJAPANEventCreated = false ;
+                    isClientCallActive = true ;
+                    //disable on click dial on salesforce
+                    disableClickToDialOnSalesforce();
+                    
+                    $("#softphonemsg").html("Client Call Started");
+                    //hide the msg setup button
+                    $("#voicemsgsetuptogglebutton").css("display", "none");
+                    
+                    // hide the voice msg setup block on client call start
+                    $("#voicemessagesetuptag").css("display","none");
+                    
+                    
+                    break;
+                    
+                case 'ClientCallRinging'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Client Call Ringing");
+                    
+                    break;
+                    
+                case 'ClientCallConnected'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Client Call Connected");
+                    hasClientUpdatedNotes = false;
+                    clearLastEntries();
+                    setJapanDefaultVal();
+                    
+                    callStartTime = eventdata.param1;
+                    isVoiceDrop = false;
+                    isAutoVoicedrop = false ;
+                    isEventUpdated = false ;
+                    isJAPANEventUpdated = false ;
+                    
+                    //start call timer ;
+                    totalSeconds = 0;
+                    startTimerCall();
+                    //setInterval(setTime, 1000);
+                    
+                    callDurationMin = 0 ;
+                    //create a softphone event 
+                    subjectline = "" + CalledContactRGAccountName +" - Call with " + CalledContactName + "";
+                    $('[id$=sfsubjecttagid]').val("" + CalledContactRGAccountName +" - Call with " + CalledContactName + ""); 
+                    
+                    
+                    if((userRole.indexOf("Japan - FI - Sales") === -1) && (userRole.indexOf("Japan - FI - Team") === -1) && (userRole.indexOf("Japan - FI - Desk") === -1) && (userRole.indexOf("Japan - FI Sales") === -1)){
+                        createSoftphoneEventForNormalRoleUsers();   
+                    }
+                    
+                    if((userRole.indexOf("Japan - FI - Sales") !== -1) || (userRole.indexOf("Japan - FI - Team") !== -1) || (userRole.indexOf("Japan - FI - Desk") !== -1) || (userRole.indexOf("Japan - FI Sales") !== -1))
+                        $('[id$=sfprivatetagid]').val("True");
+                    else
+                        $('[id$=sfprivatetagid]').val("");
+                    
+                    
+                    //set the last audio message played from the cookies  
+                    setLastAudioMsgPlayedForSoftphone();  
+                    
+                    //show the drop message tab 
+                    $("#tabdropmessageblock").css("display","inline"); 
+                    
+                    //display the clientcall block
+                    $("#clientcallconnectedblock").css("display", "inline");
+                    
+                    //show the incallnotesanddropblock 
+                    $("#incallnotesanddropblock").css("display","inline");
+                    
+                    
+                    //make the call notes tab inactive
+                    $('#tabcallnotesblock').removeClass().addClass('inactive');
+                    $('#callnotesblock').removeClass().addClass('tab-pane fade ');
+                    
+                    
+                    //make the drop message notes tab active
+                    $('#tabdropmessageblock').removeClass().addClass('active');
+                    $('#dropmessageblock').removeClass().addClass('tab-pane fade in active');
+                    
+                    
+                    isCallNotesBlockOpen = true ; 
+                    
+                    
+                    
+                    
+                    $('[id$=isliveinteractionselect]').val(" ");
+                    $("#isliveinteractionselect").attr("disabled",false);
+                    
+                    break;
+                    
+                case 'ClientCallHungup'   :
+                    clearTimerCall();
+                    if(isCallNotesBlockOpen)
+                        setSoftphoneVisible(true);
+                    
+                    $("#isliveinteractionselect").attr("disabled",false);
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Client Call Hungup");
+                    
+                    callEndTime = eventdata.param2;  
+
+                    /* START - Update CallEndTime */
+                    if(softphoneEventID != "" && callEndTime !=""){
+                        var event = new sforce.SObject("Event");
+                        event.id = softphoneEventID
+                        event.EndDateTime = callEndTime;
+                        var result = sforce.connection.update([event])
+                                                
+                        if (result[0].getBoolean("success")) {
+                            console.log("Call End Time Updated");
+                        } 
+                        else {
+                            console.log("Failed To Update Call End Time :"+result[0].errors.message);
+                        }
+                    }
+                    /* END - Update CallEndTime */
+                    
+                    isClientCallActive = false ;
+                    
+                    if((isCallNotesBlockOpen === true)){
+                        //make the call notes tab active
+                        $('#tabcallnotesblock').removeClass().addClass('active');
+                        $('#callnotesblock').removeClass().addClass('tab-pane fade in active');
+                        
+                        
+                        //make the drop message notes tab inactive
+                        $('#tabdropmessageblock').removeClass().addClass('inactive');
+                        $('#dropmessageblock').removeClass().addClass('tab-pane fade');
+                        //hide the drop message tab 
+                        $("#tabdropmessageblock").css("display","none"); 
+                    }
+                    
+                    //hide the clientcall block
+                    $("#clientcallconnectedblock").css("display", "none");
+                    
+                    //hide the incallnotesanddropblock 
+                    //$("#incallnotesanddropblock").css("display","none");
+                    
+                    //show the voice message setup toggle button button
+                    $("#voicemsgsetuptogglebutton").css("display", "inline");
+                    
+                    //hide the end call button
+                    $("#endbuttontag").css("display", "none");
+                    enableClickToDialOnSalesforce();
+                    break;
+                    
+                case 'ClientCallFailed'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Client Call Failed");
+                    setSoftphoneVisible(true);
+						
+                    isClientCallActive = false ;
+                    //hide the clientcall block
+                    $("#clientcallconnectedblock").css("display", "none");
+                    
+                    //hide the incallnotesanddropblock 
+                    //$("#incallnotesanddropblock").css("display","none");
+                    
+                    //make callbackcall flag true
+                    isCallBackCallActive = true;
+                    
+                    //hide the call back button 
+                    $("#callbuttontag").css("display", "none");
+                    /* -- SAGAR if((isCallNotesBlockOpen === false)){
+                        if(isCallNotesSaved === true  ){
+                            
+                            //enable click to dial on salesforce console
+                            enableClickToDialOnSalesforce();
+                            
+                        }
+                        else {
+                            disableClickToDialOnSalesforce();
+                            
+                        }
+                        
+                    }
+                    if(isCallNotesBlockOpen === false){
+                        //enable click to dial on salesforce console
+                        enableClickToDialOnSalesforce();
+                    }
+                    */
+                    //disable the select tag for cbc number selection
+                    $('#callbacknumbertag').prop('disabled', true);
+                    
+                    //show the voice message setup toggle button button
+                    $("#voicemsgsetuptogglebutton").css("display", "inline");
+                    $("#endbuttontag").css("display","none");
+                    enableClickToDialOnSalesforce(); // -- SAGAR
+                    break;
+                    
+                    
+                case 'EndClientCallRequested'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("End Client Call Requested");
+                    enableClickToDialOnSalesforce();
+                    clearTimerCall();
+                    break;
+                    
+                case 'EndClientCallFailed'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("End Client Call Failed");
+                    setSoftphoneVisible(true);
+                    isClientCallActive = false;
+                    enableClickToDialOnSalesforce(); // -- SAGAR
+                    break;
+                    
+                case 'EndSessionRequested'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("End Session Requested");
+                    break;
+                    
+                case 'RecordVoiceRecordingRequested'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Voice Recording Requested");
+                    break;
+                    
+                case 'RecordVoiceRecordingStarted'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Voice Recording Started");
+                    $("#recordfilename").val(eventdata.param1);
+                    break;  
+                    
+                case 'RecordVoiceRecordingCompleted'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Voice Recording Completed");
+                    
+                    
+                    
+                    
+                    break; 
+                case 'RecordVoiceRecordingFailed'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Voice Recording Failed");
+                    
+                    
+                    $("#btnstartrecording").text("Record") ;
+                    $("#btnstartrecording").prop("disabled",false);
+                    
+                    break; 
+                case 'RecordVoiceRecordingAborted'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Voice Recording Aborted");
+                    
+                    
+                    $("#btnstartrecording").text("Record") ;
+                    $("#btnstartrecording").prop("disabled",false);
+                    
+                    break; 
+                    
+                case 'RecordVoiceRecordingSaved'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Voice Recording Saved");
+                    listVoiceRecordings();
+                    
+                    
+                    $("#btnstartrecording").text("Record") ;
+                    $("#btnstartrecording").prop("disabled",false);
+                    
+                    
+                    var msgnameanddescription = eventdata.param2.split("||");
+                    var msgname  = msgnameanddescription[0];
+                    var msgdescription = msgnameanddescription[1];
+                    
+                    var msgfilename  = eventdata.param1;
+                    var msgduration = eventdata.param3 ;
+                    
+                    saveAudioMsgInfo(msgname,msgfilename,msgdescription,msgduration);
+                    
+                    
+                    $("#recordfiledescription").val("");
+                    $("#recordfilemsgname").val("");
+                    
+                    
+                    
+                    
+                    
+                    break; 
+                    
+                case 'PlayVoiceRecordingRequested'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Play Voice Recording Requested");
+                    break; 
+                    
+                case 'PlayVoiceRecordingStarted'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Play Voice Recording Started");
+                    
+                    isClientCallActive = false ;
+                    
+                    break; 
+                    
+                case 'PlayVoiceRecordingCompleted'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Play Voice Recording Completed");
+                    break; 
+                    
+                case 'PlayVoiceRecordingFailed'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Play Voice Recording Failed");
+                    break; 
+                    
+                case 'DeleteVoiceRecordingRequested'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Delete Voice Recording Requested");
+                    break; 
+                    
+                case 'DeleteVoiceRecordingCompleted'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Delete Voice Recording Completed");
+                    
+                    //delete the message from the msg object listings
+                    deleteAudioMessageFromObject(eventdata.param1);
+                    
+                    
+                    break; 
+                    
+                case 'DeleteVoiceRecordingFailed'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("Delete Voice Recording Failed");
+                    break; 
+                    
+                case 'ListVoiceRecordingsRequested'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("List Voice Recording Requested");
+                    break; 
+                    
+                case 'ListVoiceRecordingsCompleted'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("List Voice Recording Completed");
+                    
+                    
+                    break; 
+                    
+                case 'ListVoiceRecordingsFailed'   :
+                    console.log(eventdata.eventtype);
+                    $("#softphonemsg").html("List Voice Recording Failed");
+                    break; 
+                    
+                case 'SystemError'   :
+                    console.log(eventdata.eventtype);
+                    setSoftphoneVisible(true);
+						
+                    if(eventdata.param3 === "Client call does not exist\/being played a media file on this number" )
+                    {
+                        
+                        //make callbackcall flag true
+                        isCallBackCallActive = true;
+                        
+                        //make the clientcall active flag to false
+                        isClientCallActive = false;
+                        
+                        //hide the call back button 
+                        $("#callbuttontag").css("display", "none");
+                        	
+                        
+                        //disable the select tag for cbc number selection
+                        $('#callbacknumbertag').prop('disabled', true);
+                        
+                        //show the voice message setup toggle button button
+                        $("#voicemsgsetuptogglebutton").css("display", "inline");
+                        $("#endbuttontag").css("display","none");
+                        
+                        
+                    }
+                    else
+                    {
+                        $("#softphonemsg").html("SystemError:"+eventdata.param3);
+                    }
+                    
+                    if(eventdata.param3 === "User session does not exist" ){
+                        
+                        
+                        
+                        //callbackcall is not active
+                        isClientCallActive = false;
+                        isCallBackCallActive = false ;
+                        
+                        $("#softphonemsg").html("Telephony Session Ended");
+                        
+                        //hidethe voice message setup toggle button button
+                        $("#voicemsgsetuptogglebutton").css("display", "none");
+                        
+                        //hide the clientcall block
+                        $("#clientcallconnectedblock").css("display", "none");
+                        
+                        
+                        //hide the end call button 
+                        $("#endbuttontag").css("display", "none");
+                        
+                        //show the callback call button tag
+                        $("#callbuttontag").css("display", "inline");
+                        
+                        //hide the end session tag
+                        $("#endsessiontag").css("display", "none");
+                        
+                        //enable the select tag for cbc number selection
+                        $('#callbacknumbertag').prop('disabled', false);
+                        
+                        //hide the voice msg setup block
+                        $("#voicemessagesetuptag").css("display", "none");
+                        
+                        
+                        if(isCallNotesBlockOpen === true){
+                            
+                            //make the call notes tab active
+                            $('#tabcallnotesblock').removeClass().addClass('active');
+                            $('#callnotesblock').removeClass().addClass('tab-pane fade in active');
+                            
+                            
+                            //make the drop message notes tab inactive
+                            $('#tabdropmessageblock').removeClass().addClass('inactive');
+                            $('#dropmessageblock').removeClass().addClass('tab-pane fade');
+                            //hide the drop message tab 
+                            $("#tabdropmessageblock").css("display","none"); 
+                            
+                            
+                        }
+                        
+                        
+                        
+                        
+                    }
+                    
+                    
+                    
+                    break;    
+                    
+            }
+        }
+        
+        
+        
+        //////////////////////////Opentcti and ajax methods Methods Start/////////////////////////////  
+        
+        function setJapanDefaultVal(){
+            if((userRole.indexOf("Japan - FI - Sales") !== -1) || (userRole.indexOf("Japan - FI - Team") !== -1) || (userRole.indexOf("Japan - FI - Desk") !== -1) || (userRole.indexOf("Japan - FI Sales") !== -1)){
+                
+                //$('[id$=sfprivatetagid]').val("True");
+                $('[id$=sfprivatetagid]').prop("disabled",true);
+                
+                var opportunityid = $('[id$=sfrelatedtotagid_mlktp] option').filter(function () { return $(this).html() == "Opportunity"; }).val();
+                $('[id$=sfrelatedtotagid_mlktp]').val(opportunityid);   
+                $('[id$=sfrelatedtotagid_lkold]').val("null");
+                $('[id$=sfrelatedtotagid_lktp]').val(opportunityid);
+                $('[id$=sfrelatedtotagid_lspf]').val("0");
+                $('[id$=sfrelatedtotagid_lspfsub]').val("0");
+                $('[id$=sfrelatedtotagid_mod]').val("1");   
+                $('[id$=sfrelatedtotagid_mlktp]').prop("disabled",true);
+                $('[id$=sfrelatedtotagid]').prop("disabled",true);
+                
+            } 
+        }
+        function createSoftphoneEventForJAPANRoleUsers(){
+            var event = new sforce.SObject("Event");
+            
+            event.startDateTime= callStartTime;
+            event.Type = "Dialer";
+            event.DurationInMinutes=0;
+            
+            var privateval = $('[id$=sfprivatetagid]').val();
+            event.Private__c= privateval ;
+            
+            if((calledNameId.length) > 0){
+                event.WhoId = calledNameId ;
+            }
+            
+            if(isVoiceDrop === true || isAutoVoicedrop === true){
+                event.DurationInMinutes=callDurationMin ;
+            }
+            
+            if(isVoiceDrop === true){
+                event.Subject=$('[id$=sfsubjecttagid]').val();
+                event.Type = "Voicemail";          
+            }
+            
+            if(isAutoVoicedrop === true){
+                event.Subject=$('[id$=sfsubjecttagid]').val();
+                event.Type = "Voicemail";
+            }
+            
+            
+            var isliveInteractionval = $("#isliveinteractionselect").val();
+            var isliveInteractionTimeVal = totalSeconds ; //calculate the call time in seconds
+            
+            if(isVoiceDrop === false && isAutoVoicedrop === false){
+                if(isliveInteractionval === "Yes" || isliveInteractionTimeVal > 20 ){
+                    event.Type = "Dialer - Live Interaction";
+                }                
+                if(isClientCallActive === false){
+                    var callDurationinsec = totalSeconds ; //Call duration in seconds
+                    callDurationMin = Math.round((callDurationinsec ) / 60.0); // call duration in minutes
+                    event.DurationInMinutes=callDurationMin ;
+                }
+                if(isClientCallActive === true){
+                    
+                    event.DurationInMinutes=callDurationMin ;
+                    
+                    
+                }               
+            }
+            
+            var tickerval = $('[id$=sftickertagid]').val();
+            event.Ticker__c=tickerval ;
+            
+            var descval = $('[id$=sfdescriptiontagid]').val();
+            event.Description= descval ;   
+            
+            
+            var subjectval = $('[id$=sfsubjecttagid]').val();            
+            if(subjectval === " "){
+                $("#softphonemsg").html("Subject is Empty");  
+                
+                bootbox.confirm({
+                    message: "Subject is  Empty !!",
+                    buttons: {
+                        confirm: {
+                            label: 'OK',
+                            className: 'btn-show'
+                        },
+                        cancel: {
+                            label: 'No',
+                            
+                            className: 'btn-hidden'
+                        }
+                    },
+                    callback: function (result) {
+                        
+                    }
+                });
+                console.log("Subject Cannot  Be Empty ");
+            } //CReate Event
+            else{        
+                event.Subject=subjectval ;
+                
+                var relatedtoval = $('[id$=sfrelatedtotagid_lkid]').val();
+                event.WhatId=relatedtoval ;
+                var result = sforce.connection.create([event]);
+                
+                if (result[0].getBoolean("success")) {
+                    
+                    $("#softphonemsg").html("Activity Created ");  
+                    console.log("New Softphone Event Created For Japan Role User  with Id:" + result[0].id);
+                    softphoneEventID = result[0].id;
+                    isJAPANEventCreated = true ;
+                    isEventCreated = true;
+                } 
+                else {
+                    isEventCreated = false;
+                    $("#softphonemsg").html("Activity Not Created "); 
+                    
+                    bootbox.confirm({
+                        message: result[0].errors[1].message,
+                        buttons: {
+                            confirm: {
+                                label: 'OK',
+                                className: 'btn-show'
+                            },
+                            cancel: {
+                                label: 'No',
+                                
+                                className: 'btn-hidden'
+                            }
+                        },
+                        callback: function (result) {
+                            
+                        }
+                    });
+                    
+                    console.log("Failed To Create New Softphone Event For Japan Role User with Id:" + result[0]);
+                }
+                
+            }       
+        }        
+        function updateSoftphoneEventForJAPANRoleUsers(){
+            var event = new sforce.SObject("Event");
+            
+            var id = softphoneEventID ;
+            event.id= id ;
+            
+            if(isVoiceDrop === true || isAutoVoicedrop === true){
+                event.DurationInMinutes=callDurationMin ;
+            }
+            
+            if(isVoiceDrop === true){
+                event.Subject=$('[id$=sfsubjecttagid]').val();
+                event.Type = "Voicemail";
+            }
+            if(isAutoVoicedrop === true){
+                event.Subject=$('[id$=sfsubjecttagid]').val();
+                event.Type = "Voicemail";
+            }
+            
+            
+            var isliveInteractionval = $("#isliveinteractionselect").val();
+            var isliveInteractionTimeVal = totalSeconds ; //calculate the call time in seconds
+            
+            if(isVoiceDrop === false && isAutoVoicedrop === false){                
+                console.log('isliveInteractionTimeVal: ' + isliveInteractionTimeVal) 
+                if(isliveInteractionval === " " && isliveInteractionTimeVal > 20 )
+                { 
+                    $("#softphonemsg").html("Live Interaction is mandatory.");               
+                    bootbox.confirm({
+                        message: "Please select value for Live Interaction !!",
+                        buttons: {
+                            confirm: {
+                                label: 'OK',
+                                className: 'btn-show'
+                            },
+                            cancel: {
+                                label: 'No',
+                                
+                                className: 'btn-hidden'
+                            }
+                        },
+                        callback: function (result) {
+                            
+                        }
+                    });
+                    console.log("Live Interaction is Mandatory.");
+                    liveInteractionMandatory = true;
+                }
+                else
+                {
+                    liveInteractionMandatory = false;
+                    if(isliveInteractionval === "Yes")
+                    {
+                        event.Type = "Dialer - Live Interaction";
+                    }
+                    else
+                    {
+                        event.Type = "Dialer";
+                    }
+                }
+                
+                
+                if(isClientCallActive === false){
+                    var callDurationinsec = totalSeconds ; //Call duration in seconds
+                    callDurationMin = Math.round((callDurationinsec ) / 60.0); // call duration in minutes
+                    event.DurationInMinutes=callDurationMin ;
+                }
+                if(isClientCallActive === true){                    
+                    event.DurationInMinutes=callDurationMin ;
+                }                
+            }
+            
+            var tickerval = $('[id$=sftickertagid]').val();
+            event.Ticker__c=tickerval ;
+            
+            var descval = $('[id$=sfdescriptiontagid]').val();
+            event.Description= descval ;   
+            
+            if(liveInteractionMandatory===false || (isVoiceDrop===true||isAutoVoicedrop===true))
+            {
+                var subjectval = $('[id$=sfsubjecttagid]').val();
+                
+                if(subjectval === " "){
+                    $("#softphonemsg").html("Subject is Empty");  
+                    
+                    bootbox.confirm({
+                        message: "Subject is  Empty !!",
+                        buttons: {
+                            confirm: {
+                                label: 'OK',
+                                className: 'btn-show'
+                            },
+                            cancel: {
+                                label: 'No',
+                                
+                                className: 'btn-hidden'
+                            }
+                        },
+                        callback: function (result) {
+                            
+                        }
+                    });
+                    console.log("Subject Cannot  Be Empty ");
+                }
+                else{        
+                    event.Subject=subjectval ;
+                    var relatedtoval = $('[id$=sfrelatedtotagid_lkid]').val();
+                    event.WhatId=relatedtoval ;
+                    UpdateFinalForJAPANUser(event);                
+                }
+            }
+        }       
+        function UpdateFinalForJAPANUser(event){
+            var result = sforce.connection.update([event]);
+            
+            if (result[0].getBoolean("success")) {
+                $("#softphonemsg").html("Softphone Event Updated");  
+                console.log("Call Notes  Updated");
+                isJAPANEventUpdated = true ;
+                hasClientUpdatedNotes = true;
+                
+            } 
+            else {
+                hasClientUpdatedNotes = false;
+                
+                $("#softphonemsg").html("Failed To Update Softphone Event "); 
+                console.log("Failed To Update Call Notes :"+result[0].errors.message);
+                
+                
+                bootbox.confirm({
+                    message: result[0].errors[1].message,
+                    buttons: {
+                        confirm: {
+                            label: 'OK',
+                            className: 'btn-show'
+                        },
+                        cancel: {
+                            label: 'No',
+                            
+                            className: 'btn-hidden'
+                        }
+                    },
+                    callback: function (result) {
+                        
+                    }
+                });
+                
+                isJAPANEventUpdated = false ;
+            }
+            
+            if(isClientCallActive === false)
+            {
+                
+                if(totalSeconds > 20)
+                {
+                    if(hasClientUpdatedNotes === true && $("#isliveinteractionselect").val() != " " )
+                    {
+                        //hide the incallnotesanddropblock 
+                        //$("#incallnotesanddropblock").css("display","none");
+                        if(isCallBackCallActive===true)
+                            enableClickToDialOnSalesforce(); // -- SAGAR
+                    }
+                    else
+                    {
+                        $("#incallnotesanddropblock").css("display","block");
+                        disableClickToDialOnSalesforce(); // -- SAGAR
+                    }
+                    
+                }
+                else
+                {
+                    //hide the incallnotesanddropblock 
+                    //$("#incallnotesanddropblock").css("display","none");
+                    if((userRole.indexOf("Japan - FI - Sales") === -1) && (userRole.indexOf("Japan - FI - Team") === -1) && (userRole.indexOf("Japan - FI - Desk") === -1) && (userRole.indexOf("Japan - FI Sales") === -1)){
+                           enableClickToDialOnSalesforce(); // -- SAGAR
+                    }
+                    else
+                    {
+                        console.log("isCallBackCallActive: "+isCallBackCallActive);
+                        console.log("endSession: "+endSession);
+                        console.log("hasClientUpdatedNotes: "+hasClientUpdatedNotes);
+                        if(isCallBackCallActive===true && endSession === false && hasClientUpdatedNotes === true)
+                        enableClickToDialOnSalesforce(); // -- SAGAR
+                        else
+                        {
+                            if(endSession === true && hasClientUpdatedNotes === true)
+                            enableClickToDialOnSalesforce(); // -- SAGAR    
+                            else
+                                disableClickToDialOnSalesforce(); // -- SAGAR    
+                        }
+                        
+                    }
+                    
+                }
+                
+                if(isCallBackCallActive===false && hasClientUpdatedNotes==true)
+                {
+                    if(liveInteractionMandatory===false && $('[id$=sfrelatedtotagid_lkid]').val().trim()!='')
+                    {
+                        
+                        $("#incallnotesanddropblock").css("display","none");
+                        isCallNotesBlockOpen = false;
+                    }
+                }
+            }
+            
+            
+        }
+        
+        //////////////////////////////////////////////////////////////////////////////////////////////        
+        function createSoftphoneEventForNormalRoleUsers(){
+            hasClientUpdatedNotes === false;
+            var event = new sforce.SObject("Event");
+            
+            
+            event.startDateTime= callStartTime;
+            event.Type = "Dialer";
+            event.DurationInMinutes=0;
+            
+            
+            if((calledNameId.length) > 0){
+                event.WhoId = calledNameId ;
+            }
+            
+            // SAGAR  
+            var subjectval = $('[id$=sfsubjecttagid]').val();
+            event.Subject = subjectval;
+            
+            var result= sforce.connection.create([event]);
+            
+            if (result[0].getBoolean("success")) {
+                $("#softphonemsg").html("Activity Created on Client Call Connect");  
+                console.log("New Softphone Event Created with Id:" + result[0].id);
+                softphoneEventID = result[0].id;
+                isEventCreated = true;
+            } 
+            else {
+                isEventCreated = false;
+                $("#softphonemsg").html("Activity Not Created on Client Call Connect");  
+                console.log("Failed To Create New Softphone Event with Id:" + result[0]);
+            }
+            
+            
+        }        
+        function updateSoftphoneEventForNormalRoleUsers(){
+            
+            var event = new sforce.SObject("Event");
+            
+            var id = softphoneEventID ;
+            event.id= id ;
+            
+            if(isVoiceDrop === true || isAutoVoicedrop === true){
+                
+                event.DurationInMinutes=callDurationMin ;
+                
+            }
+            
+            
+            
+            
+            if(isVoiceDrop === true){
+                
+                
+                event.Subject=$('[id$=sfsubjecttagid]').val();
+                event.Type = "Voicemail";
+                
+                
+            }
+            if(isAutoVoicedrop === true){
+                
+                event.Subject=$('[id$=sfsubjecttagid]').val();
+                event.Type = "Voicemail";
+            }
+            
+            
+            var isliveInteractionval = $("#isliveinteractionselect").val();
+            var isliveInteractionTimeVal = totalSeconds ; //calculate the call time in seconds
+            
+            if(isVoiceDrop === false && isAutoVoicedrop === false){
+                console.log('** isliveInteractionval: '+isliveInteractionval);
+                console.log('** isliveInteractionTimeVal: '+isliveInteractionTimeVal);
+                
+                if(isliveInteractionval === " " && isliveInteractionTimeVal > 20 )
+                { 
+                    $("#softphonemsg").html("Live Interaction is mandatory.");               
+                    bootbox.confirm({
+                        message: "Please select value for Live Interaction !!",
+                        buttons: {
+                            confirm: {
+                                label: 'OK',
+                                className: 'btn-show'
+                            },
+                            cancel: {
+                                label: 'No',
+                                
+                                className: 'btn-hidden'
+                            }
+                        },
+                        callback: function (result) {
+                            
+                        }
+                    });
+                    console.log("Live Interaction is Mandatory.");
+                    liveInteractionMandatory = true;
+                }
+                else
+                {
+                    liveInteractionMandatory = false;
+                    if(isliveInteractionval === "Yes")
+                    {
+                        event.Type = "Dialer - Live Interaction";
+                    }
+                    else
+                    {
+                        event.Type = "Dialer";
+                    }
+                }
+                
+                
+                if(isClientCallActive === false){
+                    var callDurationinsec = totalSeconds ; //Call duration in seconds
+                    callDurationMin = Math.round((callDurationinsec ) / 60.0); // call duration in minutes
+                    event.DurationInMinutes=callDurationMin ;
+                }
+                if(isClientCallActive === true){
+                    
+                    event.DurationInMinutes=callDurationMin ;
+                    
+                    
+                }
+                
+                
+                
+            }
+            var tickerval = $('[id$=sftickertagid]').val();
+            event.Ticker__c=tickerval ;
+            
+            var descval = $('[id$=sfdescriptiontagid]').val();
+            event.Description= descval ;   
+            
+            
+            var privateval = $('[id$=sfprivatetagid]').val();
+            //event.Private__c= privateval ;
+            
+            if(liveInteractionMandatory===false || (isVoiceDrop===true||isAutoVoicedrop===true))
+            {
+                var subjectval = $('[id$=sfsubjecttagid]').val();
+                if(subjectval === " "){
+                    $("#softphonemsg").html("Subject is Empty");               
+                    bootbox.confirm({
+                        message: "Subject is  Empty !!",
+                        buttons: {
+                            confirm: {
+                                label: 'OK',
+                                className: 'btn-show'
+                            },
+                            cancel: {
+                                label: 'No',
+                                
+                                className: 'btn-hidden'
+                            }
+                        },
+                        callback: function (result) {
+                            
+                        }
+                    });
+                    console.log("Subject Cannot  Be Empty ");
+                    
+                    
+                }
+                else{        
+                    
+                    event.Subject=subjectval ;
+                    console.log('Private Value: '+privateval);
+
+                    
+                    
+                    if(privateval === "True"){
+                        var opportunityid = $('[id$=sfrelatedtotagid_mlktp] option').filter(function () { return $(this).html() == "Opportunity"; }).val();
+                        console.log('Private Val : true');
+                        event.Private__c = "True";
+                            //Account //Value=blank
+                            if($('[id$=sfrelatedtotagid_mlktp]').val().trim() === '001' && $('[id$=sfrelatedtotagid_lkid]').val().trim() ==='')
+                            {event.WhatId=null; UpdateFinalForNormalUser(event);}
+                            else if ($('[id$=sfrelatedtotagid_mlktp]').val().trim() === '001' && $('[id$=sfrelatedtotagid_lkid]').val().trim() != '')
+                            {event.WhatId = $('[id$=sfrelatedtotagid_lkid]').val().trim(); UpdateFinalForNormalUser(event);}
+                            else if ($('[id$=sfrelatedtotagid_mlktp]').val().trim() === '006' && $('[id$=sfrelatedtotagid_lkid]').val().trim() === '')
+                                {event.WhatId=null; UpdateFinalForNormalUser(event);}
+                            else if ($('[id$=sfrelatedtotagid_mlktp]').val().trim() === '006' && $('[id$=sfrelatedtotagid_lkid]').val().trim() != '')
+                                {event.WhatId = $('[id$=sfrelatedtotagid_lkid]').val(); UpdateFinalForNormalUser(event);}
+                        
+                        /*if(!($('[id$=sfrelatedtotagid_mlktp]').val() === opportunityid)){
+                            
+                            
+                            bootbox.confirm({
+                                message: "Your privacy flag was set to true thus the activity should be related to an opportunity or change the privacy flag.",
+                                buttons: {
+                                    confirm: {
+                                        label: 'OK',
+                                        className: 'btn-show'
+                                    },
+                                    cancel: {
+                                        label: 'No',
+                                        
+                                        className: 'btn-hidden'
+                                    }
+                                },
+                                callback: function (result) {
+                                    
+                                }
+                            });
+                            
+                            
+                            //alert("Your privacy flag was set to true thus the activity should be related to an opportunity or change the privacy flag.");
+                            
+                        }
+                        else{
+                            
+                            var rel_text_val = $('[id$=sfrelatedtotagid_lkid]').val();
+                            if(rel_text_val === " "){
+                                
+                                
+                                
+                                
+                                bootbox.confirm({
+                                    message: "Your privacy flag was set to true thus the activity should be related to an opportunity or change the privacy flag.",
+                                    buttons: {
+                                        confirm: {
+                                            label: 'OK',
+                                            className: 'btn-show'
+                                        },
+                                        cancel: {
+                                            label: 'No',
+                                            
+                                            className: 'btn-hidden'
+                                        }
+                                    },
+                                    callback: function (result) {
+                                        
+                                    }
+                                });
+                                
+                                //alert("Your privacy flag was set to true thus the activity should be related to an opportunity or change the privacy flag.");
+                                console.log("Related To Cannot Be Empty ");  
+                                
+                                
+                            }
+                            else {
+                                
+                                var relatedtoval = $('[id$=sfrelatedtotagid_lkid]').val();
+                                event.WhatId=relatedtoval ;
+                                UpdateFinalForNormalUser(event);
+                                
+                                
+                            }   
+                            
+                            
+                            
+                        }*/
+                        
+                        
+                    }
+                    
+                    if(privateval === "False" || privateval === ""){
+                       console.log('Inside accountParentId:  ***'+accountParentId);
+                        
+                        if(privateval === "False")
+                        {
+                            event.Private__c="False";
+                            //Account //Value=blank
+                            if($('[id$=sfrelatedtotagid_mlktp]').val().trim() === '001' && $('[id$=sfrelatedtotagid_lkid]').val().trim() ==='')
+                                {event.WhatId=null; UpdateFinalForNormalUser(event);}
+                            else if ($('[id$=sfrelatedtotagid_mlktp]').val().trim() === '001' && $('[id$=sfrelatedtotagid_lkid]').val().trim() != '')
+                                {event.WhatId = $('[id$=sfrelatedtotagid_lkid]').val().trim(); UpdateFinalForNormalUser(event);}
+                            else if ($('[id$=sfrelatedtotagid_mlktp]').val().trim() === '006' && $('[id$=sfrelatedtotagid_lkid]').val().trim() === '')
+                                {event.WhatId=null; UpdateFinalForNormalUser(event);}
+                            else if ($('[id$=sfrelatedtotagid_mlktp]').val().trim() === '006' && $('[id$=sfrelatedtotagid_lkid]').val().trim() != '')
+                                {bootbox.confirm({
+                                    message: "If Activity is related to Opportunity then Private should not be FALSE",
+                                    buttons: {
+                                        confirm: {
+                                            label: 'OK',
+                                            className: 'btn-show'
+                                        },
+                                        cancel: {
+                                            label: 'No',
+                                            
+                                            className: 'btn-hidden'
+                                        }
+                                    },
+                                    callback: function (result) {
+                                        
+                                    }
+                                });
+                                $("#softphonemsg").html("Failed To Update Softphone Event.");
+                                }
+                        }
+                        else
+                        {
+                            event.Private__c=null;
+                            //Account //Value=blank
+                            if($('[id$=sfrelatedtotagid_mlktp]').val().trim() === '001' && $('[id$=sfrelatedtotagid_lkid]').val().trim() ==='')
+                                {event.WhatId=null; UpdateFinalForNormalUser(event);}
+                            else if ($('[id$=sfrelatedtotagid_mlktp]').val().trim() === '001' && $('[id$=sfrelatedtotagid_lkid]').val().trim() != '')
+                                {event.WhatId = $('[id$=sfrelatedtotagid_lkid]').val().trim(); UpdateFinalForNormalUser(event);}
+                            else if ($('[id$=sfrelatedtotagid_mlktp]').val().trim() === '006' && $('[id$=sfrelatedtotagid_lkid]').val().trim() === '')
+                                {event.WhatId=null; UpdateFinalForNormalUser(event);}
+                            else if ($('[id$=sfrelatedtotagid_mlktp]').val().trim() === '006' && $('[id$=sfrelatedtotagid_lkid]').val().trim() != '')
+                                {event.WhatId = $('[id$=sfrelatedtotagid_lkid]').val().trim(); UpdateFinalForNormalUser(event);}
+                        }
+                    }
+                    
+                }
+            }
+            
+            
+        }
+        
+        
+        function  UpdateFinalForNormalUser(event){
+            var isError = false;
+            hasClientUpdatedNotes === true;
+            var result = sforce.connection.update([event]);
+            
+            if (result[0].getBoolean("success")) {
+                $("#softphonemsg").html("Softphone Event Updated");  
+                console.log("Call Notes  Updated");
+                isEventUpdated = true ;
+                hasClientUpdatedNotes = true;
+            } 
+            else {
+                
+                hasClientUpdatedNotes = false;
+                $("#softphonemsg").html("Failed To Update Softphone Event "); 
+                console.log("Failed To Update Call Notes :"+result[0].errors.message);
+                disableClickToDialOnSalesforce();
+                isError = true;
+                bootbox.confirm({
+                    message: result[0].errors.message,
+                    buttons: {
+                        confirm: {
+                            label: 'OK',
+                            className: 'btn-show'
+                        },
+                        cancel: {
+                            label: 'No',
+                            
+                            className: 'btn-hidden'
+                        }
+                    },
+                    callback: function (result) {
+                        
+                    }
+                });
+                
+                isEventUpdated = false ;
+            }
+            
+            if(isClientCallActive === false && !isError)
+            {
+                if(totalSeconds > 20)
+                {
+                    if(hasClientUpdatedNotes === true && $("#isliveinteractionselect").val() != " " )
+                    {
+                        //hide the incallnotesanddropblock 
+                        //$("#incallnotesanddropblock").css("display","none");
+                            enableClickToDialOnSalesforce(); // -- SAGAR
+                    }
+                    else
+                    {
+                        $("#incallnotesanddropblock").css("display","block");
+                         enableClickToDialOnSalesforce();
+                    }
+                    
+                }
+                else
+                {
+                    //hide the incallnotesanddropblock 
+                    // $("#incallnotesanddropblock").css("display","none");
+                        enableClickToDialOnSalesforce(); // -- SAGAR
+                }
+                
+                if(isCallBackCallActive===false && hasClientUpdatedNotes === true)
+                {
+                    if(liveInteractionMandatory===false)
+                    {
+                        
+                        $("#incallnotesanddropblock").css("display","none");
+                    }
+                }
+            }
+            
+        }
+        
+        function clearLastEntries(){
+            
+            $('[id$=sfrelatedtotagid]').val(" ");
+            $('[id$=sfrelatedtotagid_lkid]').val(" ");
+            
+            
+            $('[id$=sfsubjecttagid]').val(" ");
+            
+            $('[id$=sfdescriptiontagid]').val(" ");
+            
+            $('[id$=sftickertagid]').val(" ");
+            
+            
+            
+            $('[id$=sfprivatetagid]').val(" ");
+            
+        }
+        
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        
+        function saveAudioMsgInfo(msgname,msgfilename,msgdescription,msgduration) {
+            //Invokes opentcti savelog API method
+            sforce.interaction.saveLog('EDial_Message__c','Message_Name__c='+ msgname + '&Message_ID__c='+msgfilename+ '&Description__c='+msgdescription+ '&Duration__c='+msgduration,saveAudioMsgInfocallback);
+        }        
+        var saveAudioMsgInfocallback = function (response) {
+            if (response.result) {
+                console.log(response.result);
+                getAudioMessagesList() ;
+                
+            } else {
+                console.log(response.error);
+                $("#softphonemsg").html(response.error);  
+                
+            }
+        }        
+        function getAudioMsgLength(fileid){
+            var getlenQuery= "SELECT Duration__c,Message_Name__c FROM EDial_Message__c WHERE Message_ID__c='" + fileid + "' And OwnerId='{!$User.ID}'";
+            console.log(getlenQuery);
+            console.log(fileid);
+            sforce.connection.query(getlenQuery,getAudioMsgLengthCallback);  
+            
+        }        
+        var getAudioMsgLengthCallback = {
+            //call layoutResult if the request is successful
+            onSuccess: getAudioMsgLengthResult,
+            //call queryFailed if the api request fails
+            onFailure: getAudioMsgLengthFailed
+            
+        };
+        function getAudioMsgLengthResult(queryResult){
+            console.log('queryResult: '+queryResult);
+            if (queryResult.size > 0) {
+                var messages = queryResult.getArray('records');
+                voicemessageSubjectName = messages[0].Message_Name__c;
+                callDurationMin  = Math.round((messages[0].Duration__c)/60);
+                console.log('callDurationMin: '+callDurationMin);
+                console.log('subjectline: '+subjectline);
+                if($('[id$=sfsubjecttagid]').val() === subjectline)
+                    $('[id$=sfsubjecttagid]').val(CalledContactRGAccountName +" - Left Voicemail "+voicemessageSubjectName);
+            }            
+        } 
+        function getAudioMsgLengthFailed(error) {
+            console.log("An error has occurred during getaudiomsg length  " + error);
+            $("#softphonemsg").html("User might not have the permission to use EDial_Message__c"+error);  
+        }; 
+        function checkAudioMsgName(msgname){
+            
+            var chkAudioMsgNameQuery= "SELECT id,Message_Name__c  FROM EDial_Message__c WHERE Message_Name__c='" + msgname+ "' And OwnerId='{!$User.ID}'";
+            console.log(chkAudioMsgNameQuery);
+            sforce.connection.query(chkAudioMsgNameQuery,chkAudioMsgNameQueryCallback);  
+            
+        }  
+        var chkAudioMsgNameQueryCallback = {
+            //call layoutResult if the request is successful
+            onSuccess: chkAudioMsgNameQueryCallbackResult,
+            //call queryFailed if the api request fails
+            onFailure: chkAudioMsgNameQueryCallbackFailed
+            
+        };
+        function chkAudioMsgNameQueryCallbackResult(queryResult){
+            
+            if (queryResult.size > 0) {
+                
+                isAudioMessageNamePresent = true;
+                var messages = queryResult.getArray('records');
+                
+                var MsgName = messages[0].Message_Name__c;
+                
+                
+                
+                bootbox.confirm({
+                    message: "This Audio Message Name Already Exists",
+                    buttons: {
+                        confirm: {
+                            label: 'OK',
+                            className: 'btn-show'
+                        },
+                        cancel: {
+                            label: 'No',
+                            
+                            className: 'btn-hidden'
+                        }
+                    },
+                    callback: function (result) {
+                        
+                    }
+                });
+                
+                //alert("This Audio Message Name Already Exists");
+                $("#softphonemsg").html("Message Name Exists"); 
+                
+                
+                
+            }
+            else {
+                
+                var recordfiledesc = $("#recordfiledescription").val();
+                var recordfilename = $("#recordfilemsgname").val();
+                isAudioMessageNamePresent = false;
+                recordAudioMessage(recordfiledesc,recordfilename);
+                $("#softphonemsg").html("Recording in progress...");
+                
+                
+                $("#btnstartrecording").text("Recording..") ;
+                $("#btnstartrecording").prop("disabled",true);
+                
+                
+            }
+            
+            
+            
+        } 
+        function chkAudioMsgNameQueryCallbackFailed(error) {
+            console.log("An error has occurred during the check of audio msg name " + error);
+            $("#softphonemsg").html("User might not have the permission to use EDial_Message__c"+error); 
+        }; 
+        
+        /*Contact Data*/
+        function validateContactID(id){
+            var query = "select id,name,contact.account.name,contact.account.parent.name,contact.account.parent.Id from contact  where id = '"+id+"'";
+            console.log(query);
+            sforce.connection.query(query,validateContactIDCallback);  
+        }
+        var validateContactIDCallback = {
+            //call layoutResult if the request is successful
+            onSuccess: validateContactResult,
+            //call queryFailed if the api request fails
+            onFailure: validateContactFailed
+            
+        };
+        function validateContactResult(queryResult){
+            
+            if (queryResult.size > 0) {
+                CalledContactAccountName = ""; 
+                CalledContactRGAccountName = "";
+                var messages = queryResult.getArray('records');
+                console.log("aleret :"+messages[0] );
+                CalledContactAccountName  =  messages[0].Account.Name ;
+                
+                var parent = messages[0].Account.Parent ;
+                if(!(parent === null)){
+                    console.log("RG Account Name: "+parent.Name);
+                    CalledContactRGAccountName = parent.Name;
+                    accountParentId= parent.Id;
+                }
+                
+                
+                $("#contactaccountnametag").css("display","inline");
+                $("#contactaccountnametag").val(CalledContactAccountName);
+                
+                //update contact tag
+                $("#contactnametag").val(messages[0].Name);
+                
+                
+            }
+            else {
+                $("#contactaccountnametag").css("display","none");
+                calledNameId= "";
+                
+            }
+            
+            
+        } 
+        function validateContactFailed(error) {
+            console.log("An error has occurred during contact id validation  " + error);
+            $("#softphonemsg").html("User might not have the permission to use Contacts "+error); 
+        };                
+        
+        /*Event Data*/
+        function validateEventID(id){
+            var query = "select id, What.Name, Who.Name, WhoId from Event where id = '"+id+"'";
+            console.log(query);
+            sforce.connection.query(query,validateEventIDCallback);  
+        }
+        var validateEventIDCallback = {
+            //call layoutResult if the request is successful
+            onSuccess: validateEventResult,
+            //call queryFailed if the api request fails
+            onFailure: validateEventFailed
+            
+        };
+        function validateEventResult(queryResult){
+            if (queryResult.size > 0) {
+                var messages = queryResult.getArray('records');
+                console.log('**** Messages: '+messages);
+                CalledContactName =  messages[0].Who.Name ;
+                calledNameId = messages[0].WhoId;
+                validateContactID(messages[0].WhoId);
+                //update contact tag
+                $("#contactnametag").val(messages[0].Who.Name);
+                
+                
+            }
+        } 
+        function validateEventFailed(error) {
+            console.log("An error has occurred during event id validation  " + error);
+            $("#softphonemsg").html("User might not have the permission to use Events "+error); 
+        };                
+        
+        
+        
+        function deleteAudioMessageFromObject(fileid){
+            var getIdQuery= "SELECT Id FROM EDial_Message__c WHERE Message_ID__c='" + fileid + "' And OwnerId='{!$User.ID}'";
+            console.log(getIdQuery);
+            sforce.connection.query(getIdQuery,deleteAudioMessageCallback);    
+        }
+        var deleteAudioMessageCallback = {
+            //call layoutResult if the request is successful
+            onSuccess: delMessageResult,
+            //call queryFailed if the api request fails
+            onFailure: delqueryFailed
+            
+        };
+        
+        function delqueryFailed(error) {
+            console.log("An error has occurred during msg delete from object : " + error);
+            $("#softphonemsg").html("User might not have the permission to use EDial_Message__c"+error); 
+        };
+        
+        function delMessageResult(queryResult){            
+            if (queryResult.size > 0) {
+                var messages = queryResult.getArray('records');
+                
+                var delResult = sforce.connection.deleteIds([messages[0].Id]);
+                
+                if (delResult[0].getBoolean("success")) {
+                    console.log("Audio Message with id: " + messages[0].Id + " deleted");
+                    //list the audio messages
+                    listVoiceRecordings();
+                    getAudioMessagesList();
+                } else {
+                    console.log("failed to delete audio message with id : " + messages[0].Id);
+                }  
+            }
+            
+            
+        }
+        
+        function getAudioMessagesList() {
+            sforce.connection.query("Select Id, Message_Name__c, Message_ID__c From EDial_Message__c WHERE OwnerId = '{!$User.ID}' Order By Message_Name__c Asc ", getAudioMessagesListCallback);
+        }
+        ;
+        var getAudioMessagesListCallback = {
+            //call layoutResult if the request is successful
+            onSuccess: audioMessageResults,
+            //call queryFailed if the api request fails
+            onFailure: queryFailed
+            
+        };
+        
+        function queryFailed(error) {
+            console.log("An error has occurred: " + error);
+            $("#softphonemsg").html("User might not have the permission to use EDial_Message__c"+error); 
+        };
+        
+        
+        function audioMessageResults(queryResult) {
+            if (queryResult.size > 0) {
+                //var output = "";
+                //get the records array
+                var messages = queryResult.getArray('records');
+                //loop through the records 
+                //adding the audio files to the select tag
+                
+                $("#voicemsgdroptag option").remove();
+                $("#voicemsglisttag option").remove();
+                
+                var select = document.getElementById("voicemsgdroptag");
+                var selectfordelete = document.getElementById("voicemsglisttag");
+                
+                for (var i = 0; i < messages.length; i++) {
+                    
+                    var message = messages[i];
+                    
+                    //output += message.Id + " " + message.Name +" [FileName - " + message.Message_ID__c + "]<br>";
+                    
+                    
+                    if($("#voicemsgdroptag option[value='"+message.Message_ID__c+"']").length > 0){
+                        
+                    }
+                    else {
+                        
+                        var el = document.createElement("option");
+                        el.textContent = message.Message_Name__c;
+                        el.value = message.Message_ID__c;
+                        select.appendChild(el);
+                        
+                        
+                    }
+                    if($("#voicemsglisttag option[value='"+message.Message_ID__c+"']").length > 0){
+                        
+                    }
+                    else {
+                        
+                        var el = document.createElement("option");
+                        el.textContent = message.Message_Name__c;
+                        el.value = message.Message_ID__c;
+                        selectfordelete.appendChild(el);
+                        
+                        
+                    }
+                    
+                    
+                }
+                //render the generated html string
+                //console.log(output);
+            }
+        }
+        
+        
+        
+        var enableClickToDialOnSalesforceCallback = function (response) {
+            
+            if (response.result) {
+                console.log('Click to dial was enabled.');
+            } else {
+                console.log('Click to dial was not enabled.');
+            }
+        }
+        function enableClickToDialOnSalesforce() {
+            //Invokes API method
+            sforce.interaction.cti.enableClickToDial(enableClickToDialOnSalesforceCallback);
+        } 
+        //-------------------------------------------------------------------------------------------------////////////
+        
+        
+        // Callback for onClickToDial API method.
+        var onClickListenerSalesforceContact = function (response) {
+            
+            console.log('hi' + response.result);
+            setSoftphoneVisible(true);
+            contactResultOnClick = response;
+		    if (response.result) {
+                //Added - Sagar
+                if(!isCallBackCallActive)
+                {
+                    //making callback
+                    if( !$('#callbacknumbertag').val() ) {  
+                        bootbox.confirm({
+                            message: "Please select your callback number !!",
+                            buttons: {
+                                confirm: {
+                                    label: 'OK',
+                                    className: 'btn-show'
+                                },
+                                cancel: {
+                                    label: 'No',
+                                    
+                                    className: 'btn-hidden'
+                                }
+                            },
+                            callback: function (result) {
+                                 enableClickToDialOnSalesforce();
+                            }
+                        }); 
+                        //alert("Call Back Number Empty");   
+                    }
+                    else {
+                        //start telephony session
+                        startTelephonySession();
+                        
+                        
+                    }  
+                }
+                else
+                {
+                    disableClickToDialOnSalesforce();
+                    placeClientCall();
+                }
+            }
+        }
+        // Registers a callback function that will execute when a user clicks on a phone link.
+        sforce.interaction.cti.onClickToDial(onClickListenerSalesforceContact);
+        //--------------------------------------------------------------------------------------------------///////////
+        
+        var disableClickToDialOnSalesforceCallback = function (response) {
+            if (response.result) {
+                console.log('Click to dial was disabled.');
+            } else {
+                console.log('Click to dial was not disabled.');
+            }
+        }
+        
+        function disableClickToDialOnSalesforce() {
+            //Invokes API method
+            sforce.interaction.cti.disableClickToDial(disableClickToDialOnSalesforceCallback);
+        }  
+        //------------------------------------------------------------------------------------------------/////////////
+        var setSoftphoneVisiblecallback = function (response) {
+            if (response.result) {
+                console.log(response.result);
+            } else {
+                console.log(response.error);
+            }
+        };
+        function setSoftphoneVisible(value) {
+            sforce.interaction.setVisible(value, setSoftphoneVisiblecallback);
+        }   
+        
+        //////////////////////////////////Open  cti  and ajax Methods end/////////////////////////////    
+        //////////////////////////Event Handling methods start//////////////////////////
+        
+        function startTelephonySession(){
+            
+            //send start telephony to websocket
+            var sendStartTelephony = "{\"msgtype\":\"StartTelephonySession\",\"userid\":\"{!$User.ID}\",\"region\":\"{!TEXT($User.EDIAL_Region__c)}\"}\r\n";
+            webSocket.send(sendStartTelephony);
+            
+            console.log(sendStartTelephony);
+            
+            
+        }
+        function endTelephonySession(){
+            
+            //send end telephony to websocket
+            var sendEndTelephony = "{\"msgtype\":\"EndSession\",\"userid\":\"{!$User.ID}\",\"region\":\"{!TEXT($User.EDIAL_Region__c)}\"}\r\n";
+            webSocket.send(sendEndTelephony);
+            
+            console.log(sendEndTelephony);
+            
+            //hide the voice message setup block 
+            $("#voicemessagesetuptag").css("display","none");
+            
+        }
+        function dialCallbackCall(cbcnumber){
+            
+            
+            var cbcmsgsend = "{\"msgtype\":\"MakeCallbackCall\",\"usernumber\":\""+replacePhoneSpecialChar(cbcnumber)+"\"}\r\n";
+            console.log('*** DIALCALLBACKCALL: '+cbcmsgsend);
+            webSocket.send(cbcmsgsend );
+            $("#softphonemsg").html("Call Back Call in Progress...");
+            
+            
+        }
+        function recordAudioMessage(recordfiledesc,recordmsgname){
+            
+            //var recordfiledesc = $("#recordfiledescription").val();
+            var recmsgsend = "{\"msgtype\":\"Record\",\"mediafiledescription\":\""+recordfiledesc +"\",\"mediafilename\":\""+recordmsgname +"\"}\r\n";
+            console.log(recmsgsend);
+            webSocket.send(recmsgsend);
+            
+        }        
+        ///playtype defines type of audio play which maybe autoPlay or playNow
+        function playAudioMessage(audiofileselected,playtype){
+            
+            //var audiofileselected = $("#audiofileselect").val();
+            var playmsgsend = "{\"msgtype\":\"PlayVoiceRecording\",\"mediafile\":\""+audiofileselected+"\",\"mode\":\""+playtype+"\"}\r\n";
+            console.log(playmsgsend);
+            webSocket.send(playmsgsend);
+            
+        }                
+        function deleteAudioMessage(audiofileselected){
+            
+            //var audiofileselected = $("#audiofileselect").val();
+            var delmsgsend = "{\"msgtype\":\"DeleteRecording\",\"mediafile\":\""+audiofileselected+"\"}\r\n";
+            console.log(delmsgsend);
+            webSocket.send(delmsgsend);
+            
+            
+        }        
+        function endClientCall(clientnum){
+            
+            var endcallmsgsend = "{\"msgtype\":\"EndClientCall\",\"clientnumber\":\""+replacePhoneSpecialChar(clientnum)+"\"}\r\n";
+            console.log(endcallmsgsend);
+            webSocket.send(endcallmsgsend);
+            
+            
+        }
+        function makeClientcall(clientnumber,clientname,displaynumber){            
+            setSoftphoneVisible(true);
+            
+            //send client call event
+            var clientcallmsgsend = "{\"msgtype\":\"MakeClientCall\",\"clientnumber\":\""+replacePhoneSpecialChar(clientnumber)+"\",\"displaynumber\":\""+replacePhoneSpecialChar(displaynumber)+"\"}\r\n";
+            webSocket.send(clientcallmsgsend);
+            
+            //clear previous timer and start new  call timer 
+            clearTimerCall();
+            totalSeconds = 0;
+            
+            
+            //update contact tag
+            //$("#contactnametag").val(clientname);
+            
+            
+            
+            //add client number to display
+            $("#clientcallstag").val(clientnumber);
+            
+            
+            $('#dropaudiomsgbtn').prop('disabled', false);
+            $('#autodropaudiomsgbtn').prop('disabled', false);
+            
+            console.log(clientcallmsgsend);
+            
+            
+        }
+        function listVoiceRecordings(){
+            
+            var listvoicerecordingmsgsend = "{\"msgtype\":\"ListVoiceRecordings\"}\r\n";
+            webSocket.send(listvoicerecordingmsgsend );
+            
+            console.log(listvoicerecordingmsgsend );
+            
+            
+        }
+        
+        /* - SAGAR ADDED NEW FUNCTIONS */
+        function startRecording()
+        {
+            //start recording 
+            var recordfiledesc = $("#recordfiledescription").val();
+            var recordfilename = $("#recordfilemsgname").val();
+            if(recordfilename === "" || recordfiledesc === "" ){
+                
+                bootbox.confirm({
+                    message: "Name and Description cannot be Empty !!",
+                    buttons: {
+                        confirm: {
+                            label: 'OK',
+                            className: 'btn-show'
+                        },
+                        cancel: {
+                            label: 'No',
+                            
+                            className: 'btn-hidden'
+                        }
+                    },
+                    callback: function (result) {
+                    }
+                });
+                $("#softphonemsg").html("Name and Description is Empty"); 
+                
+            }
+            else {
+                checkAudioMsgName(recordfilename) ;
+            }
+            isPlayRec = false;
+            isDeleteRec = false;
+            isRecordMessage = false;
+        }
+        function deleteRecording()
+        {
+            bootbox.confirm({
+                message: "Are you sure you want to delete ?",
+                buttons: {
+                    cancel: {
+                        label: 'No&nbsp;',
+                        className: 'btn-show'
+                    },
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn-red'
+                    }
+                    
+                },
+                callback: function (result) {
+                    
+                    if(result === true){
+                        var audiomsg = $( "#voicemsglisttag" ).val();
+                        deleteAudioMessage(audiomsg);
+                        $("#softphonemsg").html("Audio Message Delete in Progress.."); 
+                        
+                    }
+                    if(result === false){
+                        
+                    }
+                    
+                }
+            });
+            isPlayRec = false;
+            isDeleteRec = false;
+            isRecordMessage = false;
+        }
+        function SaveEvent(){
+              if((userRole.indexOf("Japan - FI - Sales") === -1) && (userRole.indexOf("Japan - FI - Team") === -1) && (userRole.indexOf("Japan - FI - Desk") === -1) && (userRole.indexOf("Japan - FI Sales") === -1)){
+               updateSoftphoneEventForNormalRoleUsers(); 
+                
+                
+                if(isClientCallActive === false && isEventUpdated === true){
+                    console.log('Client Call Active false and IsEventUpdated true');    
+                    
+                    
+                    //enable click to dial on salesforce console
+                    /* if(softphoneReset === false && isCallBackCallActive === true){
+                        if(isCallBackCallActive===true)
+                            enableClickToDialOnSalesforce();
+                    }*/
+                    
+                    console.log('Total Seconds: '+totalSeconds);
+                   
+                    
+                    
+                    isCallNotesSaved = true ;
+                    //isCallNotesBlockOpen = false ;
+                    //if (liveInteractionMandatory === false)
+                      //  $("#softphonemsg").html("Call Notes Updated");
+                    
+                    
+                    //enable the islive interaction select 
+                    $("#isliveinteractionselect").attr("disabled",false);
+                }
+                
+                
+            } 
+            
+            if((userRole.indexOf("Japan - FI - Sales") !== -1) || (userRole.indexOf("Japan - FI - Team") !== -1) || (userRole.indexOf("Japan - FI - Desk") !== -1) || (userRole.indexOf("Japan - FI Sales") !== -1)){
+                
+                if(isJAPANEventCreated === false){
+                    
+                    createSoftphoneEventForJAPANRoleUsers();
+                    
+                }
+                if(isJAPANEventCreated === true){
+                    updateSoftphoneEventForJAPANRoleUsers();
+                    
+                    
+                    
+                    if(isClientCallActive === false && isJAPANEventUpdated === true){
+                        
+                        
+                        
+                        //enable click to dial on salesforce console
+                        /*if(softphoneReset === false && isCallBackCallActive === true){
+                            if(isCallBackCallActive===true)
+                                enableClickToDialOnSalesforce();
+                        }*/
+                        
+                        console.log('Total Seconds: '+totalSeconds);
+                        
+                        
+                        isCallNotesSaved = true ;
+                        //isCallNotesBlockOpen = false ;
+                        //if (liveInteractionMandatory === false)
+                            //$("#softphonemsg").html("Call Notes Updated");
+                        
+                        
+                        //enable the islive interaction select 
+                        //$("#isliveinteractionselect").attr("disabled",true);
+                        isJAPANEventCreated = false ;
+                    }
+                    
+                    
+                    
+                }
+                
+                
+                
+            }
+          
+        }
+        function playRecording()
+        {
+            var audiomsg = $( "#voicemsglisttag" ).val();
+            playAudioMessage(audiomsg,"playNow");
+            $("#softphonemsg").html("Play Message in Progress...."); 
+            isPlayRec = false;
+            isDeleteRec = false;
+            isRecordMessage = false;
+        }
+        function placeClientCall()
+        {
+            var liveinterError = false;		
+            if(totalSeconds > 20 && isCallNotesBlockOpen)
+            {
+                if($("#isliveinteractionselect").val() === " " )
+                {
+                    proceedtoCall= false;
+                    liveinterError = true
+                }
+                else
+                {
+                    proceedtoCall= true;
+                }
+            }
+            
+            //if((userRole.indexOf("Japan - FI - Sales") === -1) && (userRole.indexOf("Japan - FI - Team") === -1) && (userRole.indexOf("Japan - FI - Desk") === -1) && (userRole.indexOf("Japan - FI Sales") === -1)){
+            console.log('Inside Nomal Usrs: '+$('[id$=sfprivatetagid]').val());
+            console.log(' isCallNotesBlockOpen: '+isCallNotesBlockOpen);
+            
+            if($('[id$=sfprivatetagid]').val() === "True" && isCallNotesBlockOpen===true){
+                console.log('Inside private true && block open');    
+                var opportunityid = $('[id$=sfrelatedtotagid_mlktp] option').filter(function () { return $(this).html() == "Opportunity"; }).val();
+                console.log('opportunityid: '+opportunityid);
+                if(($('[id$=sfrelatedtotagid_mlktp]').val() === opportunityid && $('[id$=sfrelatedtotagid_lkid]').val().trim()!='')){
+                    if(liveinterError===false)
+                        proceedtoCall=true;
+                }
+                else
+                {
+                    proceedtoCall=false;
+                }
+            }
+            else if($('[id$=sfprivatetagid]').val() === "False" && isCallNotesBlockOpen===true) 
+            {
+                if ($('[id$=sfrelatedtotagid_mlktp]').val().trim() === '006' && $('[id$=sfrelatedtotagid_lkid]').val().trim() != '')
+                {
+                    proceedtoCall=false;
+                }
+            }
+            //}     
+            
+            if(proceedtoCall==true){
+                console.log('*** Response Result: ****'+contactResultOnClick.result);
+                var objectid = JSON.parse(contactResultOnClick.result).objectId;
+                
+                var objecttype = JSON.parse(contactResultOnClick.result).object;
+                console.log('*** Object Type ****'+objecttype);
+                
+                if(objecttype==="Event")
+                {
+                    validateEventID(objectid);
+                }
+                else
+                {
+                    clientName = JSON.parse(contactResultOnClick.result).objectName;
+                }
+                
+                
+                var clientNumber = JSON.parse(contactResultOnClick.result).number;
+                var displaynumber = "{!$User.Caller_ID__c}";
+                
+                //alert(displaynumber);
+                if(isNaN(displaynumber) || (displaynumber.length === 0 ) ){
+                    var displaynum = $('#callbacknumbertag').val();
+                    makeClientcall(clientNumber,clientName,displaynum);
+                    
+                }
+                else {
+                    makeClientcall(clientNumber,clientName,displaynumber);
+                    
+                }
+                
+                
+                if(objecttype==="Contact")
+                {
+                    CalledContactName  = clientName ;
+                    calledNameId = objectid ;
+                    validateContactID(calledNameId);
+                }
+                
+                
+                $("#callbuttontag").css("display","none");
+                $("#endbuttontag").css("display","inline");
+                
+            }
+            else
+            {
+                bootbox.confirm({
+                    message: "Please save your unsaved information to place next call. !!",
+                    buttons: {
+                        confirm: {
+                            label: 'OK',
+                            className: 'btn-show'
+                        },
+                        cancel: {
+                            label: 'No',
+                            
+                            className: 'btn-hidden'
+                        }
+                    },
+                    callback: function (result) {
+                        
+                    }
+                });
+                $("#softphonemsg").html("Please save your unsaved information to place next call. !!");
+            }
+        }
+        //////////////////////////Event handling methods end//////////////////////////// 
+        
+        
+        $("#callbuttontag").click(function () {  
+            softphoneReset = false;
+            
+            if( !$('#callbacknumbertag').val() ) {  
+                bootbox.confirm({
+                    message: "Call Back Number Empty !!",
+                    buttons: {
+                        confirm: {
+                            label: 'OK',
+                            className: 'btn-show'
+                        },
+                        cancel: {
+                            label: 'No',
+                            
+                            className: 'btn-hidden'
+                        }
+                    },
+                    callback: function (result) {
+                        
+                    }
+                }); 
+                //alert("Call Back Number Empty");   
+            }
+            else {
+                manualSessionActive = true;
+                //start telephony session
+                startTelephonySession();
+                //disable the call back button 
+                $("#callbuttontag").prop("disabled", true);
+                
+                
+            }  
+        });        
+        $("#btnstartrecording").click(function () {
+            if(!isCallBackCallActive)
+            {
+                //making callback
+                if( !$('#callbacknumbertag').val() ) {  
+                    bootbox.confirm({
+                        message: "Please select your callback number !!",
+                        buttons: {
+                            confirm: {
+                                label: 'OK',
+                                className: 'btn-show'
+                            },
+                            cancel: {
+                                label: 'No',
+                                
+                                className: 'btn-hidden'
+                            }
+                        },
+                        callback: function (result) {
+                            
+                        }
+                    }); 
+                    isRecordMessage = false;
+                    enableClickToDialOnSalesforce();
+                    //alert("Call Back Number Empty");   
+                }
+                else {
+                    //start telephony session
+                    startTelephonySession();
+                    isRecordMessage = true;
+                }  
+            }
+            else
+            {
+                startRecording();
+            }
+        });	        
+        $("#deleteaudiofilebtn").click(function () {
+            if(!isCallBackCallActive)
+            {
+                //making callback
+                if( !$('#callbacknumbertag').val() ) {  
+                    bootbox.confirm({
+                        message: "Please select your callback number !!",
+                        buttons: {
+                            confirm: {
+                                label: 'OK',
+                                className: 'btn-show'
+                            },
+                            cancel: {
+                                label: 'No',
+                                
+                                className: 'btn-hidden'
+                            }
+                        },
+                        callback: function (result) {
+                            
+                        }
+                    }); 
+                    isDeleteRec = false;
+                    //alert("Call Back Number Empty");   
+                }
+                else {
+                    //start telephony session
+                    startTelephonySession();
+                    isDeleteRec = true;
+                }	  
+            }
+            else
+            {
+                deleteRecording();
+            }
+        });
+        $("#endbuttontag").click(function () {
+            
+            var clientnum = $("#clientcallstag").val();   
+            endClientCall(clientnum);   
+            clearTimerCall();
+            $("#clientcallstag").val("");
+            
+            $("#contactnametag").val("");
+            $("#contactaccountnametag").val("");
+            
+            //hide the end button tag block
+            $("#endbuttontag").css("display", "none"); 
+            $("#softphonemsg").html("Ending Client Call"); 
+            if(isCallBackCallActive===true && isCallNotesBlockOpen === false)
+                enableClickToDialOnSalesforce();
+        });        
+        $("#dropaudiomsgbtn").click(function () {
+            
+            isClientCallActive = false;
+            isVoiceDrop = true ;
+            
+            var audiomsg = $( "#voicemsgdroptag" ).val();
+            console.log('audiomsg: '+audiomsg);
+            if(!audiomsg)
+            {
+                bootbox.confirm({
+                    message: "Please select voice message from list.",
+                    buttons: {
+                        confirm: {
+                            label: 'OK',
+                            className: 'btn-show'
+                        },
+                        cancel: {
+                            label: 'No',
+                            
+                            className: 'btn-hidden'
+                        }
+                    },
+                    callback: function (result) {
+                        
+                    }
+                });
+                $("#softphonemsg").html("Please select voice message from list."); 
+            }
+            else
+            {
+                playAudioMessage(audiomsg,"playNow");
+                $("#softphonemsg").html("Drop Now Audio Message in Progress...."); 
+                setCookie("sflastaudiomsg",audiomsg,365);
+                
+                getAudioMsgLength(audiomsg);
+                
+                console.log('Before clearTimerCall()');
+                
+                //set the defaults after msg drop
+                
+                clearTimerCall();
+                $("#clientcallstag").val("");
+                $("#contactnametag").val("");
+                $("#contactaccountnametag").val("");
+                
+                //islive interaction value
+                /*if((userRole.indexOf("Japan - FI - Sales") === -1) && (userRole.indexOf("Japan - FI - Team") === -1) && (userRole.indexOf("Japan - FI - Desk") === -1) && (userRole.indexOf("Japan - FI Sales") === -1)){
+            $("#isliveinteractionselect").val("No");
+            }
+            else
+            {
+                $("#isliveinteractionselect").attr("disabled",false);
+                
+            }*/
+                $("#isliveinteractionselect").val("No");
+                $("#isliveinteractionselect").attr("disabled",true);
+                
+                $("#endbuttontag").css("display","none");
+                $("#clientcallconnectedblock").css("display","none");
+                
+                //make the call notes tab active
+                $('#tabcallnotesblock').removeClass().addClass('active');
+                $('#callnotesblock').removeClass().addClass('tab-pane fade in active');
+                
+                
+                //make the drop message notes tab inactive
+                $('#tabdropmessageblock').removeClass().addClass('inactive');
+                $('#dropmessageblock').removeClass().addClass('tab-pane fade');
+                //hide the drop message tab 
+                $("#tabdropmessageblock").css("display","none");
+                
+                //show voice message setup toggle button  
+                $("#voicemsgsetuptogglebutton").css("display","inline");
+                
+                //var rg = $('[id$=sfrelatedtotagid]').val();
+                if((userRole.indexOf("Japan - FI - Sales") === -1) && (userRole.indexOf("Japan - FI - Team") === -1) && (userRole.indexOf("Japan - FI - Desk") === -1) && (userRole.indexOf("Japan - FI Sales") === -1)){
+                    if(isCallBackCallActive===true)
+                        enableClickToDialOnSalesforce();
+                }  
+                console.log('DROP: isCallNotesBlockOpen: '+isCallNotesBlockOpen);
+                if(isCallNotesBlockOpen === true)
+                {
+                    if((userRole.indexOf("Japan - FI - Sales") === -1) && (userRole.indexOf("Japan - FI - Team") === -1) && (userRole.indexOf("Japan - FI - Desk") === -1) && (userRole.indexOf("Japan - FI Sales") === -1)){
+                        console.log('DROP: Update called for Normal user.');
+                        updateSoftphoneEventForNormalRoleUsers();
+                    }
+                    else
+                    {
+                        console.log('DROP: Update called for Japan user.');
+                        if($('[id$=sfrelatedtotagid_lkid]').val().trim()!='') 
+                        {
+                            if(isJAPANEventCreated === false){
+                                createSoftphoneEventForJAPANRoleUsers();
+                             }
+                            else{ 
+                                updateSoftphoneEventForJAPANRoleUsers();
+                            }
+                               if(isCallBackCallActive===true)
+                                    enableClickToDialOnSalesforce();
+                            
+                        }
+                    }
+                    
+                }
+            }
+            
+            
+            
+            //**-ADDED SAGAR
+            enableClickToDialOnSalesforce();
+        });
+        $("#autodropaudiomsgbtn").click(function () {
+            
+            isClientCallActive = false;
+            isAutoVoicedrop = true ;
+            
+            
+            var audiomsg = $( "#voicemsgdroptag" ).val();
+            if(!audiomsg)
+            {
+                bootbox.confirm({
+                    message: "Please select voice message from list.",
+                    buttons: {
+                        confirm: {
+                            label: 'OK',
+                            className: 'btn-show'
+                        },
+                        cancel: {
+                            label: 'No',
+                            
+                            className: 'btn-hidden'
+                        }
+                    },
+                    callback: function (result) {
+                        
+                    }
+                });
+                $("#softphonemsg").html("Please select voice message from list."); 
+            }
+            else
+            {
+                playAudioMessage(audiomsg,"autoPlay");
+                $("#softphonemsg").html("Auto Drop Audio Message in Progress...."); 
+                setCookie("sflastaudiomsg",audiomsg,365);
+                
+                getAudioMsgLength(audiomsg);
+                
+                //set the defaults after msg drop
+                
+                clearTimerCall();
+                $("#clientcallstag").val("");
+                $("#contactnametag").val("");
+                $("#contactaccountnametag").val("");
+                
+                
+                //islive interaction value
+                /*if((userRole.indexOf("Japan - FI - Sales") === -1) && (userRole.indexOf("Japan - FI - Team") === -1) && (userRole.indexOf("Japan - FI - Desk") === -1) && (userRole.indexOf("Japan - FI Sales") === -1)){
+            $("#isliveinteractionselect").attr("disabled",true);
+            }
+            else
+            {
+                $("#isliveinteractionselect").val(" ");
+                $("#isliveinteractionselect").attr("disabled",true);
+                
+            }*/
+                $("#isliveinteractionselect").val("No");
+                $("#isliveinteractionselect").attr("disabled",true);
+                
+                $("#endbuttontag").css("display","none");
+                $("#clientcallconnectedblock").css("display","none");
+                
+                //make the call notes tab active
+                $('#tabcallnotesblock').removeClass().addClass('active');
+                $('#callnotesblock').removeClass().addClass('tab-pane fade in active');
+                
+                
+                //make the drop message notes tab inactive
+                $('#tabdropmessageblock').removeClass().addClass('inactive');
+                $('#dropmessageblock').removeClass().addClass('tab-pane fade');
+                //hide the drop message tab 
+                $("#tabdropmessageblock").css("display","none");
+                
+                //show voice message setup toggle button  
+                $("#voicemsgsetuptogglebutton").css("display","inline");
+                
+                //var rg = $('[id$=sfrelatedtotagid]').val();
+                
+                //$('[id$=sfsubjecttagid]').val("Voice Message Left: ["+CalledContactName  +"] ["+CalledContactRGAccountName +"]"); 
+                if((userRole.indexOf("Japan - FI - Sales") === -1) && (userRole.indexOf("Japan - FI - Team") === -1) && (userRole.indexOf("Japan - FI - Desk") === -1) && (userRole.indexOf("Japan - FI Sales") === -1)){
+                    if(isCallBackCallActive===true)
+                        enableClickToDialOnSalesforce();
+                }
+                
+                if(isCallNotesBlockOpen === true)
+                {
+                    if((userRole.indexOf("Japan - FI - Sales") === -1) && (userRole.indexOf("Japan - FI - Team") === -1) && (userRole.indexOf("Japan - FI - Desk") === -1) && (userRole.indexOf("Japan - FI Sales") === -1)){
+                        console.log('DROP: Update called for Normal user.');
+                        updateSoftphoneEventForNormalRoleUsers();
+                    }
+                    else
+                    {
+                        console.log('DROP: Update called for Japan user.');
+                        if($('[id$=sfrelatedtotagid_lkid]').val().trim()!='') 
+                            updateSoftphoneEventForJAPANRoleUsers();
+                    }
+                    
+                }
+                
+            }
+            
+            /*ADDED By SAGAR*/
+            enableClickToDialOnSalesforce();
+            
+        });
+        $("#saveeventbtn").click(function () {
+            SaveEvent();
+        });
+        $("#endsessiontag").click(function () {
+            console.log("totalSeconds: "+totalSeconds);
+            endTelephonySession();
+            $("#softphonemsg").html("Session End in Progress...."); 
+            clearTimerCall();
+            /*ADDED - SAGAR*/
+            //disableClickToDialOnSalesforce();
+            enableClickToDialOnSalesforce();
+            $('#callbacknumbertag').prop('disabled', false);  
+        });        
+        $("#btncancelrecording").click(function () {
+            
+            
+            $('#voicemessagesetuptag').css('display', "none");
+            
+        });
+        $("#closemsglistbtn").click(function () {
+            $('#voicemessagesetuptag').css('display', "none");
+        });        
+        $("#audiomsgtestbtn").click(function () {
+            if(!isCallBackCallActive)
+            {
+                //making callback
+                if( !$('#callbacknumbertag').val() ) {  
+                    bootbox.confirm({
+                        message: "Please select your callback number !!",
+                        buttons: {
+                            confirm: {
+                                label: 'OK',
+                                className: 'btn-show'
+                            },
+                            cancel: {
+                                label: 'No',
+                                
+                                className: 'btn-hidden'
+                            }
+                        },
+                        callback: function (result) {
+                            
+                        }
+                    });
+                    isPlayRec = false;					
+                    //alert("Call Back Number Empty");   
+                }
+                else {
+                    //start telephony session
+                    startTelephonySession();
+                    isPlayRec = true;
+                }	  
+            }
+            else
+            {
+                playRecording();
+                
+            }
+            
+        }); 
+        ////////////////////////////////////////////////
+        
+        window.onbeforeunload = function(){            
+            if(isCallBackCallActive === true){
+                return "There is an Active Telephony Session"; 
+            } 
+            else {   
+            }    
+        }
+        
+        ///////////////////////////
+        //Timer Events
+        var calltimerinstance ;
+        function clearTimerCall(){
+            
+            $("#callminutestag").html("00");
+            $("#callsecondstag").html("00");
+            clearInterval(calltimerinstance);
+            
+            
+        }
+        function startTimerCall() {
+            
+            calltimerinstance = setInterval(setTimeCall, 1000);
+        }
+        function setTimeCall(){
+            ++totalSeconds;
+            document.getElementById("callsecondstag").innerHTML = pad(totalSeconds % 60);
+            document.getElementById("callminutestag").innerHTML = pad(parseInt(totalSeconds / 60));
+        }        
+        function pad(val)
+        {
+            var valString = val + "";
+            if (valString.length < 2)
+            {
+                return "0" + valString;
+            } else
+            {
+                return valString;
+            }
+        }
+        function setLastCallbackNumberForSoftphone(){
+                      
+            //set the last callback number to list from cookies
+            var lastcallbacknumber = getCookie("sflastcbcnum");
+            
+            
+            
+            if(!(lastcallbacknumber === "null")){
+                $("#callbacknumbertag").val(lastcallbacknumber);
+            }
+            else {
+                
+            }
+            
+            
+        }
+        function setLastAudioMsgPlayedForSoftphone(){    
+            
+            //set the last audio msg played to list from cookies
+            var lastaudiomsgplayed = getCookie("sflastaudiomsg");
+            
+            //$("#voicemsgdroptag").val(lastaudiomsgplayed);
+            
+            if(!(lastaudiomsgplayed === "null") || !(lastaudiomsgplayed === "") || !(lastaudiomsgplayed === "undefined")){
+                $("#voicemsgdroptag").val(lastaudiomsgplayed);
+            }
+            
+            
+        }
+        function endsWith(str, suffix) {
+            return str.indexOf(suffix, str.length - suffix.length) !== -1;
+        }        
+        function setCookie(cookiename, cookievalue, expirydays) {
+            var d = new Date();
+            d.setTime(d.getTime() + (expirydays * 24 * 60 * 60 * 1000));
+            var expires = "expires=" + d.toGMTString();
+            document.cookie = cookiename + "=" + cookievalue + "; " + expires;
+        }
+        function getCookie(cookiename) {
+            var name = cookiename + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) === ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) === 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "null";
+        }       
+    });
+    </script>
+    
+</apex:page>

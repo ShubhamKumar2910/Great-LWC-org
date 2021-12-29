@@ -1,0 +1,35 @@
+<aura:component implements="lightning:homeTemplate" description="Default Dashboard Home">
+    <aura:attribute name="left" type="Aura.Component[]" />
+    <aura:attribute name="bottomLeft" type="Aura.Component[]" />
+    <aura:attribute name="bottomRight" type="Aura.Component[]" />
+    <aura:attribute name="bottomMiddle" type="Aura.Component[]" />
+    <aura:attribute name="middle" type="Aura.Component[]" />
+    <aura:attribute name="right" type="Aura.Component[]" />
+    <div >
+        <lightning:layout horizontalAlign="auto">
+            <lightning:layoutItem flexibility="shrink" class="slds-m-right_small" size="12">
+                {!v.bottomRight}
+            </lightning:layoutItem>
+        </lightning:layout>
+        <br/>
+		<lightning:layout horizontalAlign="auto" class="fixedLayoutHeight">
+            <lightning:layoutItem padding="horizontal-small" flexibility="shrink" class="slds-m-right_small fixedLayoutItemHeight" size="6">
+                <div class="topComponentsLeft">
+                {!v.bottomMiddle}
+                </div>
+            </lightning:layoutItem>
+            <lightning:layoutItem padding="horizontal-small" flexibility="shrink" class="slds-m-right_small fixedLayoutItemHeight" size="6">
+                <div class="topComponentsRight">
+                {!v.middle}
+                </div>
+                
+            </lightning:layoutItem>
+        </lightning:layout>
+        <br/>
+        <lightning:layout horizontalAlign="auto">
+            <lightning:layoutItem flexibility="shrink" class="slds-m-right_small" size="12">
+                {!v.bottomLeft}
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+</aura:component>

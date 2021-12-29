@@ -1,0 +1,292 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,flexipage:availableForRecordHome,force:hasRecordId" access="global" controller="AccountVoteRankServerController">          
+	<style>
+    	.selectSize {
+            min-height: 80px !important;
+            height: 130px !important;
+		}
+        
+        .selectOptionSize {
+            padding: .25rem !important;
+        }   
+        
+        .slds-p-around_medium, .slds-p-around--medium {
+            padding: 0rem !important;
+        }
+        
+        .itemPadding{
+        	padding: .35rem !important;
+        }
+        
+        hr{
+        	margin: 0rem !important;
+        	padding: 0rem !important;
+        }
+                
+    </style>
+    
+    <!-- Labels -->
+    <aura:attribute name="periodLabel" type="String" />
+    <aura:attribute name="receivedLabel" type="String" />
+    <aura:attribute name="yearLabel" type="String" />
+    <aura:attribute name="accountNoteLabel" type="String" />
+    <aura:attribute name="accountLabel" type="String" />
+    <aura:attribute name="productLabel" type="String" />
+    <aura:attribute name="countryLabel" type="String" />
+    <aura:attribute name="serviceLabel" type="String" />
+    <aura:attribute name="rankLabel" type="String" />
+    <aura:attribute name="scoreLabel" type="String" />
+    <aura:attribute name="regionsLabel" type="String" />
+    <aura:attribute name="latestVoteLabel" type="String" />
+    <aura:attribute name="voteNoteLabel" type="String" />
+    <aura:attribute name="Add_Vote_to_Existing" type="String" />
+    <aura:attribute name="Account_Vote_Frequency" type="String" />
+    <aura:attribute name="Account_Vote_Rank" type="String" />
+    
+    
+    <!-- Page values -->
+    <aura:attribute name="newAVR" type="Account_Vote_Ranks__c" default="{'sobjectType':'Account_Vote_Ranks__c'}" />
+    <aura:attribute name="hasErrors" type="Boolean" default="false" />
+    <aura:attribute name="errorMessages" type="String" />
+    <aura:attribute name="periodOptions" type="String" />
+    <aura:attribute name="received" type="Datetime" />
+    <aura:attribute name="year" type="String" />
+    <aura:attribute name="accountNote" type="String" />
+    <aura:attribute name="account" type="String" />
+    <aura:attribute name="productOptions" type="List" />
+    <aura:attribute name="serviceOptions" type="Decimal" />
+    <aura:attribute name="rankOptions" type="String" />
+    <aura:attribute name="score" type="String" />
+    <aura:attribute name="regionsOptions" type="String" />
+    <aura:attribute name="latestVoteOptions" type="String" />
+    <aura:attribute name="voteNote" type="String" />
+    <aura:attribute name="recordId" type="Id" />    
+    <aura:attribute name="isCountrySet" type="Boolean" default="false" />
+    <aura:attribute name="disableCountry" type="Boolean" default="true" />
+    <aura:attribute name="productDependentValues" type="List" />
+    <aura:attribute name="accountVoteRankOptions" type="AccountVoteRankServerController.AccountVoteRankOptions" /> 
+    <aura:handler name="init" value="{!this}" action="{!c.loadData}" />
+    <aura:dependency resource="markup://force:navigateToSObject" type="EVENT" />
+    <aura:dependency resource="markup://force:closeQuickAction" type="EVENT" />
+
+    <aura:method name="onProductChange" action="{!c.onProductChange}" />
+    
+    <div class="slds-p-around_medium .slds-p-around--medium">	<!--Header -->
+    	<lightning:layout horizontalAlign="space" verticalAlign="stretch">
+            <lightning:layoutItem size="12" class="itemPadding" >
+                <label class="slds-text-heading_large " for="heading" value="heading"> 
+                    <ui:outputText value="{!$Label.c.Add_Vote_to_Same_Period}" />
+                </label>  
+            </lightning:layoutItem>
+        </lightning:layout>
+        <hr />
+        <!-- Error layout-->
+        <lightning:layout horizontalAlign="space" verticalAlign="stretch"> 
+            <lightning:layoutItem size="12" >
+                <aura:if isTrue="{!v.hasErrors}" >
+                    <ui:message closable="false" severity="error" title="{!$Label.c.Error}">
+                        <lightning:icon iconName="utility:error" variant="error" size="small"/>
+                        <aura:iteration items="{!v.errorMessages}" var="item">
+                            <ui:outputText value="{!item}" />
+                        </aura:iteration>
+                    </ui:message>
+                </aura:if>
+                
+                <ui:message closable="false" severity="info" title="{!$Label.c.Account_Vote_Frequency}" />
+            </lightning:layoutItem>
+        </lightning:layout>
+        <!-- End Error layout-->
+        
+        <!-- Form - Account Vote Frequency -->
+        <lightning:layout horizontalAlign="spread" multipleRows="true">
+            <!-- Row 1 -->
+            <lightning:layoutItem size="6" class="itemPadding" flexibility="auto"> <!-- Column 1 -->
+                <!-- Account name -->
+                <label class="slds-form-element__label" for="account">
+                    <ui:outputText value="{!v.accountLabel}" />
+                </label>
+                <div>
+                    <label aura:id="account" class="slds-form-element__label" for="account">
+                        <ui:outputText value="{!v.newAVR.Account__r.Name}" />               
+                    </label>            
+                </div>
+            </lightning:layoutItem>
+            
+            <lightning:layoutItem size="6" class="itemPadding" flexibility="auto"> <!-- Column 2 -->
+                <!-- Account note -->
+                <label class="slds-form-element__label" for="accountNote">
+                  <ui:outputText value="{!v.accountNoteLabel}" />                 
+                </label>
+                <div>
+                    <label aura:id="accountNote" class="slds-form-element__label" for="accountNote">
+                        <ui:outputText value="{!v.newAVR.Account_Note__c}" />                
+                    </label> 
+                </div>
+            </lightning:layoutItem>
+            <!-- End Row 1 -->
+            
+            <!-- Row 2 -->
+            <lightning:layoutItem size="6" class="itemPadding" flexibility="auto"> <!-- Column 1 -->
+                <!-- Period -->
+                <label class="slds-form-element__label" for="period">
+                     <ui:outputText value="{!v.periodLabel}" />              
+                </label>
+                <div>
+                    <label aura:id="period" class="slds-form-element__label" for="period">
+                        <ui:outputText value="{!v.newAVR.Period__c}" />               
+                    </label>            
+                </div>
+            </lightning:layoutItem>
+            
+            <lightning:layoutItem size="6" class="itemPadding" flexibility="auto"> <!-- Column 2 -->
+                <!-- Year -->
+                <label class="slds-form-element__label" for="year">
+                     <ui:outputText value="{!v.yearLabel}" />                 
+                </label>
+                <div>
+                    <label aura:id="year" class="slds-form-element__label" for="year">
+                        <ui:outputText value="{!v.newAVR.Year__c}" />               
+                    </label> 
+               	</div>
+            </lightning:layoutItem>
+            <!-- End Row 2 -->
+            
+            <!-- Row 3 -->
+            <lightning:layoutItem size="6" class="itemPadding" flexibility="auto"> <!-- Column 1 -->
+                <!-- Received -->
+                <label class="slds-form-element__label" for="received">
+                    <ui:outputText value="{!v.receivedLabel}" />                 
+                </label>
+                <div>
+                    <label aura:id="received" class="slds-form-element__label" for="received">
+                        <ui:outputText value="{!v.newAVR.Received__c}" />                
+                    </label>            
+                </div>
+            </lightning:layoutItem>
+            <!-- End Row 3 -->
+        </lightning:layout>
+        <!-- End Form - Account Vote Frequency -->        
+        
+         <!-- Form - Account Vote Rank -->        
+        <lightning:layout horizontalAlign="space" verticalAlign="stretch">
+            <lightning:layoutItem size="12" flexibility="auto">
+                <ui:message closable="false" severity="info" title="{!$Label.c.Account_Vote_Rank}" />            
+            </lightning:layoutItem>
+        </lightning:layout>
+        
+        <lightning:layout horizontalAlign="spread" multipleRows="true">
+            <!-- Row 1 -->
+            <lightning:layoutItem size="6" class="itemPadding" flexibility="auto">	<!-- Column 1 -->
+                <!-- Product -->
+                <label class="slds-form-element__label" for="product">
+                    <abbr class="slds-required" title="required">*</abbr>
+                    <ui:outputText value="{!v.productLabel}" /> 
+                </label>
+                <ui:inputSelect class="slds-select" multiple="false" aura:id="product" value="{!v.newAVR.Product__c}" change="{!c.onProductChange}" >
+                    <aura:iteration items="{!v.accountVoteRankOptions.productOptions}" var="productItem">
+                        <option text="{!productItem}" value="{!productItem}" selected="{!v.newAVR.Product__c == productItem}" />
+                    </aura:iteration>
+                </ui:inputSelect>
+            </lightning:layoutItem>
+            
+            <lightning:layoutItem size="6" class="itemPadding" flexibility="auto">	<!-- Column 1 -->
+                <!-- Country -->
+                <label class="slds-form-element__label" for="country">                    
+                    <ui:outputText value="{!v.countryLabel}" /> 
+                </label>               
+               	<ui:inputSelect class="slds-select" multiple="false" aura:id="country" value="{!v.newAVR.Country__c}" disabled="{!v.disableCountry}">                    
+                    <option text="--None--" value="--None--" />
+                    <aura:iteration items="{!v.accountVoteRankOptions.countryOptions}" var="countryItem">                        		
+                        <option text="{!countryItem}" value="{!countryItem}" selected="{!v.newAVR.Country__c == countryItem}" />
+                    </aura:iteration>                    
+                </ui:inputSelect>
+            </lightning:layoutItem>
+            <!-- End Row 1 -->
+            
+            <!-- Row 2 -->
+            <lightning:layoutItem size="6" class="itemPadding" flexibility="auto">	<!-- Column 2 -->
+                <!-- Service -->
+                <label class="slds-form-element__label" for="service">
+                    <abbr class="slds-required" title="required">*</abbr> 
+                    <ui:outputText value="{!v.serviceLabel}" /> 
+                </label>
+                <ui:inputSelect class="slds-select" multiple="false" aura:id="service" value="{!v.newAVR.Service__c}">
+                    <aura:iteration items="{!v.accountVoteRankOptions.serviceOptions}" var="serviceItem">
+                        <option text="{!serviceItem}" value="{!serviceItem}" selected="{!v.newAVR.Service__c == serviceItem}" />
+                    </aura:iteration>
+                </ui:inputSelect>
+            </lightning:layoutItem>
+            
+            <lightning:layoutItem size="6" class="itemPadding" flexibility="auto">	<!-- Column 2 -->
+                <!-- Latest Vote -->
+                <label class="slds-form-element__label" for="latestVote">
+                    <abbr class="slds-required" title="required">*</abbr>
+                    <ui:outputText value="{!v.latestVoteLabel}" /> 
+                </label>
+                <ui:inputSelect class="slds-select" multiple="false" aura:id="latestVote" value="{!v.newAVR.Latest_Vote__c}">
+                    <aura:iteration items="{!v.accountVoteRankOptions.latestVoteOptions}" var="latestVoteItem">
+                        <option text="{!latestVoteItem}" value="{!latestVoteItem}" selected="{!v.newAVR.Latest_Vote__c == latestVoteItem}"  />
+                    </aura:iteration>
+                </ui:inputSelect>
+            </lightning:layoutItem>    
+             <!-- End Row 2 -->
+            
+             <!-- Row 3 -->
+            <lightning:layoutItem size="6" class="itemPadding" flexibility="auto">	<!-- Column 1 -->
+                <!-- Rank -->
+                <label class="slds-form-element__label" for="rank">
+                    <abbr class="slds-required" title="required">*</abbr>
+                    <ui:outputText value="{!v.rankLabel}" /> 
+                </label>
+                <ui:inputSelect class="slds-select" multiple="false" aura:id="rank" value="{!v.newAVR.Rank__c}">
+                    <aura:iteration items="{!v.accountVoteRankOptions.rankOptions}" var="rankItem">
+                        <option text="{!rankItem}" value="{!rankItem}" selected="{!v.newAVR.Rank__c == rankItem}" />
+                    </aura:iteration>
+                </ui:inputSelect>
+            </lightning:layoutItem>
+            
+            <lightning:layoutItem size="6" class="itemPadding" flexibility="auto">	<!-- Column 2 -->
+                <!-- Score -->
+                <label class="slds-form-element__label" for="score">
+                    <ui:outputText value="{!v.scoreLabel}" /> 
+                </label>
+                <ui:inputNumber aura:id="score" class="slds-input" value="{!v.newAVR.Score__c}" />
+            </lightning:layoutItem>
+            <!-- End Row 3 -->
+    
+           <!-- Row 4 -->
+            <lightning:layoutItem size="6" class="itemPadding" flexibility="auto">	<!-- Column 1 -->
+                <!-- Regions -->
+                <label class="slds-form-element__label" for="regions">
+                    <ui:outputText value="{!v.regionsLabel}" /> 
+                </label>
+                <ui:inputSelect multiple="true" class="slds-select selectSize" aura:id="regions" value="{!v.newAVR.Regions__c}">                
+                    <aura:iteration items="{!v.accountVoteRankOptions.regionsOptions}" var="regionsItem">
+                        <option text="{!regionsItem}" value="{!regionsItem}" selected="{!v.newAVR.Regions__c == regionsItem}" class="selectOptionSize"/>
+                    </aura:iteration>
+                </ui:inputSelect>
+            </lightning:layoutItem>
+            
+            <lightning:layoutItem size="6" class="itemPadding" flexibility="auto">	<!-- Column 1 -->
+                <!-- Vote Note -->
+                <label class="slds-form-element__label" for="voteNote">
+                    <ui:outputText value="{!v.voteNoteLabel}" /> 
+                </label>
+                <ui:inputTextArea class="slds-input" aura:id="voteNote" value="{!v.newAVR.Vote_Note__c}" rows="2" />
+            </lightning:layoutItem>     
+            <!--End Row 4 -->
+        </lightning:layout>
+        <!-- End Form - Account Vote Rank -->
+    </div>
+    
+  	<div>
+    	<footer class="slds-modal__footer">
+            <lightning:layout horizontalAlign="end" >
+                <lightning:layoutItem size="4" flexibility="auto" >
+                    <lightning:button label="{!$Label.c.Cancel}" onclick="{!c.cancelButton}" variant="neutral" />
+                    <lightning:button label="{!$Label.c.Save}" onclick="{!c.saveButton}" variant="brand" />
+                </lightning:layoutItem>
+            </lightning:layout>
+        </footer>
+    </div>
+    
+</aura:component>

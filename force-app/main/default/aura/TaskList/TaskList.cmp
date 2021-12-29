@@ -1,0 +1,138 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,force:lightningQuickAction,force:hasRecordId"
+                access="global" controller="TaskListController">
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="tasks" type="Task[]"/>
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="baseURL" type="String"/>
+    <aura:attribute name="parentEvent" type="SObject" default="{ 'sobjectType': 'Event' }" />
+	<aura:attribute name="device" type="String" default="DESKTOP" />
+    
+    <aura:dependency resource="markup://force:navigateToURL" type="EVENT" />
+    <aura:dependency resource="markup://force:navigateToSObject" type="EVENT" /> 
+    <aura:dependency resource="markup://force:navigateToObjectHome" type="EVENT" />
+    
+    
+    <aura:if isTrue="{!$Browser.formFactor == 'DESKTOP'}">
+    <div class="slds-m-top--medium"></div>
+            <div class="slds-form-element__control">
+           		<!--<ui:button aura:id="saveBtn" press="{!c.createTask}" label="New Follow-Up Task"/>-->
+              <!--<ui:button aura:id="followUpButton" press="{!c.createFollowUpReferralTask}" label="New Follow-Up Referral Task"/>-->
+            </div>
+    <div class="slds-m-top--medium"></div>
+    
+     <table class="slds-table slds-max-medium-table_stacked-horizontal slds-table_bordered" role="grid">
+      <thead>
+        <tr class="slds-text-title--caps">
+          <th class="slds-is-sortable slds-is-resizable" scope="col" aria-label="Subject">
+            <span class="slds-truncate" title="Subject">Subject</span>
+          </th>
+          <th class="slds-is-sortable slds-is-resizable" scope="col" aria-label="Type">
+              <span class="slds-truncate" title="Type">Type</span>
+          </th>
+          <th class="slds-is-sortable slds-is-resizable" scope="col" aria-label="Due Date">
+              <span class="slds-truncate" title="Due Date">Due Date</span>
+          </th>
+          <th class="slds-is-sortable slds-is-resizable" scope="col" aria-label="Assigned To">
+              <span class="slds-truncate" title="Assigned To">Assigned To</span>
+          </th>
+          <th class="slds-is-sortable slds-is-resizable" scope="col" aria-label="Status">
+              <span class="slds-truncate" title="Status">Status</span>
+          </th>
+          <th class="slds-is-sortable slds-is-resizable" scope="col" aria-label="">
+              <span class="slds-truncate" title=""></span>
+          </th>
+          
+        </tr>
+      </thead>
+      <tbody>
+         <aura:iteration items="{!v.tasks}" var="obj">
+             <tr class="slds-hint-parent">
+                  <th scope="row" data-label="Subject">
+                    <div class="slds-truncate">
+                    <a href="" id="{!obj.Id}" data-url="{!obj.Id}" onclick="{!c.viewTask}"> {!obj.Subject} </a> 
+                    </div>
+                  </th>
+                  <td role="gridcell" data-label="Type">
+                    <div class="slds-truncate" >{!obj.Type}</div>
+                  </td>
+                  <td role="gridcell" data-label="Due Date">
+                    <div class="slds-truncate" >{!obj.ActivityDate}</div>
+                  </td>
+                  <td role="gridcell" data-label="Assigned To">
+                    <div class="slds-truncate" >{!obj.Owner.Name}</div>
+                  </td> 
+                  <td role="gridcell" data-label="Status">
+                    <div class="slds-truncate" >{!obj.Status}</div>
+                  </td>    
+                 <td role="gridcell" data-label="Site">
+                     <div class="slds-truncate" >
+                         <ui:button class="slds-button--brand"  buttonTitle="{!obj.Id}" aura:id="editItem" press="{!c.editTask}"  label="Edit" />                                                                                          
+                     </div>
+                 </td>
+              </tr>             
+          </aura:iteration>
+       </tbody>
+    
+    </table>
+    <aura:set attribute="else">
+        <lightning:layout class="mobileWidth">
+            <lightning:layoutItem >
+                <lightning:card title="Related Tasks" iconName="custom:custom19">
+                    <table class="slds-table slds-max-medium-table_stacked-horizontal slds-table_bordered" role="grid">
+      <thead>
+        <tr class="slds-text-title--caps">
+          <th class="slds-is-sortable slds-is-resizable" scope="col" aria-label="Subject">
+            <span class="slds-truncate" title="Subject">Subject</span>              
+          </th>
+          <th class="slds-is-sortable slds-is-resizable" scope="col" aria-label="Type">
+              <span class="slds-truncate" title="Type">Type</span>
+          </th>
+          <th class="slds-is-sortable slds-is-resizable" scope="col" aria-label="Due Date">
+              <span class="slds-truncate" title="Due Date">Due Date</span>
+          </th>
+          <th class="slds-is-sortable slds-is-resizable" scope="col" aria-label="Assigned To">
+              <span class="slds-truncate" title="Assigned To">Assigned To</span>
+          </th>
+          <th class="slds-is-sortable slds-is-resizable" scope="col" aria-label="Status">
+              <span class="slds-truncate" title="Status">Status</span>
+          </th>
+          <!--<th class="slds-is-sortable slds-is-resizable" scope="col" aria-label="">
+              <span class="slds-truncate" title=""></span>
+          </th>
+          -->
+        </tr>
+      </thead>
+      <tbody>
+         <aura:iteration items="{!v.tasks}" var="obj">
+             <tr class="slds-hint-parent">
+                  <th scope="row" data-label="Subject">
+                    <div class="slds-truncate">
+                    <a href="" id="{!obj.Id}" data-url="{!obj.Id}" onclick="{!c.viewTask}"> {!obj.Subject} </a> 
+                        <br />                        
+                    </div>
+                  </th>
+                  <td role="gridcell" data-label="Type">
+                    <div class="slds-truncate" >{!obj.Type}</div>
+                  </td>
+                  <td role="gridcell" data-label="Due Date">
+                    <div class="slds-truncate" >{!obj.ActivityDate}</div>
+                  </td>
+                  <td role="gridcell" data-label="Assigned To">
+                    <div class="slds-truncate" >{!obj.Owner.Name}</div>
+                  </td> 
+                  <td role="gridcell" data-label="Status">
+                    <div class="slds-truncate" >{!obj.Status}</div>
+                  </td>                     
+              </tr>             
+          </aura:iteration>
+       </tbody>
+    
+    </table>
+                </lightning:card>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </aura:set>
+  </aura:if>
+     
+    
+</aura:component>

@@ -1,0 +1,157 @@
+<aura:component controller="CvgToolUpdController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    <lightning:navigation aura:id="navService" />
+    <ltng:require scripts="{!$Resource.CoverageHelper}" /> 
+    <aura:attribute name="pageReference" type="Object"/>
+    <!--Attributes-->
+    <aura:attribute name="updateData" type="Object"/> <!-- LightningDynamicTableController.dataWrapper[] -->  
+    <aura:attribute name="CoverageStartDate" type="String" access="global" /> 
+    <aura:attribute name="modifiedCvgData" type="Object" /> <!-- LightningDynamicTableController.dataWrapper[] -->  
+    <aura:attribute name="level" type="String" access="global"/>
+    <aura:attribute name="isButtonEnabled" type="Boolean" default="true"/>
+    <aura:attribute name="selectedRows" type="List" />
+    <aura:attribute name="tableColumn" type="Object[]"/>
+    <aura:attribute name="salesPerson" type="String" default="{!$Label.c.CVGTOOL_SALESPERSON}"/>
+    <aura:attribute name="accountName" type="String" default="{!$Label.c.CVGTOOL_ACCOUNT_NAME}"/>
+    <aura:attribute name="productRegion" type="String" default="{!$Label.c.CVGTOOL_PRODUCT_REGION}"/>
+    <aura:attribute name="product" type="String" default="{!$Label.c.CVGTOOL_PRODUCT}"/>
+    <aura:attribute name="role" type="String" default="{!$Label.c.CVGTOOL_ROLE}"/>
+    <aura:attribute name="newRole" type="String" default="{!$Label.c.CVGTOOL_NEW_ROLE}"/>
+    <aura:attribute name="startDate" type="DateTime" default="{!$Label.c.CVGTOOL_START_DATE}"/>
+    <aura:attribute name="newStartDate" type="DateTime" default="{!$Label.c.CVGTOOL_NEW_START_DATE}"/>
+    <aura:attribute name="roleSelected" type="string" default="Primary" />
+    <aura:attribute name="selectedData" type="Object[]"/>
+    <aura:attribute name="isCommentAccessible" type="String" />
+    <aura:attribute name="guid" type="String" default = ""/>
+    <aura:attribute name="usercomments" type="String" default="{!$Label.c.CVGTOOL_User_Comments}"/>
+    <aura:attribute name="new_comment_label" type="String" default="{!$Label.c.CVGTOOL_NEW_COMMENT}"/>
+    <aura:attribute name="comments" type="String"/>
+    <aura:attribute name="result" type="BulkUploaderCoverageWrapper" access="global"/>
+    <aura:attribute name="status_label" type="String" default="{!$Label.c.CVGTOOL_STATUS}"/>
+    <aura:attribute name="type_label" type="String" default="{!$Label.c.CVGTOOL_Type}"/>
+    <aura:attribute name="attestFlag" type="Boolean" default="false"/>
+    <aura:attribute name="attestation_label" type="String" default="Is Attested?"/>
+    <aura:attribute name="regionMap" type="Map" default="{}"/>
+
+    <!-- HANDLERS -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <aura:method name="doTableDataReset" action="{!c.doTableDataReset}" /> 
+    <aura:method name="tableDataAssignment" action="{!c.tableDataAssignment}" />
+    <aura:method name="showToast" action="{!c.showToast}"> 
+        <aura:attribute name="title" type="String"/> 
+        <aura:attribute name="type" type="String" default="success"/> 
+        <aura:attribute name="message" type="String"  default="This is test message."/>
+        <aura:attribute name="mode" type="String"  default="dismissible"/>
+        <aura:attribute name="key" type="String"/>
+    </aura:method>
+    <aura:method name="showSpinner" action="{!c.showSpinner}" /> 
+    <aura:method name="hideSpinner" action="{!c.hideSpinner}" /> 
+    
+    <div class="slds-docked-form-header" style="bottom: 45px;height:45px;width:100%;">  
+        <!--WIZARD -->
+        <div aura:id="addWizard" style="width: 49%;
+                                        float: left;">
+            <lightning:badge label="{!$Label.c.CVGTOOL_UPDATE_COVERAGE}"  class="custombadgeHeader" title="{!$Label.c.CVGTOOL_UPDATE_COVERAGE}"/>
+        </div>
+        <div style="float: right;right: 1px;">
+            <lightning:button variant="neutral" label="{!$Label.c.CVGTOOL_CANCEL}" iconName="utility:close" onclick="{!c.Cancel}"/>              
+            <lightning:button variant="brand" label="{!$Label.c.CVGTOOL_SAVE}" disabled="{!v.isButtonEnabled}" iconName="utility:save" onclick="{!c.updateCoverage}"/>              
+        </div>
+    </div>
+   
+    <div class="validationNote" style=" background-color: #dddcdc;
+    color: black;
+    padding-left: 6px;
+    clear: both;">
+        <lightning:icon iconName="utility:info" class="note" variant="info" size="xx-small"/>
+        <label class="slds-form-element__label" for="note" style="margin: 4px;">{!$Label.c.CVGTOOL_LABEL_VALIDATION_NOTE_UPDATE}</label>
+    </div>
+    <div class="slds-p-around--medium slds-show" aura:id="filter">
+        <article class="slds-card" style="background-color: #fbfbfb;">
+            <div class="slds-card__body slds-card__body_inner">
+                <div class="slds-form slds-form_compound">
+                    <fieldset class="slds-form-element">
+                        <div class="slds-form-element__group">
+                            <div class="slds-form-element__row">
+                                <div class="slds-form-element slds-size_3-of-6">
+                                    <ui:inputSelect aura:id="roleUpd" multiple="false" label="{!$Label.c.CVGTOOL_ROLE}"  change="{!c.onSelectChange}">
+                                        <ui:inputSelectOption text="{!$Label.c.CVGTOOL_PRIMARY}" label="{!$Label.c.CVGTOOL_PRIMARY}" value="true"/>
+                                        <ui:inputSelectOption text="{!$Label.c.CVGTOOL_SECONDARY}" label="{!$Label.c.CVGTOOL_SECONDARY}"/>   
+                                    </ui:inputSelect>  
+                                </div> 
+                                <div class="slds-form-element slds-size_1-of-6">
+                                    <ui:inputDate aura:id="startDate" label="{!$Label.c.CVGTOOL_START_DATE}" required="false" displayDatePicker="true" value="{!v.CoverageStartDate}"/>
+                                </div>
+
+                                <div class="slds-form-element slds-size_1-of-6" style="margin-top: 5px"> 
+                                        <label class="slds-form-element__label" for="attestCheckbox">{!$Label.c.CVGTOOL_LABEL_AFFIRMATION}</label>
+                                        <div class="slds-form-element">
+                                                <ui:inputCheckbox aura:id="attestCheckbox" change="{!c.onCheck}"/>
+                                        </div>
+                                </div>
+
+                                <aura:renderIf isTrue="{!equals(v.isCommentAccessible,'true:rw')}">
+                                    <div class="slds-form-element slds-size_3-of-12" style="width:31%;">
+                                        <ui:inputTextArea maxlength="255" aura:id="comments" label="{!$Label.c.CVGTOOL_Comment}" value="{!v.comments}" rows="2"/>
+                                    </div> 
+                                    <aura:set attribute="else">
+                                        <div class="slds-form-element" style="margin-top: 27px;">
+                                            <button class="slds-button slds-button_brand" onclick="{!c.ApplySelection}" >
+                                                {!$Label.c.CVGTOOL_APPLY}
+                                                <lightning:icon class="slds-button__icon slds-button__icon_right" aura:id="search" iconName="utility:search" size="x-small" alternativeText="Indicates search"/>
+                                            </button>
+                                        </div>
+                                    </aura:set>
+                                </aura:renderIf>
+                                
+                            </div>
+                        </div>
+                    </fieldset>
+                    <aura:renderIf isTrue="{!equals(v.isCommentAccessible,'true:rw')}">
+                        <fieldset aura:id="buttonSet" class="slds-form-element">
+                            <div class="slds-form-element__group">
+                                <div class="slds-form-element__row">
+                                    <div class="slds-form-element" style="margin-top: -29px;">
+                                        <button class="slds-button slds-button_brand" onclick="{!c.ApplySelection}" >
+                                            {!$Label.c.CVGTOOL_APPLY}
+                                            <lightning:icon class="slds-button__icon slds-button__icon_right" aura:id="search" iconName="utility:search" size="x-small" alternativeText="Indicates search"/>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </aura:renderIf>
+                </div>
+            </div>
+        </article>
+    </div>
+    
+    <div>
+        
+        <div class="slds-table_bordered tableStyle" style="height: 460px;" aura:id="dataTableDivupdate">
+            <lightning:datatable aura:id="productTable"
+                                 data="{!v.modifiedCvgData}"
+                                 columns="{!v.tableColumn}"   
+                                 keyField="Id"
+                                 maxColumnWidth="600"
+                                 sortedBy="clientRG"
+                                 sortedDirection="asc"
+                                 onsort="{!c.updateColumnSorting}"
+                                 onrowselection="{!c.getSelectedId}"                                
+                                 selectedRows="{! v.selectedRows }" 
+                                 />          
+        </div>
+        
+       <!-- <div class="slds-docked-form-footer" style=" bottom: 45px;">  
+            <lightning:button variant="neutral" label="{!$Label.c.CVGTOOL_CANCEL}" iconName="utility:close" onclick="{!c.Cancel}"/>              
+            <lightning:button variant="brand" label="{!$Label.c.CVGTOOL_SAVE}" disabled="{!v.isButtonEnabled}" iconName="utility:save" onclick="{!c.updateCoverage}"/>              
+            
+        </div>   -->
+        <div aura:id="spinnerblock" class="slds-spinner_container slds-hide">
+            <div class="slds-spinner--brand slds-spinner slds-spinner--large" aria-hidden="false" role="alert">
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </div>
+</aura:component>

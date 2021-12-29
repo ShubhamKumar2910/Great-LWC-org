@@ -1,0 +1,96 @@
+<apex:page standardController="Account" lightningStylesheets="true" extensions="Sales_ChampionFullList_Controller" >
+    <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <apex:slds />
+ 
+    
+    <div class="slds-scope">
+        <apex:pageBlock mode="maindetail">
+            <apex:form id="formBlock">
+                <!-- Filter -->
+                <div class="slds-grid slds-p-vertical--small">
+                    <div class="slds-col slds-grid slds-grid--align-end slds-size--2-of-3 slds-p-horizontal--small">
+                        <apex:repeat value="{!strings}" var="string" >
+                            <apex:commandLink action="{!filterRecords}" styleClass="slds-col" reRender="formBlock" value="{!string}" rendered="{!IF(selectedFilter == string, TRUE, FALSE)}" style="color:black; background: #9dceec; font-weight: bold;"> 
+                                <apex:param name="selectedFilter" value="{!string}" assignTo="{!selectedFilter}"/>    
+                            </apex:commandLink>
+                            <apex:commandLink action="{!filterRecords}" styleClass="slds-col" reRender="formBlock" value="{!string}" rendered="{!IF(selectedFilter != string, TRUE, FALSE)}" > 
+                                <apex:param name="selectedFilter" value="{!string}" assignTo="{!selectedFilter}"/>    
+                            </apex:commandLink>
+                            &nbsp; | &nbsp;&nbsp;
+                        </apex:repeat>
+                        <apex:commandLink action="{!filterRecords}" styleClass="slds-col" reRender="formBlock" value="All" rendered="{!IF(selectedFilter == 'All' || selectedFilter == '', TRUE, FALSE)}">
+                            <apex:param value="All" assignTo="{!selectedFilter}"/>
+                        </apex:commandLink>
+                        <apex:commandLink action="{!filterRecords}" styleClass="slds-col" reRender="formBlock" value="All" rendered="{!IF(selectedFilter != 'All' && selectedFilter != '', TRUE, FALSE)}" >
+                            <apex:param value="All" assignTo="{!selectedFilter}"/>
+                        </apex:commandLink>
+                    </div>
+                </div>
+                <!-- Filter -->
+               
+                <!-- Table -->
+                <apex:pageBlockTable styleClass="slds-table slds-table--bordered slds-table--cell-buffer slds-no-row-hover slds-table--fixed-layout" value="{!salesChampionAccount}" var="index" columnsWidth="60%,20%,20%">
+                    
+                    <apex:column styleClass="slds-col slds-p-horizontal--small slds-hint-parent">
+                        <apex:facet name="header">
+                            <apex:commandLink action="{!sortedSalesRecords}" reRender="formBlock" styleClass="slds-p-horizontal--small headerClass" value="{!$Label.Label_Sales_Champion_AccountName} {!IF(sortExpression == 'Account__r.Name', IF(sortDirection == 'ASC','▲','▼'), '' )}">
+                                <apex:param value="Account__r.Name" assignTo="{!sortExpression}" />
+                            </apex:commandLink>                        
+                        </apex:facet>
+                        <a href="#" onClick="javascript:srcUp('/{!index.Account__r.Id}');">{!index.Account__r.Name} </a>
+                    </apex:column>   
+                    
+                    <apex:column styleClass="slds-col slds-p-horizontal--small">
+                        <apex:facet name="header">
+                            <apex:commandLink action="{!sortedSalesRecords}" reRender="formBlock" styleClass="headerClass" value="{!$Label.Label_Sales_Champion_ChampionType} {!IF(sortExpression == 'Champion_Type__c', IF(sortDirection == 'ASC',  '▲','▼'), '')}" >
+                                <apex:param value="Champion_Type__c" assignTo="{!sortExpression}"/>
+                            </apex:commandLink>
+                        </apex:facet>
+                        {!index.Champion_Type__c}
+                    </apex:column>
+                    
+                    <apex:column styleClass="slds-col slds-p-horizontal--small">
+                        <apex:facet name="header">
+                            <apex:commandLink action="{!sortedSalesRecords}" reRender="formBlock" styleClass="headerClass" value="{!$Label.Label_Sales_Champion_Region} {!IF(sortExpression = 'Region__c', IF(sortDirection == 'ASC',  '▲','▼'), '')}">
+                                <apex:param value="Region__c" assignTo="{!sortExpression}" />
+                            </apex:commandLink>
+                        </apex:facet>
+                        {!index.Region__c}
+                    </apex:column>
+                </apex:pageBlockTable>
+                <!-- Table -->
+                
+                
+                <div class="slds-grid slds-p-vertical--small">
+                    <!-- Pagination -->
+                    <div class="slds-col slds-size--1-of-3 slds-p-horizontal--small">
+                        <apex:commandLink action="{!previous}" rendered="{!hasPrevious}" styleClass="slds-text-body--small page-header__info"> 
+                            Previous 
+                        </apex:commandLink>
+                        <apex:outputText rendered="{!hasPrevious}" styleClass="slds-text-body--small page-header__info">
+                            | 
+                        </apex:outputText>
+                        <apex:commandLink action="{!next}" rendered="{!hasNext}" styleClass="slds-text-body--small page-header__info">
+                            Next 
+                        </apex:commandLink>
+                        <apex:outputText rendered="{!hasNext}" styleClass="slds-text-body--small page-header__info">
+                            | 
+                        </apex:outputText>
+                        <apex:outputText styleClass="slds-text-body--small page-header__info">
+                            {!IF((pageNumber * pageSize) > resultSize, resultSize, (pageNumber * pageSize))} / {!resultSize} records
+                        </apex:outputText>
+                    
+                    </div>
+                    <!-- Pagination -->
+                    
+
+                    
+                </div>
+                
+                
+            </apex:form>
+           <div style="clear:both; height:20px;"> </div>
+        </apex:pageBlock>
+    </div>
+    </html>
+</apex:page>

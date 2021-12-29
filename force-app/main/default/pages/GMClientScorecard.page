@@ -1,0 +1,38 @@
+<apex:page standardController="Account" extensions="IsUserOnCoverageOrBMProfileController">
+    <script>
+        function openRMScorecard() {
+            var path = "{!$Setup.NomuraSettings__c.GM_Scorecard_URL__c}rgKey={!Account.Parent.RDM_Org_ID__c}&name={!Account.Parent.Name}&keyType=RG&loggedInUser={!$User.Login_ID__c}&showBudget=false";
+
+            var windowFeatures = "directories=no,height=100,left=100,location=no,menubar=no,resizable=yes,scrollbars=no,status=yes,titlebar=no,toolbar=no,top=100,width=100";
+            
+            var newWindow = window.open(path, '_blank', windowFeatures);
+
+        }
+        function openRGScorecard() {
+            var path = "{!$Setup.NomuraSettings__c.GM_Scorecard_URL__c}rgKey={!Account.RDM_Org_ID__c}&name={!Account.Name}&keyType=RG&loggedInUser={!$User.Login_ID__c}&showBudget=false";
+
+            var windowFeatures = "directories=no,height=100,left=100,location=no,menubar=no,resizable=yes,scrollbars=no,status=yes,titlebar=no,toolbar=no,top=100,width=100";
+            
+            var newWindow = window.open(path, '_blank', windowFeatures);
+
+        }
+        function openRSScorecard() {
+            var path = "{!$Setup.NomuraSettings__c.GM_Scorecard_URL__c}rgKey={!Account.RDM_Org_ID__c}&name={!Account.Name}&keyType=RS&loggedInUser={!$User.Login_ID__c}&showBudget=false";
+
+            var windowFeatures = "directories=no,height=100,left=100,location=no,menubar=no,resizable=yes,scrollbars=no,status=yes,titlebar=no,toolbar=no,top=100,width=100";
+            
+            var newWindow = window.open(path, '_blank', windowFeatures);
+
+        }
+    </script>
+    <apex:outputPanel styleClass=".DesktopFrameCommon.css" style="font-size:90%" rendered="{!IF(AND(Account.RecordType.Name == 'RM Account',CoveringOrIsBM), TRUE, FALSE)}">
+             <apex:outputLink onclick="openRMScorecard();" value="javascript&colon;;" title="gm client group scorecard">{!$Label.Account_GM_Client_Group_Scorecard} »</apex:outputLink>
+    </apex:outputPanel>
+    <apex:outputPanel styleClass=".DesktopFrameCommon.css" style="font-size:90%" rendered="{!IF(AND(Account.RecordType.Name == 'RG Account',CoveringOrIsBM), TRUE, FALSE)}">
+             <apex:outputLink onclick="openRGScorecard();" value="javascript&colon;;" title="gm client group scorecard">{!$Label.Account_GM_Client_Group_Scorecard} »</apex:outputLink>
+    </apex:outputPanel>
+    <apex:outputPanel styleClass=".DesktopFrameCommon.css" style="font-size:90%" rendered="{!IF(AND(Account.RecordType.Name == 'RS Account',OR($Profile.Name == 'Nomura - Business Management',$Profile.Name == 'Nomura - Compliance',$Profile.Name == 'Nomura - Production Services',$Profile.Name == 'System Administrator',$Profile.Name == 'Nomura - Integration')), TRUE, FALSE)}">
+             <apex:outputLink onclick="openRSScorecard();" value="javascript&colon;;" title="gm super group scorecard">{!$Label.Account_GM_Super_Group_Scorecard} »</apex:outputLink>
+    </apex:outputPanel>
+    
+</apex:page>

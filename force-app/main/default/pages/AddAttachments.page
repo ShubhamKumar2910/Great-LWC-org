@@ -1,0 +1,37 @@
+<apex:page controller="AttachmentUploadController" showHeader="false" > 
+    
+    <apex:form enctype="multipart/form-data">
+        <apex:pageMessages />
+        <apex:pageBlock mode="maindetail" >
+            <apex:pageBlockSection showHeader="false" columns="4" id="block1">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="File" for="file"/>
+                    <apex:inputFile value="{!attachment.body}" filename="{!attachment.name}" id="file"/>
+                </apex:pageBlockSectionItem>       
+                <apex:commandButton action="{!upload}" value="{!$Label.Event_Custom_Add_Attachments}"/>            
+            </apex:pageBlockSection>   
+            <apex:pageBlockTable styleClass=".DesktopFrameCommon.css"   value="{!Attachments}" var="index">  
+                <apex:column value="{!index.Name}"/>
+                <apex:column headerValue="{!$Label.Attachments_Size}" value="{!index.BodyLength}"/>               
+                <apex:column value="{!index.LastModifiedDate}"/>
+            </apex:pageBlockTable> 
+            <!-- disable to save some sapce
+            <apex:outputText styleClass=".DesktopFrameCommon.css" >                     
+                    {!resultSize} records
+            </apex:outputText>
+			-->
+            <!-- disable the paging , just use scrollbar for now
+            <apex:panelGrid styleClass=".DesktopFrameCommon.css"   columns="8">
+                <apex:commandLink action="{!previous}" rendered="{!(HasPrevious)}">Previous </apex:commandLink>
+                <apex:outputText rendered="{!(HasPrevious)}">|</apex:outputText> 
+                <apex:commandLink action="{!next}" rendered="{!(HasNext)}">Next</apex:commandLink>
+                <apex:outputText rendered="{!(HasNext)}">|</apex:outputText>
+                <apex:outputText styleClass=".DesktopFrameCommon.css" >                     
+                    {!IF((pageNumber * pageSize) > resultSize, resultSize,(pageNumber * pageSize))} 
+                    / {!resultSize} records
+                </apex:outputText>
+            </apex:panelGrid>
+			-->
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

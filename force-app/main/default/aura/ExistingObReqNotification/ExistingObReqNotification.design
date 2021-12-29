@@ -1,0 +1,3 @@
+<design:component>
+    <design:attribute name="rmAccountName" label="RM Account Name" description="Name of the selected RM" />
+</design:component>

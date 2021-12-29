@@ -1,0 +1,162 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,lightning:isUrlAddressable" access="global" controller="BulkApprovalController">
+	<aura:handler name="init" value="{!this}" action="{!c.init}"/>
+
+	<lightning:navigation aura:id="navigationService"/>
+    <aura:attribute name="showCoverageRequestTab" type="Boolean" default="true" />
+    <aura:attribute name="showETradingRequestTab" type="Boolean" default="true" />
+    <aura:attribute name="showCrossSellRequestTab" type="Boolean" default="true" />
+    <aura:attribute name="showBackButton" type="Boolean" default="false" />
+    <aura:attribute name="pageReference" type="Object"/>
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+    <aura:attribute name="isApproval" type="String" default="true" />
+    <aura:attribute name="approvalList" type="Object[]" />
+    <aura:attribute name="selectAllCheckboxValue" type="Boolean" default="false" />
+    <aura:attribute name="HeaderText" type="String" />
+    <aura:attribute name="showApprovalButtons" type="Boolean" default="false" />
+    <aura:attribute name="showSalesButton" type="Boolean" default="false"/>
+    <aura:attribute name="ApprovalRequest" type="String" default="{!$Label.c.ApprovalRequest}"/>
+    <aura:attribute name="CreatedDate" type="DateTime" default="{!$Label.c.SubmittedDate}"/>
+    <aura:attribute name="RequestedFor" type="String" default="{!$Label.c.RequestedFor}"/>
+    <aura:attribute name="RequestedBy" type="String" default="{!$Label.c.RequestedBy}"/>
+    <aura:attribute name="AccountName" type="String" default="{!$Label.c.Account}"/>
+    <aura:attribute name="Product" type="String" default="{!$Label.c.Product}"/>
+    <aura:attribute name="ProductRegion" type="String" default="{!$Label.c.ProductRegion}"/>
+    <aura:attribute name="RequestType" type="String" default="{!$Label.c.RequestType}"/>
+    <aura:attribute name="Role" type="String" default="{!$Label.c.CVGTOOL_LABEL_ROLE}"/>
+    <aura:attribute name="Approvers" type="String" default="{!$Label.c.APPROVAL_APPROVERS}"/>
+    <aura:attribute name="FromDate" type="String" default="{!$Label.c.CVGTOOL_FROM_DATE}"/>
+    <aura:attribute name="tableColumn" type="Object[]"/>
+    <aura:attribute name="IDList" type="String[]"/>
+    <aura:attribute name="RGIDList" type="String" default = "" />
+	<aura:attribute name="scode" type="String" default = "" />
+	<aura:attribute name="type_label" type="String" default="{!$Label.c.CVGTOOL_Type}"/>
+    <!--Added for JIRA 3422-->
+    <aura:attribute name="FromLink" type="String" default=""/>
+    
+    <aura:method name="showToast" action="{!c.showToast}"> 
+        <aura:attribute name="title" type="String"/> 
+        <aura:attribute name="type" type="String" default="success"/> 
+        <aura:attribute name="message" type="String"  default="This is test message."/>
+        <aura:attribute name="mode" type="String"  default="dismissible"/>
+        <aura:attribute name="key" type="String"/>
+    </aura:method>
+    
+    <aura:method name="getSelectedApprovals" action="{!c.getSelectedApprovals}">
+        <aura:attribute name="selecteditems" type="Object"/> 
+    </aura:method>
+    
+    <aura:method name="setDataTableCheckboxValues" action="{!c.setDataTableCheckboxValues}">
+        <aura:attribute name="headerCheckboxValue" type="Boolean" />
+    </aura:method>
+    
+    <aura:method name="loadBulkCoverage" action="{!c.reInit}" /> 
+    <aura:method name="showSpinner" action="{!c.showSpinner}" /> 
+    <aura:method name="hideSpinner" action="{!c.hideSpinner}" /> 
+    
+	<aura:attribute name="tabId" type="String" default="coverageTab"/>
+	<aura:attribute name="displayETradingNoCoverageList" type="Boolean"/>
+	<aura:attribute name="displayETradingApprovalList" type="Boolean"/>
+	<aura:attribute name="eTradingNoCoverageList" type="Object[]"/>
+	<aura:attribute name="eTradingApprovalList" type="Object[]"/>
+	<aura:attribute name="eTradingNoCoverageListSortedBy" type="String" default="createdDate"/>
+	<aura:attribute name="eTradingApprovalListSortedBy" type="String" default="createdDate"/>
+	<aura:attribute name="eTradingNoCoverageListSortedDirection" type="Boolean" default="true"/>
+	<aura:attribute name="eTradingApprovalListSortedDirection" type="Boolean" default="true"/>
+	<aura:attribute name="eTradingNoCoverageTableColumns" type="Object[]"/>
+    <aura:attribute name="eTradingTableColumns" type="Object[]"/>
+	<aura:attribute name="eTradingSelectedIds" type="String[]"/>
+	<aura:attribute name="eTradingSelectedView" type="String"/>
+	<aura:attribute name="eTradingOptions" type="List" default="[]"/>
+
+    <!--Added for JIRA SALES 1588 -->
+    <aura:attribute name="opptapprovalList" type="Object[]" />
+    <aura:attribute name="oppttableColumn" type="Object[]"/>
+    <aura:attribute name="UserId" type="String" default=""/>
+    <aura:attribute name="selectedOppIDList" type="String[]"/>
+    <aura:attribute name="show" type="boolean" default="false"/>
+    <aura:attribute name="RejectComments" type="String" default=""/>
+    <aura:attribute name="ShowCrossSellApproval" type="String" default="{!$Label.c.ShowCrossSellTab}"/>
+    
+	<lightning:spinner aura:id="spinner" variant="brand" size="large" class="slds-hide"/>
+    
+	<div class="verticalHeader" style="background-color:rgb(91, 100, 138);color: #FFF;padding:6px;">
+		<section class="slds-clearfix">
+			<div class="slds-float--left ">
+				<lightning:icon aura:id="articleOne" iconName="utility:tabset" size="x-small" alternativeText="Indicates dash"/>
+			</div>
+			
+			<div class="slds-m-left--large">
+				<ui:outputText value="{!v.HeaderText}" />
+			</div>   
+			
+		</section>
+	</div>
+
+    <lightning:tabset aura:id="tabs">
+    	<aura:If isTrue="{!v.showCoverageRequestTab}">
+    		<lightning:tab onactive="{!c.coverageRequestsSelected}" id="coverageTab">
+    		<aura:set attribute="label">
+	   			Coverage Requests
+	   		</aura:set>
+                
+            <!-- SALES-4136 --> 
+            <ul class="slds-has-dividers_around-space">
+                <div class="slds-m-bottom_x-small slds-m-left_small">
+                	<lightning:icon class="" size="small" iconName="standard:queue"/> = Primary role
+                </div>
+                <aura:iteration items = "{!v.approvalList}" var="request">
+                    <li class="slds-item">
+                      <article class="slds-tile slds-tile_board">
+                          <lightning:input type="checkbox" checked="false" class="slds-m-bottom_xx-small" value="{!request.processInstanceWorkItemID}" onchange="{!c.handleCovCBSelection}" />
+                            <p/>
+                          <h3 class="slds-tile__title slds-truncate" title="{!request.RequestedFor}">
+                              {!request.RequestedFor}
+                              <aura:if isTrue="{!request.Role == 'Primary'}">
+                                <lightning:icon class="slds-m-left_x-small" size="x-small" iconName="standard:queue"/>
+                              </aura:if>                            
+                          </h3>
+                          <div class="slds-tile__detail">                        
+                              <dl class="slds-list_horizontal slds-wrap">
+                                  <dt class="slds-item_label slds-text-color_weak" title="Account">{!$Label.c.AccountMobile}:</dt>
+                                  <dd class="slds-item_detail" title="Account">{!request.AccountName}</dd>
+                                  <dt class="slds-item_label slds-text-color_weak" title="Product">{!$Label.c.ProductMobile}:</dt>
+                                  <dd class="slds-item_detail" title="Product">{!request.Product}</dd>
+                                  <dt class="slds-item_label slds-text-color_weak" title="Product Region">{!$Label.c.ProductRegionMobile}:</dt>
+                                  <dd class="slds-item_detail " title="Product Region">{!request.ProductRegion}</dd>
+                                  <dt class="slds-item_label slds-text-color_weak" title="From Date">{!$Label.c.FromDateMobile}:</dt>
+                                  <dd class="slds-item_detail" title="From Date">{!request.FromDate}</dd>
+                                  <dt class="slds-item_label slds-text-color_weak" title="Request Type">{!$Label.c.RequestTypeMobile}:</dt>
+                                  <dd class="slds-item_detail" title="Approvers">{!request.RequestType}</dd>                              
+                                  <!--dt class="slds-item_label slds-text-color_weak" title="Approvers">{!$Label.c.APPROVAL_APPROVERSMobile}:</dt>
+                                  <dd class="slds-item_detail" title="Approvers">{!request.Approvers}</dd-->
+                                  <dt class="slds-item_label slds-text-color_weak" title="Requested By">{!$Label.c.RequestedByMobile}:</dt>
+                                  <dd class="slds-item_detail" title="Requested By">{!request.RequestedBy}</dd>
+                              </dl>
+                          </div>
+                      </article>
+                	</li>
+                </aura:iteration>
+            </ul>
+		    
+		    <div class="slds-docked-form-footer">  
+		        <aura:if isTrue="{!v.showApprovalButtons}">
+		            <lightning:button variant="brand"  label="{!$Label.c.ButtonApprove}" iconName="utility:approval"   onclick="{!c.ApproveSelectedRequests}"/>        
+		            <lightning:button variant="destructive" label="{!$Label.c.ButtonReject}" name="reject" iconName="action:reject" onclick="{!c.RejectSelectedRequests}"/>
+		        </aura:if>
+		        
+		        <aura:if isTrue="{!v.showSalesButton}">
+		            <lightning:button variant="destructive"  label="{!$Label.c.Cancel_Requests}" name="cancel" iconName="action:reject"  onclick="{!c.RejectSelectedRequests}"/>        
+		        </aura:if>
+		    </div>
+		    
+		    <div aura:id="spinnerblock" class="slds-spinner_container slds-hide">
+		        <div class="slds-spinner_brand slds-spinner slds-spinner_large" aria-hidden="false" role="alert">
+		            <div class="slds-spinner__dot-a"></div>
+		            <div class="slds-spinner__dot-b"></div>
+		        </div>
+		    </div>
+    	</lightning:tab>
+    	</aura:If>
+        
+    </lightning:tabset>    
+</aura:component>

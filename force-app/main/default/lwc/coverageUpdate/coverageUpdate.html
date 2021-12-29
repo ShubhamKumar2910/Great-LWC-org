@@ -1,0 +1,64 @@
+<template>
+    <!--Spinner-->
+    <lightning-spinner alternative-text="Loading" size="large" variant="brand" class="slds-hide" data-field="spinner">
+    </lightning-spinner>
+
+    <!--Filter Panel-->
+    <div class="slds-box slds-theme_default"
+        style="float: right; width: 250px;height:500px; margin-bottom:50px; margin-left:10px;">
+        <div class="slds-m-bottom_x-small">
+            <lightning-button label={applyBtnLabel} title={applyBtnLabel} icon-name="utility:check" variant="brand" onclick={handleApply}>
+            </lightning-button>
+        </div>
+    
+        <div>
+            <lightning-combobox label={roleLabel} value={roleValue} placeholder={pleaseSelectPlaceholder} options={roleValues}
+                onchange={handleRoleChange}>
+            </lightning-combobox>
+        </div>
+        <div>
+            <lightning-input type="date" label={startDateLabel} value={coverageStartDate} onchange={handleStartDateChange}>
+            </lightning-input>
+        </div>
+        <template if:false={isCvgGroupByPOD}>
+            <template if:true={showAttestation}>
+                <div>
+                    <br />
+                    <lightning-input type="checkbox" label={attestPrimaryCvgLabel} name="attest_primary_coverage"
+                        checked={attestPrimaryCoverage_checkStatus} onchange={handleAttestPriCovChange}>
+                    </lightning-input>
+                </div>
+            </template>
+        </template>
+    </div>
+
+    <!--Header-->
+    <div style="overflow: hidden;">
+        <lightning-card variant="narrow" icon-name="standard:record_update">
+            <h1 slot="title">{updateCvgLabel}</h1>
+            <div slot="actions">
+                <lightning-button label={cancelLabel} title={cancelLabel} icon-name="utility:close" variant="Neutral"
+                    onclick={handleCancel}>
+                </lightning-button>
+                <lightning-button label={saveLabel} title={saveLabel} icon-name="utility:save" variant="brand" 
+                    disabled={saveBtnDisable} class="slds-m-left_xx-small" onclick={handleSave}>
+                </lightning-button>
+            </div>
+        </lightning-card>
+    </div>
+
+    <!--Datatable-->
+    <div class="slds-m-bottom_xx-large" style="height:450px; overflow: hidden;" data-field="datatable">
+        <lightning-datatable 
+            key-field="Id" 
+            data={data} 
+            columns={columns} 
+            selected-rows={selectedRows} 
+            sorted-by={sortBy}
+            sorted-direction={sortDirection} 
+            onsort={doSorting} 
+            onrowselection={getSelectedRowData}>
+        </lightning-datatable>
+    </div>
+    <div style="clear:both;"></div>
+</template>

@@ -1,0 +1,33 @@
+.menuItem
+{
+    color:white;    
+}
+
+.menuItem:hover
+{
+    background-color: rgba(0, 68, 135, 1);
+}
+
+.button-text
+{
+    justify-content:left; 
+    white-space: nowrap;
+}
+
+.dropdown-bg
+{
+    background-color: rgba(27, 82, 151, 0.0); 
+    border-color: rgba(27, 82, 151, 0.0);
+}
+
+.header-text
+{
+    text-align:left;
+    font-weight: bold;
+}
+
+.default-cursor
+{
+    cursor: default;
+    pointer-events: none;
+}

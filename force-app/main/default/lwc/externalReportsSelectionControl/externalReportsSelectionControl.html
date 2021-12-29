@@ -1,0 +1,23 @@
+<template>
+    <lightning-combobox 
+        name="systemType"
+        label="Reporting Tool"
+        value={systemSearchValue}
+        placeholder="Reporting Tool"
+        options={systemNames}
+        onchange={handleChangeInSystem} >
+    </lightning-combobox>
+    <lightning-dual-listbox name="externalReports"
+                            label="Select Reports"
+                            field-level-help="select external reports to assign to user"
+                            source-label="Available"
+                            selected-label="Assigned"
+                            options={availableReports}
+                            value={assignedReports}
+                            onchange={handleListboxChange}>
+    </lightning-dual-listbox>
+    <template if:true={selectedOptionList}>
+        <lightning-button variant="brand" label="Save" title="Save Changes" onclick={handleSaveClick} class="slds-m-left_x-small"></lightning-button>
+        <lightning-button variant="brand-outline" label="Cancel" title="Cancel Changes" onclick={handleCancelClick} class="slds-m-left_x-small"></lightning-button>
+    </template>
+</template>

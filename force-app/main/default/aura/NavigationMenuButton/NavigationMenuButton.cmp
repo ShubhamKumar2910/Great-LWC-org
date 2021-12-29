@@ -1,0 +1,35 @@
+<aura:component >
+    <aura:attribute name="label" type="String" description="label for button" access="global" />
+    <aura:attribute name="menuURL" type="String" description="URL to be called on click of Menu Button" access="global" />
+    <aura:attribute name="items" type="string[]" description="Item Values to be displayed" access="global"/>
+    <aura:attribute name="itemIcons" type="string[]"  description="Item Values to be displayed" access="global"/>
+    <aura:attribute name="iconName" type="String" description="Icon to be displayed" access="global"/>
+    <aura:attribute name="iconposition" default="left" type="String" description="Icon to be displayed" access="global"/>
+    
+    <aura:method name="togglePopUp" action="{!c.togglePopUp}"> 
+        <aura:attribute name="buttonObject" type="Object"/> 
+    </aura:method>
+    
+    <div>
+        <div class="slds-button-group" role="group"> 
+            <lightning:button onclick="{!c.onMenuSelection}" variant="brand" label="{!v.label}" iconName="{!v.iconName}" iconposition="{!iconposition}"  value="{!v.menuURL}" class=""/>
+        	<div aura:id="homeAction" class="slds-dropdown-trigger slds-dropdown-trigger_click slds-button_last">
+                <button  onclick="{!c.onButtonClick}" onblur="{!c.toggleVisibility}" class="slds-button slds-button_icon slds-button_icon-border-filled" aria-haspopup="true" title="Show More" style="background-color: rgba(27, 82, 151, 1.0); border-color: rgba(27, 82, 151, 1.0);">
+                    <lightning:icon iconName="utility:down" size="x-small" alternativeText="Indicates approval"/>
+                </button>
+                <div class="slds-dropdown slds-dropdown_left" style="background-color: rgba(27, 82, 151, 1.0); border-color: rgba(27, 82, 151, 1.0);">
+                    <ul class="slds-dropdown__list" role="menu">
+                        <aura:iteration items="{!v.items}" var="items" indexVar="i">
+                            <li class="slds-dropdown__item"  role="presentation" >
+                                <a href="javascript:void(0);" style="color:white;" onclick="{!c.handleSelection}" data-index="{!i}" data-value="{!items}" role="menuitem" tabindex="{!i}">
+                                   <span class="slds-truncate" title="{!items}">{!items}</span>
+                                </a>
+                            </li>
+                        </aura:iteration>
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</aura:component>

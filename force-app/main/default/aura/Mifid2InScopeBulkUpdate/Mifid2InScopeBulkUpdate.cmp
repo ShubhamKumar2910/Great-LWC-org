@@ -1,0 +1,424 @@
+<aura:component controller="ContactMifid2InScopeBulkSetController" access="global" implements="force:appHostable,flexipage:availableForAllPageTypes">
+    
+    <aura:attribute name="AmericaInvestorOptions" type="List" />
+    <aura:attribute name="AEJInvestorOptions" type="List" />
+    <aura:attribute name="EMEAInvestorOptions" type="List" />
+    <aura:attribute name="JapanInvestorOptions" type="List" />
+    <aura:attribute name="mifidIIInScope" type="Boolean" default="false"/>
+    <aura:attribute name="success" type="String" default="Success"/>
+    <aura:attribute name="emailAddressInput" type="String" default="" />
+    <aura:attribute name="selectedSalesCommentary" type="String" />
+    <aura:attribute name="selectedScope" type="String" />
+    <aura:attribute name="selectedServiceType" type="String" default=""/>
+    <aura:attribute name="selectedLanguage" type="String" default=""/>
+    <aura:attribute name="selectedGRPAccess" type="String" default="" />
+    <aura:attribute name="selectedQDIIAccess" type="String" default=""/>
+    <aura:attribute name="selectedRegion" type="String" default="" />
+    <aura:attribute name="updateSponsor" type="Boolean" default="false" />
+    <aura:attribute name="setSponsor" type="String" default="" />
+    <aura:attribute name="setSponsorEmail" type="String" default="" />
+    <aura:attribute name="selectedInvestorType" type="String" default="" />
+    <aura:attribute name="productSubscriptions" type="Object[]" default="[]"/>
+    <aura:attribute name="showSpinner" type="Boolean" default="false"/>
+    <aura:attribute name="showResults" type="Boolean" default="false"/>
+    <aura:attribute name="disabledSalesCommentary" type="Boolean" default="true"/>
+    <aura:attribute name="disabledServiceType" type="Boolean" default="true" />
+    <aura:attribute name="selectedSubscriptions" type="String[]" />
+    <aura:attribute name="productsToAddItems" type="String[]" />
+    <aura:attribute name="productsToRemoveItems" type="String[]" />
+    <aura:attribute name="mySelectedItemsToRemove" type="String[]" />
+    <aura:attribute name="batchSize" type="Integer"
+                    default="{!$Label.c.MiFID_II_Bulk_Update_Default_Batch_Size}"/>
+    <aura:attribute name="maxBatchSize" default="" type="Integer"/>
+    <aura:attribute name="selectedLookupId" type="STRING" access="global"/>
+    <aura:attribute name="successfullResults" type="Mifid2BulkUpdateResultsWrapper[]" />
+    <aura:attribute name="errorResults" type="Mifid2BulkUpdateResultsWrapper[]" />
+    
+    
+    
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    
+    <div class="slds-section slds-is-open">
+        <h3 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate slds-p-horizontal_small" title="Section Title">
+                <ui:outputText value="{!$Label.c.MiFID_II_Bulk_Update_Title}" />
+            </span>
+        </h3>
+        
+    </div>
+    <div class="c-container">
+        <lightning:layout horizontalAlign="space">
+            <lightning:layoutItem flexibility="auto" padding="around-small">
+                <ui:message title="Information" severity="info" closable="false">
+                    <ui:outputText value="{!$Label.c.MiFID_II_Bulk_Update_Note}" />
+                </ui:message>
+                <br/>
+                <ui:outputText value="{!$Label.c.Email_Addresses}" class="bold"/>
+                <lightning:textarea aura:id="emailAddressInputArea" name="emailAddressInputArea" value="{!v.emailAddressInput}" label="" maxlength="32000"  />
+                <br/>
+                <ui:outputText value="{!$Label.c.MiFID_II_Bulk_Update_In_Scope}" class="bold"/>
+                
+                <lightning:select aura:id="inScope" name="selectItem" label="" onchange="{!c.mifidScopeChanged}" value="{!v.selectedScope}">
+                    <option value="No Change">--Please Select--</option>
+                    <option value="In Scope">In Scope</option>
+                    <option value="Out Of Scope">Out Of Scope</option>
+                </lightning:select>
+                <br/>
+                <ui:outputText value="{!$Label.c.MiFID_II_Sales_Commentary_Allowed}" class="bold"/>
+                
+                <lightning:select aura:id="salesCommentary" name="selectItem" label="" onchange="{!c.onSalesCommentaryChange}" value="{!v.selectedSalesCommentary}" disabled="{!v.disabledSalesCommentary}">
+                    <aura:if isTrue="{!v.disabledSalesCommentary == true}">
+                        <option value="No Change">No Change</option>
+                        <aura:set attribute="else">
+                            <aura:if isTrue="{!v.selectedScope == 'Out Of Scope'}">
+                                <option value="--None--">--None--</option>
+                                <aura:set attribute="else">
+                                    <option value="Allowed">Allowed</option>
+                                    <option value="Not Allowed">Not Allowed</option>
+                                </aura:set>
+                            </aura:if>
+                        </aura:set>
+                    </aura:if> 
+                </lightning:select> 
+                <br/>       
+                <aura:if isTrue="{!v.selectedScope == 'In Scope'}">
+                    <div style="display:inline">
+                        <ui:outputText value="{!$Label.c.MiFID_II_Product_Subscriptions}" class="bold"/>&nbsp;
+                        <lightning:helptext iconName="utility:info" style="fill:black !important;bottom: .18em;" content="{!$Label.c.Multiselect_Info}" size="x-small" class="slds-icon-text-default" />
+                    </div>
+                    <div class="slds-form-element">
+                        <!--<label class="slds-form-element__label" for="my-multi-select">Product Subscriptions To Add (Please hold down SHIFT to select multiple items)</label>-->
+                        <div class="slds-form-element__control" style="display:inline"> 
+                            <c:SelectMultiple aura:id="my-multi-select" options="{!v.productSubscriptions}" selectChange="{!c.handleSelectChangeEvent}" selectedItems="{!v.selectedSubscriptions}" />
+                        </div>
+                    </div>
+                    <br/>
+                    <aura:set attribute="else">
+                        <div></div>
+                    </aura:set>
+                </aura:if>
+                
+                <aura:if isTrue="{!v.selectedScope == 'Out Of Scope'}">
+                    <ui:message title="Warning" severity="warning" closable="false">
+                        <ui:outputText value="{!$Label.c.Out_of_scope_information}" />
+                    </ui:message>
+                </aura:if>
+                <ui:outputText value="{!$Label.c.Service_Type}" class="bold"/>
+                <lightning:select aura:id="serviceType" name="serviceType" label="" onchange="{!c.serviceTypeChanged}" value="{!v.selectedServiceType}" disabled="{!v.disabledServiceType}">
+                    
+                    <aura:if isTrue="{!v.selectedScope == 'Out Of Scope' || v.selectedScope == 'No Change'}">
+                        <option value="No Change">--None--</option>
+                        <aura:set attribute="else">
+                            <option value="No Change">Please select</option>
+                            <option value="Full Service">Full Service</option>
+                            <option value="Report Only">Report Only</option>
+                            <option value="FI Full Service / EQ Report Only">FI Full Service / EQ Report Only</option>
+                            <option value="EQ Full Service / FI Report Only">EQ Full Service / FI Report Only</option>
+                        </aura:set>
+                    </aura:if>       
+                    
+                </lightning:select>
+                
+                <br/>
+
+                <ui:outputText value="{!$Label.c.QDII_Oath_Label}" class="bold"/>
+                <lightning:select aura:id="qdiiAccess" name="qdiiAccess" label="" value="{!v.selectedQDIIAccess}">
+                    <option value="No Change">--Please Select--</option>
+                    <option value="True">True</option>
+                    <option value="False">False</option>
+                </lightning:select>
+                <br/>
+
+                <ui:outputText value="{!$Label.c.GRP_Portal_Access}" class="bold" />
+                <br/>              
+                <lightning:select aura:id="grpAccess" name="selectItemgrpAccess" label="" onchange="{!c.grpAccessChanged}" value="{!v.selectedGRPAccess}">
+                    <option value="No Change">--Please Select--</option>
+                    <option value="Enable">Enable GRP and FI Portal Access</option>
+                    <option value="Disable">Disable GRP and FI Portal Access</option>
+                </lightning:select>
+                
+                <br/>
+                <aura:if isTrue="{!v.selectedGRPAccess == 'Enable'}">
+                    <ui:outputText value="{!$Label.c.Region}" class="bold"/>
+                    <lightning:select aura:id="region" name="selectItemregion" label="" onchange="{!c.regionChanged}" value="{!v.selectedRegion}">
+                        <option value="--None--" selected="true">--Please Select--</option>
+                        <option value="Americas">Americas</option>
+                        <option value="AEJ">AEJ</option>
+                        <option value="EMEA">EMEA</option>
+                        <option value="Japan">Japan</option>
+                    </lightning:select>
+                    <br/>
+                    <ui:outputText value="{!$Label.c.Investor_Type}" class="bold"/>
+                    <lightning:select aura:id="investor" name="selectIteminvestor" label="" onchange="{!c.investorTypeChanged}" value="{!v.selectedInvestorType}" disabled="{!v.selectedRegion == '--None--'}">
+                        <aura:if isTrue="{!v.selectedRegion == 'Americas'}">
+                            <aura:iteration items="{!v.AmericaInvestorOptions}" var="item">
+                                <option text="{!item.label}" value="{!item.value}" selected="{!item.selected}"/>
+                            </aura:iteration>
+                        </aura:if>
+                        <aura:if isTrue="{!v.selectedRegion == 'AEJ'}">
+                            <aura:iteration items="{!v.AEJInvestorOptions}" var="item">
+                                <option text="{!item.label}" value="{!item.value}" selected="{!item.selected}"/>
+                            </aura:iteration>
+                        </aura:if>
+                        <aura:if isTrue="{!v.selectedRegion == 'EMEA'}">
+                            <aura:iteration items="{!v.EMEAInvestorOptions}" var="item">
+                                <option text="{!item.label}" value="{!item.value}" selected="{!item.selected}"/>
+                            </aura:iteration>
+                        </aura:if>
+                        <aura:if isTrue="{!v.selectedRegion == 'Japan'}">
+                            <aura:iteration items="{!v.JapanInvestorOptions}" var="item">
+                                <option text="{!item.label}" value="{!item.value}" selected="{!item.selected}"/>
+                            </aura:iteration>
+                        </aura:if>
+                    </lightning:select>
+                    <br/>
+                    
+                    <ui:outputText value="{!$Label.c.Preferred_Language}" class="bold"/>
+                    <lightning:select aura:id="language" name="selectLanguage" label="" onchange="{!c.preferredLanguageChanged}" value="{!v.selectedLanguage}">
+                        <option value="No Change">--Please Select--</option>
+                        <option value="English">English</option>
+                        <option value="Japanese">Japanese</option>
+                    </lightning:select>
+                    <br/>
+                    
+                    
+                    
+                    
+                    <ui:outputText value="{!$Label.c.Update_Sponsor}" class="bold"/>
+                    <div style="padding-top:10px;">
+                        <lightning:input aura:id="updateSponsor" name="updateSponsor" type="checkbox" checked="{!v.updateSponsor}"  />
+                    </div>
+                    <br/>
+                    
+                    <aura:if isTrue="{!v.updateSponsor}">
+                        <c:SingleLookup aura:id="lookup-contact" allRecords="true" sObjectAPIName="User" 
+                                        charLimit="2" label="Sales Person Lookup For Sponsor" pluralLabel="Sales Persons"
+                                        showNomuraEmployee="true" listIconSVGPath="standard:contact" 
+                                        listIconClass="slds-icon-standard-contact" itemChange="{!c.doApplySponsor}" />
+                        
+                        <ui:outputText value="{!$Label.c.Sponsor}" class="bold"/>
+                        <lightning:input name="setSponsor" value="{!v.setSponsor}" />
+                        <br/>
+                        
+                        <ui:outputText value="{!$Label.c.Sponsor_Email}" class="bold"/>
+                        <lightning:input name="setSponsorEmail" value="{!v.setSponsorEmail}" />
+                        <br/> 
+                    </aura:if>
+                    
+                    
+                    
+                    <aura:set attribute="else">
+                        <div></div>
+                    </aura:set>
+                    
+                </aura:if>
+                
+                
+                
+                <lightning:button variant="brand" label="Bulk Update" iconName="action:update_status" iconPosition="left" onclick="{!c.bulkUpdate}" disabled="{!v.emailAddressInput.length == 0}"/>
+                
+                <br/><br/>
+            </lightning:layoutItem>
+            
+            <lightning:layoutItem flexibility="auto" padding="around-small">
+                <!--<lightning:slider max="{!v.maxBatchSize}" step="1" min="1" value="{!v.batchSize}" onchange="{!c.handleRangeChange}" size="small" label="Batch Size"/> -->
+                <lightning:input type="number" name="number" label="Batch Size" value="{!v.batchSize}" max="{!v.maxBatchSize}" min="1"/>
+                
+            </lightning:layoutItem>
+        </lightning:layout>
+        
+        <br/>
+        <aura:if isTrue="{!v.showSpinner}">
+            <lightning:layout horizontalAlign="space">
+                <div class="" style="height: 6rem; margin-top: 40%;">
+                    <lightning:spinner aura:id="spinner" variant="brand"/>
+                </div>
+            </lightning:layout>
+            <aura:set attribute="else">
+                
+                <aura:if isTrue="{!v.showResults}">
+                    <lightning:layout horizontalAlign="space">
+                        <lightning:layoutItem flexibility="grow" padding="around-small">
+                            <div class="slds-section slds-is-open">
+                                <h3 class="slds-section__title slds-theme_shade">
+                                    <span class="slds-truncate slds-p-horizontal_small" title="Results"><ui:outputText value="{!$Label.c.MiFID_II_Bulk_Update_Results}" /></span>
+                                </h3>
+                                
+                            </div>
+                        </lightning:layoutItem>
+                        <br/>
+                    </lightning:layout>
+                    <aura:set attribute="else">
+                        <div></div>
+                    </aura:set>
+                </aura:if>
+                
+                
+                
+                
+                <aura:if isTrue="{!v.showResults}">
+                    <lightning:layout horizontalAlign="space">
+                        <lightning:layoutItem flexibility="grow" padding="around-small">
+                            
+                            <div style="cursor: pointer;background-color: #a02525;" onclick="{!c.errorSection}">
+                                <section class="slds-clearfix">
+                                    <div class="slds-float--left " style="margin-left: 2pt; margin-top: 5pt;">
+                                        <lightning:icon class="slds-show" aura:id="articleTwo" iconName="utility:add" size="x-small" alternativeText="Indicates add" variant="inverse"/>
+                                        <lightning:icon class="slds-hide" aura:id="articleTwo" iconName="utility:dash" size="x-small" alternativeText="Indicates dash" variant="inverse"/>
+                                    </div>
+                                    <h3 class="slds-section__title slds-theme_shade" style="background-color: #a02525;color: white;font-weight: 500;">
+                                        <span class="slds-truncate slds-p-horizontal_small" title="Results">{!$Label.c.MiFID_II_Bulk_Update_Errors} ({!v.errorResults.length})</span>
+                                    </h3>
+                                </section>
+                            </div>
+                            
+                            <div class="slds-hide slds-p-around--medium" aura:id="articleTwo">
+                                <div>
+                                    <lightning:button variant="neutral" label="Retry Bulk Failures" iconName="action:update_status" iconPosition="left" onclick="{!c.retry}" disabled="{!v.errorResults.length == 0}" />
+                                </div>
+                                <br/>
+                                <table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                                    
+                                    <thead>
+                                        <tr class="slds-text-title_caps">
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Contact Name">{!$Label.c.ContactName}</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Email">{!$Label.c.Email}</div>
+                                            </th>
+                                            <!--<th scope="col">
+                      <div class="slds-truncate" title="Close Date">{!$Label.c.MiFID_II_Bulk_Update_In_Scope}</div>
+                      </th> -->
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Status">{!$Label.c.MiFID_II_Bulk_Update_Status}</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="">
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <aura:iteration items="{!v.errorResults}" var="item">
+                                            <tr class="slds-hint-parent">
+                                                <th scope="row" data-label="Contact Name">
+                                                    <div class="slds-truncate" title="Cloudhub">
+                                                        {!item.contactName}
+                                                    </div>
+                                                </th>
+                                                <td data-label="Contact Email">
+                                                    <div class="slds-truncate">{!item.contactEmail}</div>
+                                                </td>
+                                                <!--<td data-label="Mifid2InScope">
+
+                            <div class="slds-truncate">
+                              <ui:outputCheckbox value="{!item.mifid2InScopeBoolean}"/>
+                              </div>
+                            </td> -->
+                                                <td data-label="Status">
+                                                    <span class="slds-badge" style="background-color:red;color:white">
+                                                        {!item.status}
+                                                    </span>
+                                                    
+                                                </td>
+                                                <td data-label="Contact">
+                                                    <div class="slds-truncate" style="word-wrap: break-word;white-space: initial;">
+                                                        <aura:unescapedHtml value="{!item.messages}" />
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </aura:iteration>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                    <aura:set attribute="else">
+                        <div></div>
+                    </aura:set>
+                </aura:if>
+                
+                
+                
+                
+                <aura:if isTrue="{!v.showResults}">
+                    <lightning:layout horizontalAlign="space">
+                        <lightning:layoutItem flexibility="grow" padding="around-small">
+                            
+                            <div style="cursor: pointer;background-color: #11b511;" onclick="{!c.successfulSection}">
+                                <section class="slds-clearfix">
+                                    <div class="slds-float--left " style="margin-left: 2pt; margin-top: 5pt;">
+                                        <lightning:icon class="slds-show" aura:id="articleOne" iconName="utility:add" size="x-small" alternativeText="Indicates add" variant="inverse"/>
+                                        <lightning:icon class="slds-hide" aura:id="articleOne" iconName="utility:dash" size="x-small" alternativeText="Indicates dash" variant="inverse"/>
+                                    </div>
+                                    <h3 class="slds-section__title slds-theme_shade" style="background-color: #11b511;color: white;font-weight: 500;">
+                                        <span class="slds-truncate slds-p-horizontal_small" title="Results">{!$Label.c.MiFID_II_Bulk_Update_Successes} ({!v.successfullResults.length})</span>
+                                    </h3>
+                                </section>
+                            </div>
+                            
+                            <div class="slds-hide slds-p-around--medium" aura:id="articleOne">
+                                <table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                                    <thead>
+                                        <tr class="slds-text-title_caps">
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Contact Name">{!$Label.c.ContactName}</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Email">{!$Label.c.Email}</div>
+                                            </th>
+                                            <!--<th scope="col">
+                      <div class="slds-truncate" title="Close Date">{!$Label.c.MiFID_II_Bulk_Update_In_Scope}</div>
+                      </th> -->
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Status">{!$Label.c.MiFID_II_Bulk_Update_Status}</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="">
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <aura:iteration items="{!v.successfullResults}" var="item">
+                                            <tr class="slds-hint-parent">
+                                                <th scope="row" data-label="Contact Name">
+                                                    <div class="slds-truncate" title="Cloudhub">{!item.contactName}</div>
+                                                </th>
+                                                <td data-label="Contact Email">
+                                                    <div class="slds-truncate">{!item.contactEmail}</div>
+                                                </td>
+                                                <!--<td data-label="Mifid2InScope">
+
+                            <div class="slds-truncate">
+                              <ui:outputCheckbox value="{!item.mifid2InScopeBoolean}"/>
+                              </div>
+                            </td> -->
+                                                <td data-label="Status">
+                                                    <span class="slds-badge" style="background-color:green;color:white;">
+                                                        {!item.status}
+                                                    </span>
+                                                    
+                                                </td>
+                                                <td data-label="Contact">
+                                                    <div class="slds-truncate">{!item.messages}</div>
+                                                </td>
+                                            </tr>
+                                        </aura:iteration>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                    <aura:set attribute="else">
+                        <div></div>
+                    </aura:set>
+                </aura:if>
+            </aura:set>
+        </aura:if>
+    </div>
+    
+    <br/><br/><br/> 
+    
+</aura:component>

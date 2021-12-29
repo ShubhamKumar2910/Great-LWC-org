@@ -1,0 +1,12 @@
+<apex:page standardController="Event" tabstyle="Event" extensions="EventLongDesc_CX" >
+    <apex:form >
+        <apex:sectionHeader title="Event" subtitle="{!t.Subject}"></apex:sectionHeader>        
+        <apex:pageBlock title="{!$Label.Long_Comments}">
+                <apex:pageBlockButtons location="bottom">
+        			<apex:commandButton action="{!saveAction}" value="{!$Label.Save}"/>
+                    <apex:commandButton action="{!cancelAction}" value="{!$Label.Cancel}"/>
+      			</apex:pageBlockButtons>
+                <apex:inputfield id="task__lta" value="{!tLTA.LTA_1__c}" />
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

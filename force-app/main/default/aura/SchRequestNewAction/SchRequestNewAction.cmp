@@ -1,0 +1,15 @@
+<!--
+**	Author 		: Pravin Kundal
+**	Company 	: Nomura
+**	Description : AURA lighitng component used to hook with New QA on SCH Request object on SCH Reuques List Views 
+-->
+
+<!--c:SchRequestNewAction-->
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"
+                 access="global">
+	<aura:attribute name="recordId" type="String" access="public"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+    
+    <lightning:navigation aura:id="navService"/>
+</aura:component>

@@ -1,0 +1,48 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader,lightning:availableForFlowScreens">
+    <aura:attribute name="rmAccountName" type="String" default=""/>
+    <aura:attribute name="displayButtons" type="Boolean" default="false"/>
+    
+    <aura:registerEvent name="existingObReqNotificationEvent" type="c:ExistingObReqNotificationEvent"/>
+
+    <div class="slds-page-header slds-m-bottom_small">
+        <div class="slds-page-header__row">
+            <div class="slds-page-header__col-title">
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                        <span class="slds-icon_container" title="preview">
+                            <lightning:icon iconName="custom:custom53" alternativeText="Preview" title="Preview" />
+                            <span class="slds-assistive-text">preview</span>
+                        </span>
+                    </div>
+                    <div class="slds-media__body">
+                        <div class="slds-page-header__name">
+                            <div class="slds-page-header__name-title">
+                                <h1>
+                                    <span class="slds-page-header__title slds-truncate">Please note that you already have an OB request in draft status for {!v.rmAccountName}</span>
+                                </h1>
+                            </div>
+                        </div>
+                        <!--<p class="slds-page-header__name-meta slds-text-title_caps">NOTE: This Draft request has already been created automatically. If you choose to not proceed, please manually delete this request to avoid getting email reminders of this request being in Draft</p>-->
+                    </div>
+                </div>
+            </div>
+            <aura:if isTrue="{!v.displayButtons}">
+                <div class="slds-page-header__col-actions">
+                    <div class="slds-page-header__controls">
+                        <div class="slds-page-header__control">
+                            <ul class="slds-button-group-list">
+                                <li>
+                                    <lightning:button label="Cancel" aura:id="cancelBtn" title="Cancel" onclick="{! c.handleButtonClick }"/>
+                                </li>
+                                <li>
+                                    <lightning:button label="Continue To Client Onboarding" aura:id="continueBtn" title="Continue To Client Onboarding" onclick="{! c.handleButtonClick }"/>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </aura:if>
+        </div>
+    </div>
+      
+</aura:component>

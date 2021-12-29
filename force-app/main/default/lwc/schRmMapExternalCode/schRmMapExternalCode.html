@@ -1,0 +1,85 @@
+<template>
+    
+    <lightning-card variant="narrow" >
+        
+
+        <lightning-layout>
+            <lightning-layout-item size="9" small-device-size="9" medium-device-size="9" flexibility="auto" padding="horizontal-small">
+                <lightning-card variant="narrow" icon-name="standard:account">
+                    <h1 slot="title"> {entityName} </h1>
+                    <h3 slot="title">RM Account details</h3>
+                    <div slot="actions">
+                        <lightning-button label={Back} title={Back} icon-name="utility:back" 
+                            data-name="back" variant="Neutral" onclick={handleBtnClick}>
+                        </lightning-button>
+                        
+                    </div>
+                </lightning-card>
+    
+                <div class="slds-m-around_small">
+                  
+
+                    <c-custom-data-table 
+                        key-field="ExternalCodeId" 
+                        data={tableData} 
+                        columns={dataTableColumns} 
+                        onsave={handleSave}
+                        oncancel={handleCancel}
+                        draft-values={draftValues} 
+                        oncellchange={handleCellChange} 
+                        hide-checkbox-column
+                        column-widths-mode="fixed"
+                        resize-column-disabled
+                        errors={dataTableError}
+                        
+                        >
+                </c-custom-data-table>
+                    
+                </div>
+            
+                
+            </lightning-layout-item>
+
+            <lightning-layout-item size="4" small-device-size="3" medium-device-size="3" flexibility="auto" padding="horizontal-small" class="slds-border_left">
+                <lightning-card variant="narrow" >
+                    
+                    <div slot="actions">
+                        
+                        <lightning-button label={Add} title={Add} icon-name="utility:add" variant="brand" 
+                            data-name="add" onclick={handleBtnClick} class="slds-m-around_xxx-small" disabled={disableAddBtn}>
+                        </lightning-button>
+
+                        <!-- <lightning-button label={Clear} title={Clear} icon-name="utility:clear" variant="neutral" 
+                            data-name="clear" onclick={handleBtnClick} class="slds-m-around_xxx-small">
+                        </lightning-button> -->
+                    </div>
+
+                    <p class="slds-p-horizontal_small">
+                           
+                        <lightning-combobox name="External_Mapping_Type"
+                            label="External Mapping Type"
+                            value={externalMappingType}
+                            placeholder="Select external mapping type"
+                            options={externalMappingType}
+                            onchange={handleMappingTypeChange} 
+                            required></lightning-combobox>
+
+                        <template if:true={showMappingKeyInputText} >
+                            <lightning-input type="text" label="Enter External Mapping Id"  minlength="3" onchange={handleExternalMappingIdInput} value={externalMappingId} data-name="extMappingId" required></lightning-input>
+                        </template>
+                        <template if:false={showMappingKeyInputText} >
+                            <lightning-input type="number" label="Enter External Mapping Id"  minlength="3" onchange={handleExternalMappingIdInput} value={externalMappingId} data-name="extMappingId" required></lightning-input>
+                        </template>
+    
+                    </p>
+                </lightning-card>
+                
+            </lightning-layout-item>
+        </lightning-layout>
+
+    </lightning-card>
+
+        
+   
+    
+</template>

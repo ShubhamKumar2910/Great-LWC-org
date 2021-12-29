@@ -1,0 +1,244 @@
+<aura:component controller="CoverageToolController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    <lightning:navigation aura:id="navService" />
+    <aura:attribute name="pageReference" type="Object"/>
+    
+    <!-- REQUIRE STYLES AND SCRIPTS-->
+    <ltng:require scripts="{!$Resource.CoverageHelper}" 
+                  afterScriptsLoaded="{!c.helperScriptsLoaded}"/>
+    
+    <!--Custom Lables-->
+    <aura:attribute name="type_label" type="String" default="{!$Label.c.CVGTOOL_Type}"/>
+    <aura:attribute name="account_label" type="String" default="{!$Label.c.CVGTOOL_ACCOUNT_NAME}"/>
+    <aura:attribute name="team_label" type="String" default="{!$Label.c.CVGTOOL_TEAM}"/>
+    <aura:attribute name="salesperson_label" type="String" default="{!$Label.c.CVGTOOL_SALESPERSON}"/>
+    <aura:attribute name="ytd_label" type="String" default="{!$Label.c.CVGTOOL_YTD}"/>
+    <aura:attribute name="budget_label" type="String" default="{!$Label.c.CVGTOOL_BUDGET}"/>
+    <aura:attribute name="mtd_label" type="String" default="{!$Label.c.CVGTOOL_MTD}"/>
+    <aura:attribute name="wtd_label" type="String" default="{!$Label.c.CVGTOOL_WTD}"/>
+    <aura:attribute name="ytd_usd_label" type="String" default="{!$Label.c.CVGTOOL_YTD_USD}"/>
+    <aura:attribute name="budget_usd_label" type="String" default="{!$Label.c.CVGTOOL_BUDGET_USD}"/>
+    <aura:attribute name="mtd_usd_label" type="String" default="{!$Label.c.CVGTOOL_MTD_USD}"/>
+    <aura:attribute name="wtd_usd_label" type="String" default="{!$Label.c.CVGTOOL_WTD_USD}"/>
+    <aura:attribute name="ytd_yen_label" type="String" default="{!$Label.c.CVGTOOL_YTD_YEN}"/>
+    <aura:attribute name="budget_yen_label" type="String" default="{!$Label.c.CVGTOOL_BUDGET_YEN}"/>
+    <aura:attribute name="mtd_yen_label" type="String" default="{!$Label.c.CVGTOOL_MTD_YEN}"/>
+    <aura:attribute name="wtd_yen_label" type="String" default="{!$Label.c.CVGTOOL_WTD_YEN}"/>
+    <aura:attribute name="startdate_label" type="String" default="{!$Label.c.CVGTOOL_START_DATE}"/>
+    <aura:attribute name="product_label" type="String" default="{!$Label.c.CVGTOOL_PRODUCT}"/>
+    <aura:attribute name="CoverageStartDate" type="String" access="global" /> 
+    
+    <aura:attribute name="productRegion_label" type="String" default="{!$Label.c.CVGTOOL_PRODUCT_REGION}"/>
+    <aura:attribute name="productGroup_label" type="String" default="Product Group"/>
+    <aura:attribute name="productrole_label" type="String" default="{!$Label.c.CVGTOOL_ROLE}"/>
+    <aura:attribute name="status_label" type="String" default="{!$Label.c.CVGTOOL_STATUS}"/>
+    <aura:attribute name="region_label" type="String" default="{!$Label.c.CVGTOOL_REGION}"/>
+    <aura:attribute name="desk_label" type="String" default="{!$Label.c.CVGTOOL_DESK}"/>
+    <aura:attribute name="enddate_label" type="String" default="{!$Label.c.CVGTOOL_END_DATE}"/>
+    <aura:attribute name="validationStatus_label" type="String" default="{!$Label.c.Coverage_Validation_Status}"/>
+    <aura:attribute name="prevButton_label" type="String" default="{!$Label.c.CVGTOOL_PREVIOUS}"/>
+    <aura:attribute name="saveButton_label" type="String" default="{!$Label.c.CVGTOOL_SAVE}"/>
+    <aura:attribute name="validateButton_label" type="String" default="{!$Label.c.CVGTOOL_NEXT}"/>
+    <aura:attribute name="cancelButton_label" type="String" default="{!$Label.c.CVGTOOL_CANCEL}"/>
+    <aura:attribute name="comment_label" type="String" default="{!$Label.c.CVGTOOL_Comment}"/>
+
+    <aura:attribute name="isUserFISales" type="Boolean" default="false" />
+    <aura:attribute name="role" type="string" default="Primary" />
+    
+    <!--Attributes-->
+    <aura:attribute name="fromsalesPersons" type="string[]" />
+    <aura:attribute name="tosalesPersons" type="string[]" />
+     <aura:attribute name="fromsalesPersonIDs" type="string[]" />
+    <aura:attribute name="tosalesPersonIDs" type="string[]" />
+    <aura:attribute name="Source" type="string" default = "clone" />
+    <aura:attribute name="setWizardStep" type="string" default="Select"/>
+    <aura:attribute name="isHelperScriptLoaded" type="Boolean" description="Flag to indicate jquery is loaded"/>
+    <aura:attribute name="needToRenderHelperLogic" type="Boolean" description="Flag to indicate need to process the logic rerender since it is called many times during the component's lifecycle"/>
+    <aura:attribute name="level" type="string" default="Client"/>
+    <aura:attribute name="withoutSharing" type="Boolean" default="true" />
+    <aura:attribute name="salesPersonLoginIds" type="string[]" />
+    <aura:attribute name="successList" type="Coverage_Temp__c[]" access="global"/>
+    <aura:attribute name="rgDeleteList" type="RG_Coverage_Request__c[]" access="global"/>
+    <aura:attribute name="rmDeleteList" type="Coverage_Access_Request__c[]" access="global"/>
+    <aura:attribute name="totalFailed" type="integer" default="0"/>
+    <aura:attribute name="totalCount" type="integer" default="0"/>
+    <aura:attribute name="totalWarning" type="integer" default="0"/>
+    <aura:attribute name="totalSuccess" type="integer" default="0"/>
+    <aura:attribute name="guid" type="String" />
+    <aura:attribute name="parentID" type="string" default="clonecoverage"/>
+    <aura:attribute name="attestFlag" type="Boolean" default="false"/>
+    <aura:attribute name="attestation_label" type="String" default="Is Attested?"/>
+
+    <!--Table Attributes-->
+    <aura:attribute name="coverageData" type="Object"/>
+    <aura:attribute name="coverageColumns" type="List"/>
+    <aura:attribute name="validationCoverageData" type="Object"/>
+    <aura:attribute name="validationCoverageColumns" type="List"/>
+    <aura:attribute name="selectedData" type="object[]" />
+    <aura:attribute name="selectedRows" type="List"/>
+    <!--<aura:method name="showDatatable" action="{!c.showDatatable}" />
+    <aura:method name="hideDatatable" action="{!c.hideDatatable}" /> -->
+    <aura:method name="showValidationDatatable" action="{!c.showValidationDatatable}" />
+    <aura:method name="hideValidationDatatable" action="{!c.hideValidationDatatable}" />
+   
+    <!-- HANDLERS -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:method name="showSpinner" action="{!c.showSpinner}" /> 
+    <aura:method name="hideSpinner" action="{!c.hideSpinner}" /> 
+    <aura:method name="showToast" action="{!c.showToast}"> 
+        <aura:attribute name="title" type="String"/> 
+        <aura:attribute name="type" type="String" default="success"/> 
+        <aura:attribute name="message" type="String"  default="This is test message."/>
+        <aura:attribute name="mode" type="String"  default="dismissible"/>
+        <aura:attribute name="key" type="String"/>
+    </aura:method>
+    
+    <aura:method name="showDatatable" action="{!c.showDatatable}" />
+    <aura:method name="hideDatatable" action="{!c.hideDatatable}" />
+    <aura:method name="switchWizardStep" action="{!c.switchWizardStep}">
+        <aura:attribute name="stepName" type="String"/>
+    </aura:method> 
+     <aura:method name="sortData" action="{!c.sortData}" > 
+        <aura:attribute name="field" type="String"/> 
+        <aura:attribute name="dir" type="String" default="asc"/> 
+    </aura:method>
+    
+    <!-- Design -->
+    <div class="slds-docked-form-header" style="bottom: 45px;height:45px;width:100%;">  
+        <!--WIZARD -->
+        <div aura:id="cloneWizard" style="width: 49%;
+                                        float: left;">
+            <lightning:badge label="{!$Label.c.CVGTOOL_CLONE_COVERAGE}"  class="custombadgeHeader" title="{!$Label.c.CVGTOOL_CLONE_COVERAGE}"/>
+            <div>
+                <lightning:progressIndicator  type="path" currentStep="{!v.setWizardStep}" >
+                    <lightning:progressStep label="Select" value="Select"/>
+                    <lightning:progressStep label="Verify and Submit" value="Save" />
+                </lightning:progressIndicator>
+            </div>
+        </div>
+        <div style="float: right;right: 1px;">
+            <lightning:button aura:id="prevButton" label="{!$Label.c.CVGTOOL_CANCEL}" iconName="utility:close" onclick="{!c.Previous}" variant="neutral"/>
+            <aura:renderif isTrue="{!equals(v.setWizardStep,'Select')}">
+                <button class="slds-button slds-button_brand" onclick = "{!c.searchCoverage}" >
+                    {!$Label.c.CVGTOOL_APPLY}
+                    <lightning:icon class="slds-button__icon slds-button__icon_right" aura:id="search" iconName="utility:search" size="x-small" alternativeText="Indicates search"/>
+                </button>
+            </aura:renderif>
+            <lightning:button aura:id="nextButton" label="{!$Label.c.CVGTOOL_NEXT}" iconName="utility:task" onclick="{!c.Next}" variant="brand"/>
+            
+        </div>
+    </div>
+    <div aura:id="Select" >
+            <div id="smartwizard">
+                <div aura:id="filter">
+                    <article class="slds-card" style="background-color: #fbfbfb;">
+                        <div class="slds-card__body slds-card__body_inner">
+                            <div class="slds-form slds-form_compound">
+                                <fieldset class="slds-form-element">
+                                    <div class="slds-form-element__group">
+                                        <div class="slds-form-element__row">
+                                            <div class="slds-form-element slds-size_3-of-8">
+                                                <!-- filterDeskCode = "true" -->
+                                                <c:Lookup aura:id="fromSalesCode"  
+                                                          sObjectAPIName="Sales_Team_for_Coverage__c" 
+                                                          charLimit="2" 
+                                                          label="{!$Label.c.CVGTOOL_FROM_SALESPERSON}" 
+                                                          pluralLabel="{!$Label.c.CVGTOOL_LABEL_PLURAL_SALESPERSON}"
+                                                          listIconSVGPath="standard:avatar" 
+                                                          listIconClass="slds-icon-standard-avatar"
+                                                          allRecords="false" 
+                                                          uniqueCoverages="false"
+                                                          splitSalesCode="true"
+                                                          withSharing="false"
+                                                          itemChange="{!c.from_salesPersonChanged}"/>
+                                                
+                                            </div>
+                                            <!-- filterDeskCode = "true" -->
+                                            <div class="slds-form-element slds-size_3-of-8">
+                                                <c:Lookup aura:id="toSalesCode"  
+                                                          sObjectAPIName="Sales_Team_for_Coverage__c" 
+                                                          charLimit="2" 
+                                                          label="{!$Label.c.CVGTOOL_TO_SALESPERSON}" 
+                                                          pluralLabel="{!$Label.c.CVGTOOL_LABEL_PLURAL_SALESPERSON}"
+                                                          listIconSVGPath="standard:avatar" 
+                                                          listIconClass="slds-icon-standard-avatar"
+                                                          allRecords="false" 
+                                                          uniqueCoverages="false"
+                                                          splitSalesCode="true"
+                                                          withSharing="false"
+                                                          itemChange="{!c.to_salesPersonChanged}"/>
+                                                
+                                            </div>
+                                            <div class="slds-form-element slds-size_1-of-8">
+                                                <ui:inputDate aura:id="startDate" label="{!$Label.c.CVGTOOL_START_DATE}" required="false" displayDatePicker="true" value="{!v.CoverageStartDate}"/>
+                                                
+                                            </div>
+                                            <div class="slds-form-element slds-size_1-of-8">
+                                                <label class="slds-form-element__label" for="proroleAdd">{!$Label.c.CVGTOOL_LABEL_ROLE}</label>
+                                                <div class="slds-select_container">
+                                                    <c:Picklist multiselect="false" parentID="{!v.parentID}" aura:id="proroleAdd"  IDT="proroleAdd" objName="Coverage_Team_Member__c" picklistfieldName="Team_Role__c" picklistValueChanged="{!c.roleChangedAdd}"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <fieldset class="slds-form-element">
+                                    <div class="slds-form-element__group">
+                                    <div class="slds-form-element slds-size_1-of-8 slds-float_right"> 
+                                        <label class="slds-form-element__label" for="attestCheckbox">{!$Label.c.CVGTOOL_LABEL_AFFIRMATION}</label>
+                                        <div class="slds-form-element">
+                                                <ui:inputCheckbox aura:id="attestCheckbox" change="{!c.onCheck}"/>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </article>
+                    
+                </div>
+                <div style="clear:both; height:4px;"></div>
+                <div class="slds-hide slds-table_bordered tableStyle" style="height: 460px;margin-bottom:40px;" aura:id="dataTableDiv">
+                    <lightning:datatable aura:id="coverageTable"
+                                         data="{!v.coverageData}" 
+                                         columns="{!v.coverageColumns }" 
+                                         keyField="counter"                                   
+                                         maxColumnWidth="600"
+                                         onsort="{!c.updateColumnSorting}" 
+                                         onrowselection="{! c.getSelectedData }"
+                                         />
+                </div>
+            </div>
+    </div>
+     <!-- VERIFY -->
+    <div aura:id="Verify" class="slds-hide">
+        verify
+    </div>
+    
+    <div aura:id="Save" class="slds-hide">
+        <div>
+            <div class="validationNote">
+                <lightning:icon iconName="utility:info" class="note" variant="info" size="xx-small"/>
+                <label class="slds-form-element__label" for="note" style="margin: 4px;">{!$Label.c.CVGTOOL_LABEL_VALIDATION_NOTE_CLONE}</label>
+            </div>
+        </div>
+        <div class="slds-table_bordered tableStyle" style="height: 626px;margin-bottom:40px;" aura:id="dataTableValidation">
+            <lightning:datatable aura:id="validationTable1"
+                                 data="{!v.validationCoverageData}" 
+                                 columns="{!v.validationCoverageColumns }" 
+                                 keyField="key"                                   
+                                 maxColumnWidth="600px"
+                                 onsort="{!c.updateColumnSorting}" 
+                                 hideCheckboxColumn="true"
+                                 />
+        </div>
+        
+    </div>
+    
+    <div aura:id="spinnerblock" class="slds-spinner_container slds-hide">
+        <div class="slds-spinner--brand slds-spinner slds-spinner--large" aria-hidden="false" role="alert">
+            <div class="slds-spinner__dot-a"></div>
+            <div class="slds-spinner__dot-b"></div>
+        </div>
+    </div>
+    
+</aura:component>

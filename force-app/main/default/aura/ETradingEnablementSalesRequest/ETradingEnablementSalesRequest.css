@@ -1,0 +1,11 @@
+.THIS {
+}
+
+.THIS .fullWidth{
+	width: 100%;
+}
+
+.THIS .flexDisplay{
+	display: flex;
+	
+}

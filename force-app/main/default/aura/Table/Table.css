@@ -1,0 +1,64 @@
+.THIS .scrollable {
+    overflow: auto;
+    height: 200px;
+}
+
+.THIS .slds-cell-fixed {
+    background-color: rgb(255, 255, 255);
+    position: absolute;
+    top: 0;
+    min-height: 1rem !important;
+}
+
+.THIS .cellFixedCustom {
+    background-color: rgb(255, 255, 255) !important;
+    position: absolute!important;
+    display: flex !important;
+    padding: .25rem .5rem !important;
+    height: 2rem !important;
+    top: 0;
+}
+
+.THIS .sortableIcons{
+    margin-bottom: 5px;
+    margin-left: 8px;
+}
+
+.THIS .slds-icon_xx-small{
+    width: .875rem; 
+    height: .875rem;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.THIS tfoot td{
+    background-color:rgb(241, 241, 241);
+    color:#585656;
+    font-weight: bold;
+}
+
+
+
+.THIS a.disable {
+  pointer-events: none;
+  cursor: default;
+}
+
+.THIS .actionsbutton {
+    position: relative;
+    display: inline-block;
+    padding: 0;
+    background: transparent;
+    background-clip: border-box;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    /* line-height: 1.875rem; */
+    text-decoration: none;
+    color: rgb(0, 112, 210);
+    -webkit-appearance: none;
+    white-space: normal;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}

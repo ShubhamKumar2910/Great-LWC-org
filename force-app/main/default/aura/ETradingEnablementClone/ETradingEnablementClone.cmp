@@ -1,0 +1,88 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,lightning:isUrlAddressable" controller="ETradingEnablementCloneController">
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.init}"/>
+    <aura:handler name="newContact" event="c:ETradingEnablementContactEvent" action="{!c.handleETradingEnablementContact}"/>
+
+    <aura:attribute name="displayCloneData" type="Boolean" default="false"/>
+    <aura:attribute name="displayNoCloneData" type="Boolean" default="false"/>
+    <aura:attribute name="cloneData" type="Object"/>
+    <aura:attribute name="cloneColumns" type="List"/>
+    <aura:attribute name="sourceContactId" type="String"/>
+    <aura:attribute name="targetContactIds" type="String[]"/>
+    <aura:attribute name="comments" type="String" />
+
+    <lightning:navigation aura:id="navigationService"/>
+
+    <lightning:spinner aura:id="spinner" variant="brand" size="large" class="slds-hide"/>
+
+    <lightning:layout aura:id="Select" multipleRows="true">
+        <lightning:layoutItem aura:id="filter" size="12">
+            <lightning:card title="eTrading Enablement Clone" iconName="utility:outcome">
+                <aura:set attribute="footer">
+                    <lightning:button label="{!$Label.c.CVGTOOL_CANCEL}" onclick="{!c.cancel}" class="slds-button slds-button_neutral"/>
+                    <lightning:button label="{!$Label.c.Clone}" onclick="{!c.clone}" class="slds-button slds-button_brand" disabled="{! !v.displayCloneData}"/>
+                </aura:set>
+                
+                <div style="display:flex;">
+                    <lightning:layoutItem padding="around-small" size="6">
+
+                        <c:SingleLookup aura:id="lookupsourcecontact"   
+                                        allRecords="false" 
+                                        sObjectAPIName="Contact"
+                                        charLimit="2"  
+                                        label="Source Contact" 
+                                        listIconSVGPath="standard:contact" 
+                                        listIconClass="slds-icon-standard-contact"
+                                        itemChange="{!c.sourceContactChanged}" 
+                                        placeholder="Search Contacts" 
+                                        onReset="{!c.resetContact}"/>
+
+                        <c:Lookup aura:id="lookupnewcontact"   
+                                  allRecords="false" 
+                                  sObjectAPIName="Contact" 
+                                  showNomuraEmployee="false" 
+                                  charLimit="2" 
+                                  label="Target Contact(s)" pluralLabel="Contacts" 
+                                  listIconSVGPath="standard:contact"
+                                  listIconClass="slds-icon-standard-contact" 
+                                  itemChange="{!c.targetContactChange}"
+                                  preSelectedIds="{!v.targetContactIds}"
+                                  showMetadata="true"/>    
+
+                        <div class="slds-p-top_xx-small slds-p-bottom_small">
+                            <lightning:button  iconName="utility:adduser" variant="neutral" onclick="{!c.createNewContact}" label="{!$Label.c.Event_New_Contact}" iconPosition="left"/>
+                        </div>
+                        
+                    </lightning:layoutItem>
+                    <lightning:layoutItem padding="around-small" size="6">
+                        <lightning:textarea aura:id="comment" name="Comments" label="Comments" value="{!v.comments}" maxlength="32000"/>
+                    </lightning:layoutItem>
+                </div>
+                
+                <c:ETradingEnablementContact aura:id="newContact"/>
+                
+            </lightning:card>
+        </lightning:layoutItem>    
+
+        <aura:if isTrue="{!v.displayCloneData}">
+            <lightning:layoutItem>
+                <lightning:card>
+                    <lightning:datatable data="{!v.cloneData}" 
+                                        columns= "{!v.cloneColumns}"
+                                        keyField="Id" 
+                                        hideCheckboxColumn="true"/>
+                </lightning:card>
+            </lightning:layoutItem>
+        </aura:if>
+
+        <aura:if isTrue="{!v.displayNoCloneData}">
+            <div class="slds-align_absolute-center">
+                <lightning:layoutItem padding="around-large">
+                    <lightning:card title="No records found" iconName="utility:cancel_file_request"/>
+                </lightning:layoutItem>
+            </div>
+        </aura:if>
+
+    </lightning:layout>
+    
+</aura:component>

@@ -1,0 +1,13 @@
+<aura:component controller="MobileAnalyticsHomePageController" 
+    implements="force:appHostable,flexipage:availableForAllPageTypes" 
+    access="global">
+    <aura:attribute name="dashboardDeveloperName" type="String"/>
+    <aura:handler name="init" action="{!c.onInit}" value="{!this}"/>
+    <wave:waveDashboard developerName="{!v.dashboardDeveloperName}" 
+    height="600px" 
+    showSharing="false"
+    showTitle="false" 
+    showHeader="false" 
+    openLinksInNewWindow="false"
+    hideOnError="true"/>
+</aura:component>

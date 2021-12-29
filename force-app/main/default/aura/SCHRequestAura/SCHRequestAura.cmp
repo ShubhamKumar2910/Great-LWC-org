@@ -1,0 +1,26 @@
+<aura:component 
+    implements="force:appHostable,lightning:isUrlAddressable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride" access="global">
+    
+    <!-- Attributes -->
+    <aura:attribute name="selectedEntityExternalId" type="String" />
+    <aura:attribute name="inputEntityName" type="String" />
+    <aura:attribute name="inputEntityLocation" type="String" />
+    <aura:attribute name="callingSource" type="String" />
+    
+    
+    <aura:attribute name="pageReference" type="Object"/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/> 
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+
+    <div>
+        <c:schTool aura:id="schTool"
+            recordId="{!v.recordId}"
+            selectedEntityExternalId="{!v.selectedEntityExternalId}"
+            rmEntitySearchStr="{!v.inputEntityName}" 
+            rmEntityLocationSearch="{!v.inputEntityLocation}"
+            callingSource="{!v.callingSource}">
+        </c:schTool>
+    </div>
+    
+</aura:component>

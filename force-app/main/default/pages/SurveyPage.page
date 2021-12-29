@@ -1,0 +1,328 @@
+<apex:page standardcontroller="Survey__c"  title="Survey" extensions="SurveyAndQuestionController" cache="false" sidebar="false" showheader="false" id="surveyPage">
+     <apex:includeScript value="/support/console/20.0/integration.js"/>
+    <apex:includeScript value="{! $Resource.SurveyForce_jquery}" />
+    <apex:includeScript value="{! $Resource.SurveyForce_jquery_ui + '/jquery-ui.min.js'}" />
+    <apex:stylesheet value="{! $Resource.SurveyForce_jquery_ui + '/jquery-ui.min.css'}" />
+
+    <!-- convertCheckBoxToLDS() is in surveyforce.js -->
+    <apex:includeScript value="{! $Resource.SurveyForce + '/surveyforce.js'}" />
+    <apex:stylesheet value="{! $Resource.SurveyForce + '/surveyforce.css'}" />
+    <apex:stylesheet value="{! $Resource.SurveyForce_SLDS + '/assets/styles/salesforce-lightning-design-system-vf.min.css'}" />
+    <script type="text/javascript">
+    	sforce.console.setTabTitle('Bulk Upload - Survey Members');
+    </script>
+    <script type="text/javascript">
+        function onenter(e){  
+          	if(window.event){                    
+          	  	key = window.event.keyCode;     //IE               
+          	} 
+            else{                    
+                key = e.which;     //firefox               
+           }               
+           if(key == 13) {                    
+              var searchButtonElement = document.getElementById('surveyPage:surveyPageForm:searchPageBlock:searchPageBlockSection:searchCommandButtonId'); 
+              searchButtonElement.click();                     
+              return false;               
+           } 
+           else{                    
+              return true;               
+           }          
+      	}
+    
+        function openReport(reportURL){
+            window.open(reportURL, '_blank','toolbar=0,location=0,menubar=0,resizable=yes,scrollbars=yes');
+        }
+
+    </script>
+    
+    <style type="text/css">
+       .question_menu_modified {
+            background:#f9f9f9;
+            border: 1px solid #ccc;
+            border-right: 0;
+            padding:5px;
+            
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0px 1px 4px #ccc;
+            
+            -moz-border-radius-topleft: 5px;
+            -moz-border-radius-bottomleft: 5px;
+            -moz-box-shadow: 0px 1px 4px #ccc;
+        
+            -webkit-box-shadow: 0px 1px 4px #ccc;
+        }
+    </style>
+    <script>
+    
+        $(document).ready(function(){
+            //Convert any elements with "convertToLDS" style to SLDS styles
+            //Used in certain places where it's not easy to use SLDS for those elements like "apex:selectCheckboxes"
+            convertCheckBoxToLDS();
+        });
+        $(document).keyup(function(e) {
+            //Close modal dialog on escape
+            if (e.keyCode == 27) { // escape key maps to keycode `27`
+                closeDialog('addQuestion');
+            }
+        });
+    </script>
+
+    <script type="text/javascript">
+        function confirmDelete(deleteId) {
+            /*
+            var r = confirm("Are you sure you want to delete this question?");
+            if (r) {
+                return true;
+            } else {
+                return false;
+            }
+            /**/
+        }
+
+        $(document).ready(function() {
+
+            $("#justQuestionList").sortable({
+                axis: 'y',
+                opacity: .6,
+                tolerance: 'pointer',
+                revert: true,
+                update: function(event, ui) {
+                    var childIds = new Array();
+                    var cIds = "";
+
+                    $('#justQuestionList .question').each(function () {
+                        cIds = cIds + $(this).attr('id') + ",";
+                    });
+
+                    jQuery("input[id*='newOrderList']").val(cIds);
+                    jQuery("a[id*='saveOrder']").effect("pulsate", {
+                        times: 2
+                    }, 1000);
+                }
+
+            });
+        });
+
+    </script>
+    <div class="surveyforce">
+        <div id="labs_container_DELETE_IT">
+            <apex:form id="surveyPageForm">
+               <apex:outputPanel id="smessage">
+                    <div  class="slds-box slds-box--small {!alertMessageType} {!visibilityClass}">
+                        <p>{!alertMessageText}</p>
+                    </div>
+                </apex:outputPanel>
+                <div style="clear:both;height:3px;">
+                    
+                </div>
+               <div class="slds-box slds-theme--shade">
+               	   <apex:outputPanel >
+                        <apex:commandLink style="text-decoration: underline;" id="surveyDetailsCmdLink"  onclick="openReport('{!surveyDetailsLink}')"  value="{!$Label.LABS_SF_ContactSurveyDetailsReport}" />
+                        &nbsp;&nbsp;
+                        <apex:commandLink style="text-decoration: underline;" id="surveyVoteCategoryCmdLink"  onclick="openReport('{!surveyVoteCategoryLink}')"  value="{!$Label.LABS_SF_ContactSurveyVoteCategoryReport}" />
+                        &nbsp;&nbsp;
+                        <apex:commandLink style="text-decoration: underline;" id="surveyVoteCollectorCmdLink"  onclick="openReport('{!surveyVoteCollectorLink}')"  value="{!$Label.LABS_SF_ContactSurveyVoteCollectorReport}" />
+                    </apex:outputPanel>
+               </div>
+               <div class="slds-box slds-theme--shade">
+                   <div id="navBarBg"></div>
+                   	<apex:outputPanel id="navBar">
+                        <apex:commandLink styleclass="slds-button slds-button--brand" onclick="openDialog('addQuestion');" action="{!makeNewQuestionLink}" value="{!$Label.LABS_SF_AddMember}" reRender=" addQuestionContent " />
+                        <apex:commandLink styleclass="slds-button slds-button--brand" id="saveOrder2" action="{!updateOrderList}" value="{!$Label.LABS_SF_SaveOrder}" />
+                        <apex:commandLink styleclass="slds-button slds-button--brand" id="bulkMembers"  onclick="openDialog('bulkUpload');"  value="{!$Label.LABS_SF_BulkUploadMembers}" reRender="bulkUploadContent" />
+                        <apex:inputHidden id="newOrderList" value="{!newOrderW}" />
+                    </apex:outputPanel>
+                </div>
+                
+                <!-- Changes by Nomura : Start -->
+                <div>
+                    <style>
+                        .message {
+                            opacity: 1 !important;
+                        }
+                    </style>
+            		<apex:pageMessages />
+        		</div>
+                <!-- Changes by Nomura : End -->
+                
+                <!-- Commented by Nomura : Start -->
+                <!-- <c:uiMessage severity="{!pageMessage.severity}" message="{!pageMessage.message}" renderMe="{!pageMessage.isMessage}" /> -->
+                <!-- Commented by Nomura : Start -->
+                
+                <!-- addQuestion starts -->
+                <div id="addQuestion" role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-hide">
+                    <div class="slds-modal__container">
+                        <div class="slds-modal__content slds-p-around--medium">
+                            <apex:outputPanel id="addQuestionContent">
+                                <!-----------------------------------------Single Select Question------------------------------------------->
+                                <apex:outputPanel id="singleSelect" rendered="{! IF(showSingleSelect == 'True' || showMultiSelect == 'True' || showRowQuestion == 'True' || showFreeText == 'True' ,true,false)}">
+                                    <div class="slds-form-element">
+                                        <!-- Added by Nomura : Start -->
+                                        <label class="slds-form-element__label">{!$Label.LABS_SF_Category}</label>
+                                        <div id="categoryPickList">
+                                            <apex:selectList size="1" value="{!qCategory}" id="qCategory" style="width:100%;">
+                                                <apex:selectOptions value="{!categoryOptions}" />
+                                            </apex:selectList>
+                                        </div>
+                                        <!-- Added by Nomura : End -->
+                                    </div>
+                                    
+                                    <!-- Added by Nomura : Start -->
+                                    <apex:outputPanel >
+                                        <div class="slds-form-element">
+                                            <label class="slds-form-element__label">{!$Label.LABS_SF_Member}</label>
+                                            <apex:inputField value="{!surveyQuestionObj.Member__c}" id="qMember" />
+                                        </div>
+                                    </apex:outputPanel>    
+                                    <!-- Added by Nomura : End -->
+                                    
+                                    <!-- <apex:outputPanel rendered="{! IF(showSingleSelect == 'True' || showMultiSelect == 'True' || showRowQuestion == 'True' ,true,false)}"> -->
+                                    <apex:outputPanel rendered="false"> <!-- Changes by Nomura for Making Rendered as false -->
+                                        <div class="slds-form-element">
+                                            <label class="slds-form-element__label" for="textareaSample2">{!$Label.LABS_SF_PleaseEnterTheList}</label>
+                                            <div class="slds-form-element__control">
+                                                <apex:inputTextArea styleClass="slds-textarea"  cols="40" rows="5" id="qChoices" value="{!qChoices}" title="Answers to question..."/>
+                                            </div>
+                                        </div>
+                                    </apex:outputPanel>
+                                    
+                                    <br/>
+                                    
+                                    <div class="slds-modal__footer">
+                                        <apex:commandButton styleClass="slds-button slds-button--brand" action="{!controllerSavQuestion}" value="{!$Label.LABS_SF_Save}" />
+                                        <button class="slds-button slds-button--brand" onClick="closeDialog('addQuestion');return false;">
+                                            {!$Label.LABS_SF_Cancel}
+                                        </button>
+                                    </div>
+                                </apex:outputPanel>
+                                <!---------------------------------------------------------------------------------------------------------->
+                            </apex:outputPanel>
+                            
+                        </div>
+                    </div>
+                </div>
+                <div id="addQuestionBackdrop" class="slds-backdrop slds-backdrop--hide"></div>
+                <!-- End addQuestion -->
+                
+                <!---------------------------------------------------------------------------------------------------------->
+                <div id="questionList">
+                    <!-- ---------------------------------------------------------------------- -->
+                    <apex:outputPanel id="qListPanel">
+                        <div id="justQuestionList">
+                            <apex:repeat value="{!aQuestion}" var="q" id="qRepeat">
+                                <div class="slds-box slds-theme--default">
+                                    <div id="{!q.id}" class="question" title="Drag and Drop to Reorder">
+                                        <apex:outputPanel >
+                                            <div class="question_menu_modified">
+                                                <apex:image value="{!URLFOR($Resource.SurveyForce, 'survey_upDown.png')}" styleClass="left" />
+                                                <!-- Changes by Nomura : Removed "selectQuestionType" from reRender -->
+                                                <apex:commandLink styleclass="slds-button slds-button--neutral" action="{!editQuestion}" value="{!$Label.LABS_SF_Edit}" onComplete="openDialog('addQuestion');" reRender="addQuestionContent, addQuestion">
+                                                    <apex:param name="q" value="{!q.Id}" assignTo="{!questionReference}" />
+                                                </apex:commandLink>
+                                                <apex:commandLink styleclass="slds-button slds-button--brand" action="{!deleteRefresh}" value="{!$Label.LABS_SF_Delete}" onclick="return confirmDelete('{!q.id}')">
+                                                    <apex:param name="q" value="{!q.Id}" assignTo="{!questionReference}" />
+                                                </apex:commandLink>
+                                                
+                                                <!-- Changed by Nomura : Category and Member Included and Removed Question -->
+                                                &nbsp;&nbsp;
+                                                {!q.orderNumber} : {!q.category}
+                                                {!IF((q.member != null), (' : ' + q.member), '')}
+                                                <apex:outputPanel rendered="{!q.required}" styleClass="requiredText slds-text-body--regular">
+                                                    ({!$Label.LABS_SF_Required})
+                                                </apex:outputPanel>
+                                               
+                                               </div>
+                                            <div>
+                                                <!-- <apex:selectRadio styleClass="convertToLDS"  layout="pageDirection" rendered="{!q.renderSelectRadio}">
+                                                    <apex:selectOptions value="{!q.singleOptions}" />
+                                                </apex:selectRadio>
+                                                <apex:selectCheckboxes styleClass="convertToLDS" layout="pageDirection" rendered="{!q.renderSelectCheckboxes}">
+                                                    <apex:selectOptions value="{!q.multiOptions}" />
+                                                </apex:selectCheckboxes>
+                                                <apex:inputTextArea styleClass="slds-textarea" cols="50" rows="5" rendered="{!q.renderFreeText}" />
+                                                <apex:selectRadio styleClass="convertToLDS" rendered="{!q.renderSelectRow}">
+                                                    <apex:selectOptions value="{!q.rowOptions}" />
+                                                </apex:selectRadio> -->
+                                                <!-- Changes by Nomura : -->
+                                                <apex:selectRadio styleClass="convertToLDS"  layout="pageDirection" rendered="false">
+                                                    <apex:selectOptions value="{!q.singleOptions}" />
+                                                </apex:selectRadio>
+                                                
+                                                <apex:selectCheckboxes styleClass="convertToLDS" layout="pageDirection" rendered="false">
+                                                    <apex:selectOptions value="{!q.multiOptions}" />
+                                                </apex:selectCheckboxes>
+                                                
+                                                <apex:inputTextArea styleClass="slds-textarea" cols="50" rows="5" rendered="false" />
+                                                
+                                                <apex:selectRadio styleClass="convertToLDS" rendered="false">
+                                                    <apex:selectOptions value="{!q.rowOptions}" />
+                                                </apex:selectRadio>
+                                            </div>
+                                        </apex:outputPanel>
+                                    </div>
+                                </div>
+                            </apex:repeat>
+                        </div>
+                    </apex:outputPanel>
+                </div>
+            </apex:form>
+            
+            <apex:form id="bulkForm">
+                 <div id="bulkUpload" role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-hide">
+                      <div class="slds-modal__container">
+                        <div class="slds-modal__content slds-p-around--large">
+                            <apex:outputPanel id="addbulkUploadContent">
+                                     <apex:outputPanel >
+                                    <div class="slds-form-element">
+                                        <div class="slds-form-element__control">
+                                            <div class="slds-box slds-theme--shade slds-theme--alert-texture">
+                                               <strong>Download Sample Template</strong> <br/>
+                                                Click <a style="color:blue;" href="/servlet/servlet.FileDownload?file={!downloadid}" download="true">here</a> to download sample import file.<br/>
+                                                <br/>                  
+                                                <strong>Mandatory Fields</strong> <br/>
+                                                1.&nbsp;&nbsp;Member                        - User login Id e.g. mike65.<br/>
+                                                2.&nbsp;&nbsp;Category                      - Click <a style="color:blue;" onclick="var myWindow = window.open('/apex/BulkUploadPopup?objectName=Survey_Question__c&fieldName=Category__c','','width=1000,height=300,scrollbars=yes,resizable=yes');return false;">here</a> for possible values.<br/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </apex:outputPanel>
+                                <div style="clear:both;height:5px;">
+                                    
+                                </div>
+                                <apex:outputPanel >
+                                    <div class="slds-form-element">
+                                        <div class="slds-form-element__control">
+                                            <div class="slds-box slds-theme--default">
+                                                <strong><apex:outputLabel value="{!$Label.LABS_SF_SelectFile}"></apex:outputLabel></strong> <br/>
+                                                <div style="clear:both;height:5px;">
+                                                </div>
+                                                <div class="slds-file-selector slds-file-selector--files">
+                                                    <div class="slds-file-selector__dropzone"> 
+                                                         	 <apex:inputFile id="file"  fileName="{!filename}" value="{!csvblob}"/> 
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </apex:outputPanel>
+                               <div style="clear:both;height:5px;">
+                                </div>
+                                <div class="slds-modal__footer">
+                                    <apex:commandButton styleClass="slds-button slds-button--brand"   value="{!$Label.LABS_SF_StartUploadMembers}"  action="{!startUpload}"/>    
+                                    <button class="slds-button slds-button--brand" onClick="closeDialog('bulkUpload');return false;">
+                                        {!$Label.LABS_SF_Cancel}
+                                    </button>
+                                </div>
+                            </apex:outputPanel>
+
+                        </div>
+                    </div>
+                </div>
+                <div id="bulkUploadBackdrop" class="slds-backdrop slds-backdrop--hide"></div>
+            </apex:form>
+        </div>
+    </div>
+    <!---------------------------------------------------------------------------------------------------------->
+
+</apex:page>

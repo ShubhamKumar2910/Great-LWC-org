@@ -1,0 +1,56 @@
+<apex:page standardController="Campaign" extensions="EmailPreviewController">
+    <!-- For Service Console -->
+    <apex:includeScript value="/support/console/20.0/integration.js"/>
+    <script type="text/javascript">
+        function setTabTitle() {
+            //Set the current tabs title
+            sforce.console.setTabTitle('{!Campaign.Name}');
+        }
+        var pageLoad = window.onload;
+        window.onload = function() {
+            if (pageLoad) {
+                pageLoad();
+            }
+            setTabTitle();
+        }
+        function doSomething(test) {      
+            //alert('hi-->'+test);            
+        	PassingParameter1(test);       
+    	}
+    </script>
+    <style type="text/css">
+        td {
+            vertical-align:top;
+        }
+    </style>
+
+    <apex:form >
+        <apex:pageBlock >
+            <apex:actionFunction name="PassingParameter1" action="{!PassingParameter}" reRender="all">
+  				<apex:param value="" name="recordId"/>
+  		    </apex:actionFunction>
+            <apex:outputText escape="false" value="{!$Label.EmailIsGoingToBeCloned}" /><br/>
+            <br/>
+            
+            <!--apex:commandButton action="{!cloneCampaginForEmail}" value="{!$Label.Apply}" />
+            <apex:commandButton action="{!goBackToCampaign}" value="{!$Label.Cancel}" /-->
+            {!$Label.Name_of_Campaign} :&nbsp;&nbsp;  
+        	<apex:inputText value="{!campCloneName}"  /> <br/> <br/>      	
+        	<apex:outputLabel value="{!$Label.Parent_Campaign}" for="theLookup"  />
+          &nbsp; &nbsp; &nbsp; 
+ 			<apex:inputField id="theLookup" value="{!Camp.parentId}" >
+                <apex:actionSupport event="onchange" onComplete="doSomething('{!Camp.parentId}');" rerender="all" />
+    	    </apex:inputField>
+        	
+        </apex:pageBlock>
+        <apex:commandButton action="{!cloneCampaginForEmail}" value="{!$Label.Clone}"/>
+      	<apex:commandButton action="{!goBackToCampaign}" value="{!$Label.Cancel}"/>
+    </apex:form>
+
+<style type="text/css">
+    .pbTitle {
+        white-space: nowrap
+    }
+</style>
+
+</apex:page>

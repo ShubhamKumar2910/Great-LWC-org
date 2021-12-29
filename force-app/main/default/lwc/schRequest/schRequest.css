@@ -1,0 +1,8 @@
+.inlineSpinner{
+    position: relative;
+    width: 55px;
+    vertical-align: text-bottom;
+    white-space: nowrap;
+    top: 35%;
+    left: 50%;
+}

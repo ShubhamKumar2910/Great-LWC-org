@@ -1,0 +1,37 @@
+.THIS {
+}
+
+.THIS .fixedLayoutHeight{
+    height: 320px;
+    /*margin-right: 1%;*/
+        margin-left: -1%;
+}
+
+.THIS .fixedLayoutItemHeight{
+    height: 300px;
+    margin-right: 1%;
+    overflow: visible;
+   
+}
+
+.THIS .topComponentsLeft{
+	
+}
+
+.THIS .topComponentsLeft .slds-card__body--inner{
+	height: 225px;
+    overflow: hidden;
+	overflow-y: auto; 
+	max-height: 100%;
+} 
+
+.THIS .topComponentsRight{
+	
+}
+
+.THIS .topComponentsRight .slds-card__body--inner{
+	height: 214px;
+    overflow: hidden;
+	overflow-y: auto; 
+	max-height: 100%;
+}

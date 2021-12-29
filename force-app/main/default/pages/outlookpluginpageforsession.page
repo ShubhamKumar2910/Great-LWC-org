@@ -1,0 +1,10 @@
+<apex:page showHeader="false" sidebar="false">
+    <script type="text/javascript">
+
+    function getSessionId() {
+        return '{!$Api.Session_ID}';
+    }
+
+    </script>
+
+</apex:page>

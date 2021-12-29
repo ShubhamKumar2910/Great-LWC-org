@@ -1,0 +1,161 @@
+<apex:page standardController="Account" standardStylesheets="true" extensions="ResourceUtilizationController" title="{!$Label.Account_ROI_PAGE_TITLE}" >    
+    <apex:includeScript value="/support/console/20.0/integration.js"/>
+   <apex:stylesheet value="{! $Resource.SurveyForce_SLDS + '/assets/styles/salesforce-lightning-design-system-vf.min.css'}" />
+    <script type="text/javascript">
+       sforce.console.setTabTitle('{!$Label.Account_ROI_TAB_TITLE} - {!Account.Name}');
+    </script> 
+    <apex:slds />
+    <style>
+       .options > div {
+        width: 24%;
+        display: inline-block;
+        margin-bottom: 10px;
+        } 
+        body .bPageBlock .pbBody .pbSubheader{
+        background-color:#D5D5D5;
+        color: black;
+        }
+        
+        body .bPageBlock .pbBody .pbSubheader h3{
+        color: #443e3e;;
+        }
+        
+        .headerStyle{
+        font-weight:bold;font-size: 9pt;
+        font-color: red;  
+        }
+        
+        .list{
+        	width: 20% !important;
+        	margin-right: 30px !important;
+        }
+        
+        .tables{
+        	width: 100% !important;
+        }
+		
+        .thead{
+        	background-color:yellow !important;
+        }
+        
+        h1{
+        font-size:20px;
+        }
+        #spinner
+        {
+        width:100px;
+        height: 80px;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        background:url(spinner.gif) no-repeat center #fff;
+        text-align:center;
+        padding:10px;
+        font:normal 16px Tahoma, Geneva, sans-serif;
+        margin-left: -50px;
+        margin-top: -50px;
+        z-index:2;
+        overflow: auto;
+        }
+        
+        #mainform .pbSubheader{
+        background-color:blue;
+        }        
+    </style>
+    
+    <div class="slds-scope">   
+    <apex:form id="mainForm" styleClass="slds-form ">  
+        <!--<apex:pageMessages /> -->
+        <br />
+        <apex:pageBlock >       
+            <apex:outputLabel value="{!$Label.Account_ROI_MODEL} : " styleClass="slds-form-element__label" />
+            <apex:selectList value="{!model}" multiselect="false"  size="1" styleClass="slds-select list" >
+                <apex:selectOptions value="{!modelOptions}"/>
+            </apex:selectList>
+                        
+            <apex:outputLabel value="{!$Label.Account_ROI_PERIOD} : " styleClass="slds-form-element__label" />&nbsp;&nbsp; 
+            <apex:selectList value="{!period}" multiselect="false"  size="1" styleClass="slds-select list" >
+                <apex:selectOptions value="{!periodOptions}"/>
+            </apex:selectList>    
+            
+            &nbsp;&nbsp; &nbsp;&nbsp; 
+            <apex:commandButton value="{!$Label.Account_ROI_APPLY_BUTTON}" action="{!search}" rerender="mainForm" status="pageStatus" styleClass="slds-button slds-button_brand" /> 
+            <apex:actionStatus id="pageStatus">
+                <apex:facet name="start">
+                    <apex:outputPanel >
+                        <div id="spinner">
+                            <img src="/img/loading32.gif" width="25" />
+                            &nbsp;&nbsp;<apex:outputLabel value="{!$Label.Account_ROI_LOADER}..." styleClass="slds-form-element__label" />
+                        </div>
+                    </apex:outputPanel>            
+                </apex:facet>
+            </apex:actionStatus>
+            
+            <div style="clear:both; height:20px;">
+            </div>
+            <div class="slds-box slds-theme_shade">
+                {!$Label.Account_ROI_SERVICE_RANKS}           
+                <apex:pageBlockSection columns="1" collapsible="false" >
+                     <div>
+                         <b>Activity Counts are displayed in brackets.</b>
+                    </div>
+                	<!--<apex:pageBlockSection rendered="{!serviceRankWrapper != null && serviceRankWrapper.size > 0}">
+                            <!--<div class="slds-popover slds-popover_tooltip slds-nubbin_bottom-left .slds-popover_large" role="tooltip" id="help" style="position: absolute; top: 120px; left: 240px;">
+                                <div class="slds-popover__body">{!$Label.EnglishRankToolTip}</div>
+                            </div>
+                    </apex:pageBlockSection>-->
+                    <apex:pageBlockSectionItem rendered="{!serviceRankWrapper != null && serviceRankWrapper.size > 0}"  >
+                        <apex:pageBlockTable value="{!serviceRankWrapper}" styleClass="slds-table slds-table_bordered slds-table_cell-buffer tables theads" var="indexService" >
+                            <apex:column headerValue="{!$Label.Account_ROI_SR_ItemName}" value="{!indexService.itemName}" style="{!IF(indexService.itemName=='Total','font-weight:bold;font-size: 8pt;','')}" styleClass="slds-col" /> 
+                            <apex:column headerValue="{!$Label.Account_ROI_SR_Japan_Rank}" value="{!indexService.japanRank} {!IF(indexService.japanCount == null,'','(')} {!indexService.japanCount} {!IF(indexService.japanCount == null,'',')')}"  style="{!IF(indexService.itemName=='Total','font-weight:bold;font-size: 8pt;','')}" styleClass="slds-col"/>
+                            <!--<apex:column headerValue="{!$Label.Account_ROI_SR_Japan_Count}" value="{!indexService.japanCount}"  style="{!IF(indexService.itemName=='Total','font-weight:bold;font-size: 8pt;','')}" styleClass="slds-col"/>-->
+                            <apex:column headerValue="{!$Label.Account_ROI_SR_AsiaEx_Rank}" value="{!indexService.asiaRank} {!IF(indexService.asiaCount == null,'','(')} {!indexService.asiaCount} {!IF(indexService.asiaCount == null,'',')')}"  style="{!IF(indexService.itemName=='Total','font-weight:bold;font-size: 8pt;','')}" styleClass="slds-col"/>
+                            <!--<apex:column headerValue="{!$Label.Account_ROI_SR_AsiaEx_Count}" value="{!indexService.asiaCount}"  style="{!IF(indexService.itemName=='Total','font-weight:bold;font-size: 8pt;','')}" styleClass="slds-col"/>-->
+                            <apex:column headerValue="{!$Label.Account_ROI_SR_Europe_Rank}" value="{!indexService.europeRank} {!IF(indexService.europeCount == null,'','(')} {!indexService.europeCount} {!IF(indexService.europeCount == null,'',')')}"  style="{!IF(indexService.itemName=='Total','font-weight:bold;font-size: 8pt;','')}" styleClass="slds-col"/>
+                            <!--<apex:column headerValue="{!$Label.Account_ROI_SR_Europe_Count}" value="{!indexService.europeCount}"  style="{!IF(indexService.itemName=='Total','font-weight:bold;font-size: 8pt;','')}" styleClass="slds-col"/>-->
+                            <apex:column headerValue="{!$Label.Account_ROI_SR_US_Rank}" value="{!indexService.usRank} {!IF(indexService.usCount == null,'','(')} {!indexService.usCount} {!IF(indexService.usCount == null,'',')')}"  style="{!IF(indexService.itemName=='Total','font-weight:bold;font-size: 8pt;','')}" styleClass="slds-col"/>
+                            <!--<apex:column headerValue="{!$Label.Account_ROI_SR_US_Count}" value="{!indexService.usCount}"  style="{!IF(indexService.itemName=='Total','font-weight:bold;font-size: 8pt;','')}" styleClass="slds-col"/>-->
+                            <apex:column headerValue="{!$Label.Account_ROI_SR_Global_Rank}" value="{!indexService.globalRank} {!IF(indexService.globalCount == null,'','(')} {!indexService.globalCount} {!IF(indexService.globalCount == null,'',')')}"  style="{!IF(indexService.itemName=='Total','font-weight:bold;font-size: 8pt;','')}" styleClass="slds-col"/>
+                            <!-- <apex:column headerValue="{!$Label.Account_ROI_SR_Global_Count}" value="{!indexService.globalCount}"  style="{!IF(indexService.itemName=='Total','font-weight:bold;font-size: 8pt;','')}" styleClass="slds-col"/> -->
+                         </apex:pageBlockTable>   
+                     </apex:pageBlockSectionItem>
+                   <apex:pageMessage strength="2" summary="{!$Label.Account_ROI_SERVICE_RANKS_MSG}" severity="warning" rendered="{!serviceRankWrapper == null || serviceRankWrapper.size <= 0}"></apex:pageMessage>
+                </apex:pageBlockSection>
+            </div>   
+            <div style="clear:both; height:10px;">
+            </div>
+            <div class="slds-box slds-theme_shade">
+                {!$Label.Account_ROI_REVENUE_RANKS}            
+                <apex:pageBlockSection columns="1" collapsible="false">
+                    <apex:pageBlockSectionItem rendered="{!revenueRankWrapper != null && revenueRankWrapper.size > 0}">
+                        <apex:pageBlockTable styleClass="slds-table slds-table_bordered slds-table_cell-buffer tables" value="{!revenueRankWrapper}" var="indexRevenue" > 
+                            <apex:column headerValue="{!$Label.Account_ROI_SR_Product}" value="{!indexRevenue.product}" styleClass="columnStyle" />
+                            <apex:column headerValue="{!$Label.Account_ROI_SR_Japan_Rank}" value="{!indexRevenue.japanRankToDisplay}" />
+                            <apex:column headerValue="{!$Label.Account_ROI_SR_AsiaEx_Rank}" value="{!indexRevenue.asiaRankToDisplay}" />
+                            <apex:column headerValue="{!$Label.Account_ROI_SR_Europe_Rank}" value="{!indexRevenue.europeRankToDisplay}" />
+                            <apex:column headerValue="{!$Label.Account_ROI_SR_US_Rank}" value="{!indexRevenue.usRankToDisplay}" />
+                            <apex:column headerValue="{!$Label.Account_ROI_SR_Global_Rank}" value="{!indexRevenue.globalRankToDisplay}" />
+                        </apex:pageBlockTable>          
+                    </apex:pageBlockSectionItem>
+                   <apex:pageMessage strength="2" summary="{!$Label.Account_ROI_REVENUE_RANKS_MSG}" severity="warning" rendered="{!revenueRankWrapper == null || revenueRankWrapper.size <= 0}"></apex:pageMessage>                
+                </apex:pageBlockSection>
+           </div>
+            <div style="clear:both; height:10px;">
+            </div>
+            <div class="slds-box slds-theme_shade">
+                {!$Label.Account_ROI}           
+                <apex:pageBlockSection columns="1" collapsible="false">
+                    <apex:pageBlockSectionItem rendered="{!roiRanks != null && roiRanks.size > 0}">
+                        <apex:pageBlockTable styleClass="slds-table slds-table_bordered slds-table_cell-buffer tables" value="{!roiRanks}" var="indexROI" > 
+                            <apex:column headerValue="{!$Label.Account_ROI_REGION}" value="{!indexROI.region}" styleClass="columnStyle" />
+                            <apex:column headerValue="{!$Label.Account_ROI_REVENUE_RANK}" value="{!indexROI.revenueRank}" />
+                            <apex:column headerValue="{!$Label.Account_ROI_SERVICE_RANK}" value="{!indexROI.serviceRank} {!IF(indexROI.serviceRankPrevious == null,'','(')} {!indexROI.serviceRankPrevious} {!IF(indexROI.serviceRankPrevious == null,'',')')}" />
+                        </apex:pageBlockTable>          
+                    </apex:pageBlockSectionItem>
+                     <apex:pageMessage strength="2" summary="{!$Label.Account_ROI_MSG}" severity="warning" rendered="{!roiRanks == null || roiRanks.size <= 0}"></apex:pageMessage>                
+                </apex:pageBlockSection>
+         	</div>   
+        </apex:pageBlock>
+    </apex:form> 
+    </div>
+</apex:page>

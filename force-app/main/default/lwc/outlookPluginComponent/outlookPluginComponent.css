@@ -1,0 +1,13 @@
+.tableHeaderClass
+{
+    background-color: #D3D3D3 !important;
+    margin-bottom:1rem;
+}
+
+.labelClass
+{
+    margin-left:1rem;
+    font-size: larger;
+    font-weight : bold;
+
+}

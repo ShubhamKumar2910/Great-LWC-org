@@ -1,0 +1,33 @@
+<apex:page standardController="Contact" sidebar="false" showHeader="false">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <apex:pageBlock title="A" >
+	<apex:pageBlockSection title="My Report" id="MyReport" columns="1" />
+        </apex:pageBlock>
+	<script language="JavaScript">
+		$('[id$="MyReport"] > .pbSubsection > .detailList').load('/00O17000000GJOS table.reportTable.matrixReportTable');
+	</script>
+	<style type="text/css">
+    [id$="MyReport"] > .pbSubsection {
+        margin-top:10px;
+    }
+    [id$="MyReport"] >.pbSubsection tr:first-of-type td, [id$="MyReport"] >.pbSubsection tr:first-of-type th {
+        border-top:1px solid rgb(212, 218, 220)!important;
+    }
+    [id$="MyReport"] > .pbSubsection th, [id$="MyReport"] > .pbSubsection td {
+        font-size: 12px;
+        padding:3px 6px 3px 5px;
+        background-color:#fff;            
+        border-color:rgb(212, 218, 220)!important;
+        border-bottom:1px solid rgb(212, 218, 220)!important;
+    }   
+    [id$="MyReport"] > .pbSubsection th {
+        background-color:#eee;
+    }
+    [id$="MyReport"] > .pbSubsection .grandTotal {
+        background-color:rgb(212, 218, 220);
+    }
+    [id$="MyReport"] > .pbSubsection .drilldown {
+        display:none;
+    }
+	</style>
+</apex:page>

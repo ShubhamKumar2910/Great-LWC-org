@@ -1,0 +1,1883 @@
+<apex:page standardController="Onboarding_Request__c"  applyBodyTag="false" extensions="PreOnbPDFforLegacyAccountController">
+
+<head>
+        <style>
+            table{              
+                    padding:2%;
+                    width:100%;
+            }
+            .td-srNo{
+                width: 1%; 
+                border: 1px solid;  
+                text-align: center;
+                font-size: x-small !important;
+                font-family: Arial,Helvetica,sans-serif !important;
+            }
+            .td-info{
+                width: 20%;
+                border: 1px solid;            
+                height: 30px;
+                padding: 3px;
+                font-size: x-small !important;
+                font-family: Arial,Helvetica,sans-serif !important;
+            }
+            .td-info-large{
+                width:100%;
+                border: 1px solid;            
+                height: 30px;
+                padding: 3px;
+                white-space: normal;
+                font-size: x-small !important;
+                font-family: Arial,Helvetica,sans-serif !important;
+            }
+        </style>
+    </head>
+    
+    <apex:variable value="{!queriedOnbRecord}" var="Onboarding_Request__c" />
+    <h3>
+        Onboarding Request Details
+    </h3>
+    <apex:outputPanel rendered="{!displayAllData}">
+        <table> <!-- Start Legal Entity table -->  
+            <tr>
+                <th colspan="3">
+                    Client Legal Entity
+                </th>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    1.
+                </td>
+                <td class="td-info">
+                    Client Name
+                </td>
+                <td class="td-info">
+                    <b><apex:outputText value="{!Onboarding_Request__c.RM_Account__r.Name}"/></b> 
+                </td>
+            </tr>
+            <tr>      
+                <td colspan="3"><!--blank row --></td>      
+            </tr>       
+            <tr>
+                <td class="td-srNo">
+                    2.
+                </td>
+                <td class="td-info">
+                    Registered Company Country
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Registered_Address_Country__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    3.
+                </td>
+                <td class="td-info">
+                    Registered Company State
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Registered_Address_State__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    4.
+                </td>
+                <td class="td-info">
+                    Registered Company Street
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Registered_Address_Street__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    5.
+                </td>
+                <td class="td-info">
+                    Registered Company City
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Registered_Address_City__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    6.
+                </td>
+                <td class="td-info">
+                    Registered Company Postal Code
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Registered_Address_Postal_Code__c}"/>
+                </td>
+            </tr>
+            <tr>      
+                <td colspan="3"><!--blank row --></td>      
+            </tr>
+            <tr>      
+                <td colspan="3"><!--blank row --></td>      
+            </tr>        
+            <tr>
+                <td class="td-srNo">
+                    7.
+                </td>
+                <td class="td-info">
+                    Organizational Business Country
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Operational_Address_Country__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    8.
+                </td>
+                <td class="td-info">
+                    Organizational Business State
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Operational_Address_State__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    9.
+                </td>
+                <td class="td-info">
+                    Organizational Business Street
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Operational_Address_Street__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    10.
+                </td>
+                <td class="td-info">
+                    Organizational Business City
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Operational_Address_City__c}"/>
+                </td>
+            </tr>        
+            <tr>
+                <td class="td-srNo">
+                    11.
+                </td>
+                <td class="td-info">
+                    Organizational Business Postal Code
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Operational_Address_Postal_Code__c}"/>
+                </td>
+            </tr>
+            <tr>      
+                <td colspan="3"><!--blank row --></td>      
+            </tr>
+            <tr>      
+                <td colspan="3"><!--blank row --></td>      
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    12.
+                </td>
+                <td class="td-info">
+                    Country of Domicile
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Country_of_Domicile__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    13.
+                </td>
+                <td class="td-info">
+                    Client LEI
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.What_is_the_Client_LEI__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    14.
+                </td>
+                <td class="td-info">
+                    Country of Incorporation
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Country_of_Incorporation__c}"/>                
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    15.
+                </td>
+                <td class="td-info">
+                    Bloomberg Id
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Client_IM_Bloomberg_ID__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    16.
+                </td>
+                <td class="td-info">
+                    Client Contact
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Who_did_you_meet_from_the_client_side__r.Name}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    17.
+                </td>
+                <td class="td-info">
+                    Fenergo Id
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.RM_Account__r.Fenergo_LegalEntityId__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    18.
+                </td>
+                <td class="td-info">
+                    RM Id
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.RM_Account__r.RDM_Org_ID__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    19.
+                </td>
+                <td class="td-info">
+                    Client Entity Type
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.GMS_Client_Entity_Type__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    20.
+                </td>
+                <td class="td-info">
+                    Client Entity Sub-Type
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.GMS_Client_Entity_sub_type__c}"/>
+                </td>
+            </tr>        
+            <tr>
+                <td class="td-srNo">
+                    21.
+                </td>
+                <td class="td-info">
+                    Regulator Name
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Regulator_Name__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    22.
+                </td>
+                <td class="td-info">
+                    Assets Under Management
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Assets_Under_Management_USD__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    23.
+                </td>
+                <td class="td-info">
+                    AUM Less Than 100m Justification
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.AUM_Less_Than_100m_Justification__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    24.
+                </td>
+                <td class="td-info">
+                    In your communication with the client, what is your understanding as to the source of the funds that will be used to transact business with Nomura?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Your_understanding_of_source_of_funds__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    25.
+                </td>
+                <td class="td-info">
+                    Other Source of Funds
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Other_Source_of_Funds__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    26.
+                </td>
+                <td class="td-info">
+                    Client Legal Negotiator Region
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Legal_Negotiator_Region__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    27.
+                </td>
+                <td class="td-info">
+                    Requestor
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Requestor__r.Name}"/>                
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    28.
+                </td>
+                <td class="td-info">
+                    Sales Requestor
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Sales_Requestor__r.Name}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    29.
+                </td>
+                <td class="td-info">
+                    Desk Head Approver
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Desk_Head_Approver__r.Name}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    30.
+                </td>
+                <td class="td-info">
+                    RS Country for Credit Work Allocation
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.RS_Country_for_Credit_Work_Allocation__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    31.
+                </td>
+                <td class="td-info">
+                Legal agreements required(if applicable)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Legal_agreements_required_if_applicable__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    32.
+                </td>
+                <td class="td-info">
+                Legal Agreement Other
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Legal_Agreement_Other__c}"/>
+                </td>
+            </tr>
+        </table> <!-- End Legal Entity table -->
+        <br />
+        
+        <table> <!-- Start Contact table -->      
+            <apex:repeat value="{!conDetailsList}" var="contact" id="contactRepeat">
+                <tr>
+                    <th colspan="3">
+                        Contact Details - {!contact.contactNumber}
+                    </th>
+                </tr>
+                <tr>
+                    <td class="td-srNo">
+                        1.
+                    </td>
+                    <td class="td-info">
+                        Contact Name
+                    </td>
+                    <td class="td-info">
+                        <apex:outputText value="{!contact.name}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-srNo">
+                        2.
+                    </td>
+                    <td class="td-info">
+                        Salutation
+                    </td>
+                    <td class="td-info">
+                        <apex:outputText value="{!contact.salutation}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-srNo">
+                        3.
+                    </td>
+                    <td class="td-info">
+                        Contact Type
+                    </td>
+                    <td class="td-info">
+                        <apex:outputText value="{!contact.contactType}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-srNo">
+                        4.
+                    </td>
+                    <td class="td-info">
+                        Phone
+                    </td>
+                    <td class="td-info">
+                        <apex:outputText value="{!contact.phone}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-srNo">
+                        5.
+                    </td>
+                    <td class="td-info">
+                        Mobile Phone
+                    </td>
+                    <td class="td-info">
+                        <apex:outputText value="{!contact.mobilePhone}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-srNo">
+                        6.
+                    </td>
+                    <td class="td-info">
+                        Email
+                    </td>
+                    <td class="td-info">
+                        <apex:outputText value="{!contact.email}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-srNo">
+                        7.
+                    </td>
+                    <td class="td-info">
+                        Fax
+                    </td>
+                    <td class="td-info">
+                        <apex:outputText value="{!contact.fax}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-srNo">
+                        8.
+                    </td>
+                    <td class="td-info">
+                        Role
+                    </td>
+                    <td class="td-info">
+                        <apex:outputText value="{!contact.role}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-srNo">
+                        9.
+                    </td>
+                    <td class="td-info">
+                        Active
+                    </td>
+                    <td class="td-info">
+                        <apex:outputText value="{!contact.active}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-srNo">
+                        10.
+                    </td>
+                    <td class="td-info">
+                        Is Primary Contact
+                    </td>
+                    <td class="td-info">
+                        <apex:outputText value="{!contact.isPrimary}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-srNo">
+                        11.
+                    </td>
+                    <td class="td-info">
+                        Address Type
+                    </td>
+                    <td class="td-info">
+                        Correspondence
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-srNo">
+                        12.
+                    </td>
+                    <td class="td-info">
+                        Mailing Street
+                    </td>
+                    <td class="td-info">
+                        <apex:outputText value="{!contact.MailingStreet}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-srNo">
+                        13.
+                    </td>
+                    <td class="td-info">
+                        Mailing City
+                    </td>
+                    <td class="td-info">
+                        <apex:outputText value="{!contact.MailingCity}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-srNo">
+                        15.
+                    </td>
+                    <td class="td-info">
+                        Mailing State
+                    </td>
+                    <td class="td-info">
+                        <apex:outputText value="{!contact.MailingState}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-srNo">
+                        16.
+                    </td>
+                    <td class="td-info">
+                        Mailing Country
+                    </td>
+                    <td class="td-info">
+                        <apex:outputText value="{!contact.MailingCountry}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-srNo">
+                        17.
+                    </td>
+                    <td class="td-info">
+                        Mailing Postal Code
+                    </td>
+                    <td class="td-info">
+                        <apex:outputText value="{!contact.MailingPostalCode}"/>
+                    </td>
+                </tr>
+                <tr>
+                        <td colspan="3"> <br /><br /> </td>
+                </tr>
+            </apex:repeat>
+        </table> <!-- End Contact table -->
+        <br />
+    </apex:outputPanel>
+
+    <table> <!-- Start Product table -->
+        <apex:repeat value="{!onbProductDetailsList}" var="product">
+            <tr>
+                <th colspan="3"> 
+                    Product Details - {!product.productNumber}
+                </th>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    <b>Product Category</b>
+                </td>
+                <td class="td-info">
+                    <b>Product Type</b>
+                </td>
+                <td class="td-info">
+                    <b>Booking Entity</b>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    {!product.onbProductCategory}
+                </td>
+                <td class="td-info">
+                    {!product.onbProductType}
+                </td >
+                <td class="td-info">
+                    <pre>{!product.bookingEntity} </pre>
+                    
+                </td>
+            </tr>
+                <td colspan="3"><!--blank row --></td>
+            <tr>
+            </tr>
+                <td colspan="3"><!--blank row --></td>
+            <tr>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    1.
+                </td>
+                <td class="td-info">
+                    Priority
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Proposed_Priority__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    2.
+                </td>
+                <td class="td-info">
+                    Additional Priority Justification
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Additional_Priority_Justification__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    3.
+                </td>
+                <td class="td-info">
+                    Trading Location
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Trader_Location__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    4.
+                </td>
+                <td class="td-info">
+                    Sales Office
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Sales_Location__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    5.
+                </td>
+                <td class="td-info">
+                    Transaction Volume (Monthly Trans Size in USD)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Anticipated_Avg_Monthly_Transaction_Size__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    6.
+                </td>
+                <td class="td-info">
+                    Transaction frequency (Monthly Trans Frequency)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Anticipated_Avg_Monthly_Frequency__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    7.
+                </td>
+                <td class="td-info">
+                    Client Capacity
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Are_you_trading_in_principal_with_client__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    8.
+                </td>
+                <td class="td-info">
+                    Clearing Requirements
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Trading_conditions_for_Swap_Transactions__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    9.
+                </td>
+                <td class="td-info">
+                    Market Standard Settlements
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Market_Standard_Settlements__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    10.
+                </td>
+                <td class="td-info">
+                    Market Standard Settlements Justification
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Market_Standard_Settlement_Justification__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    11.
+                </td>
+                <td class="td-info">
+                    Approximate no. of Underlying Funds (if applicable)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Approx_no_of_underlying_funds_if_app__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    12.
+                </td>
+                <td class="td-info">
+                    Trade Deadline Date
+                </td>
+                <td class="td-info">                    
+                    <apex:outputText value="{0,date,MM/dd/yy}"> <apex:param value="{!product.onbProduct.Trade_Deadline__c}" /> </apex:outputText>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    13.
+                </td>
+                <td class="td-info">
+                    Justification for the entity (if not using your regional entity)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Justification_for_the_entity__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    14.
+                </td>
+                <td class="td-info">
+                    New or existing business activity
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.New_or_existing_business_activity__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    15.
+                </td>
+                <td class="td-info">
+                    Are you registered as an ‘Authorised Person’ of this Nomura Entity?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Are_You_Registered_As_Authorised_Person__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    16.
+                </td>
+                <td class="td-info">
+                    Trading desk rank(Relevance to Market)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Trading_Desk_Rank_Relevance_To_Market__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    17.
+                </td>
+                <td class="td-info">
+                    Trading desk rank(Monetisation of Flow)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Trading_Desk_Rank_Monetisation_Of_Flow__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    18.
+                </td>
+                <td class="td-info">
+                    Please provide name of Trader consulted
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Trader_Consulted__r.Name}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    19.
+                </td>
+                <td class="td-info">
+                    Trader Consulted (Free Text)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Trader_Consulted_Free_Text__c}"/>
+                </td>
+            </tr>
+            <td colspan="3"><!--blank row --></td>
+            <tr></tr>
+            <td colspan="3"><!--blank row --></td>
+            <tr></tr> 
+            <tr>
+                <td class="td-srNo"></td>
+                <td class="td-info">Prime Product Questionnaire</td>
+                <td class="td-info"></td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    1.
+                </td>
+                <td class="td-info">
+                    What is the number of days agreed on the CMA?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Number_of_days_agreed_on_the_CMA__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    2.
+                </td>
+                <td class="td-info">
+                    Which regional product markets are you trading in? (approximate % in each)
+                </td>
+                <td class="td-info"></td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    2a.
+                </td>
+                <td class="td-info">
+                    AEJ
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.AEJ_Regional_Product_Market__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    2b.
+                </td>
+                <td class="td-info">
+                    EMEA
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.EMEA_Regional_Product_Market__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    2c.
+                </td>
+                <td class="td-info">
+                    Japan
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Japan_Regional_Product_Market__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    2d.
+                </td>
+                <td class="td-info">
+                    US
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.US_Regional_Product_Market__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    3.
+                </td>
+                <td class="td-info">
+                    Products: (Approximate % in each)
+                </td>
+                <td class="td-info"></td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    3a.
+                </td>
+                <td class="td-info">
+                    Baskets
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Prime_Baskets__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    3b.
+                </td>
+                <td class="td-info">
+                    Coverts
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Prime_Coverts__c}"/>
+                </td>
+            </tr>             
+            <tr>
+                <td class="td-srNo">
+                    3c.
+                </td>
+                <td class="td-info">
+                    Equities
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Prime_Equities__c}"/>
+                </td>
+            </tr>      
+            <tr>
+                <td class="td-srNo">
+                    3d.
+                </td>
+                <td class="td-info">
+                    SPAC
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Prime_SPAC__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    3e.
+                </td>
+                <td class="td-info">
+                    Other
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Prime_Other__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    4.
+                </td>
+                <td class="td-info">
+                    Beneficial Owner Markets
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Beneficial_Owner_Markets__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    5.
+                </td>
+                <td class="td-info">
+                    Estimated # of trades per day
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Estimated_Number_of_Trades_Per_Day__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    6.
+                </td>
+                <td class="td-info">
+                    Estimated $ Notion Per Day
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Estimated_Notional_Amount_Per_Day__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    7.
+                </td>
+                <td class="td-info">
+                    Estimated Portfolio Turnover
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Estimated_Portfolio_Turnover__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    8.
+                </td>
+                <td class="td-info">
+                    Execution Connectivity required?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Execution_Connectivity_required__c}"/>
+                </td>
+            </tr>          
+            <tr>
+                <td class="td-srNo">
+                    9.
+                </td>
+                <td class="td-info">
+                    Fund Assets Under Management (USD)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Fund_Assets_Under_Management__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    10.
+                </td>
+                <td class="td-info">
+                    Is this an existing Nomura relationship?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Is_this_an_existing_Nomura_relationship__c}"/>
+                </td>
+            </tr>     
+            <tr>
+                <td class="td-srNo">
+                    11.
+                </td>
+                <td class="td-info">
+                    Is this an existing Instinet relationship?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Is_this_existing_Instinet_relationship__c}"/>
+                </td>
+            </tr>   
+            <tr>
+                <td class="td-srNo">
+                    12.
+                </td>
+                <td class="td-info">
+                    Which Nomura Credit Analyst has been engaged pre on-boarding?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Nomura_Credit_Analyst_engaged__c}"/>
+                </td>
+            </tr>         
+            <tr>
+                <td class="td-srNo">
+                    13.
+                </td>
+                <td class="td-info">
+                    Which in-business risk analyst has been engaged pre on-boarding?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.In_Business_Risk_Analyst_Engaged__c}"/>
+                </td>
+            </tr>
+            <td colspan="3"><!--blank row --></td>
+            <tr></tr>
+            <td colspan="3"><!--blank row --></td>
+            <tr></tr>            
+            <tr>
+                <td class="td-srNo"></td>
+                <td class="td-info">Futures Product Questionnaire</td>
+                <td class="td-info"></td> 
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    1.
+                </td>
+                <td class="td-info">
+                    Agreement Type
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Agreement_Type__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    2.
+                </td>
+                <td class="td-info">
+                    Give-up Structure
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Give_up_Structure__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    3.
+                </td>
+                <td class="td-info">
+                    Trader Entity Name
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Trader_Entity_Name__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    4.
+                </td>
+                <td class="td-info">
+                    Is Nomura the Clearing Broker?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Is_Nomura_the_Clearing_Broker__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    5.
+                </td>
+                <td class="td-info">
+                    Please state the Clearing Broker
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Clearing_Broker_Name__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    6.
+                </td>
+                <td class="td-info">
+                    Is Nomura the Executing Broker?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Is_Nomura_the_Executing_Broker__c}"/>
+                </td>
+            </tr>             
+            <tr>
+                <td class="td-srNo">
+                    7.
+                </td>
+                <td class="td-info">
+                    Please state the Executing Broker
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Executing_Broker_Name__c}"/>
+                </td>
+            </tr>      
+            <tr>
+                <td class="td-srNo">
+                    8.
+                </td>
+                <td class="td-info">
+                    Customer Entity
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Customer_Entity__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    9.
+                </td>
+                <td class="td-info">
+                    Order placing broker entity name
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Order_placing_broker_entity_name__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    10.
+                </td>
+                <td class="td-info">
+                    Billing Party Name
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Billing_Party_Name__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    11.
+                </td>
+                <td class="td-info">
+                    Execution Rate Schedule
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Execution_Rate_Schedule__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    12.
+                </td>
+                <td class="td-info">
+                    Clearing Account
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Clearing_Account__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    13.
+                </td>
+                <td class="td-info">
+                    Is Client available on DOCS?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Is_Client_available_on_DOCS__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    14.
+                </td>
+                <td class="td-info">
+                    Client contact details if not on DOCS (name)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Name_of_Client_Contact_Not_On_DOCS__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    15.
+                </td>
+                <td class="td-info">
+                    Client contact details if not on DOCS (email)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Email_of_Client_Contact_Not_On_DOCS__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    16.
+                </td>
+                <td class="td-info">
+                    Client contact details if not on DOCS (phone no)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Phone_of_Client_Contact_Not_On_DOCS__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    17.
+                </td>
+                <td class="td-info">
+                    Clearing/Executing Broker details if not on DOCS (name)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Name_of_Broker_Not_On_DOCS__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    18.
+                </td>
+                <td class="td-info">
+                    Clearing/Executing Broker details if not on DOCS (email)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Email_of_Broker_Not_On_DOCS__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    19.
+                </td>
+                <td class="td-info">
+                    Clearing/Executing Broker details if not on DOCS (phone no)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!product.onbProduct.Phone_of_Broker_not_on_DOCS__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3"> <br /><br /> </td>
+            </tr>
+        </apex:repeat>  
+    </table> <!-- End Product table -->
+    <br />
+    
+    <apex:outputPanel rendered="{!displayAllData}">
+        <table><!-- Start of Regulatory Nexus-->
+            <tr>
+                <th colspan="2">
+                    Regulatory Nexus
+                </th>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    1.
+                </td>
+                <td class="td-info">
+                    Regulatory Nexus (i.e. Australia/ EMEA/ US): 
+                    <br />For the products included in the request, does the client strategy require additional Trader or Sales coverage from another sales/trading location?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Regulatory_Nexus_Consideration__c}"/>
+            </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    2.
+                </td>
+                <td class="td-info">
+                    If yes, where are the Trader or Sales locations? 
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Addt_Sales_and_Trading_Location__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    3.
+                </td>
+                <td class="td-info">
+                    If yes, given there may be additional KYC requirements in order for Nomura to comply with Nexus rules, please provide roles and responsibilities of Traders/Sales (i.e. will they; execute trades, meet with client, provide pricing only etc.)?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Roles_and_Responsibilities__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    4.
+                </td>
+                <td class="td-info">
+                    If yes, is the trader or sales support from another location critical to the strategy, meaning the account cannot “go live” without this?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Nexus_critical_to_Client_strategy__c}"/>
+                </td>
+            </tr>
+        </table><!-- End of Regulatory Nexus-->
+        <br />
+        
+        <table >  <!-- Start of Additional Information-->   
+            <tr>
+                <th colspan="3">
+                    Additional Information
+                </th>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    1.
+                </td>
+                <td class="td-info">
+                    Business Line
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Business_line__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    2.
+                </td>
+                <td class="td-info">
+                    Is the Client a MiFID Investment Firm?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Is_the_Client_a_MiFID_Investment_Firm__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    3.
+                </td>
+                <td class="td-info">
+                    Does the client need to be on-boarded for electronic trading?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.On_board_client_for_electronic_trading__c}"/>
+                </td>
+            </tr>   
+            <tr>
+                <td class="td-srNo">
+                    4.
+                </td>
+                <td class="td-info">
+                Has Client requested a Nomura Guarantee?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Has_Client_requested_a_Nomura_Guarantee__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    5.
+                </td>
+                <td class="td-info">
+                Guarantee required from Nomura entity
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Nomura_Entity__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    6.
+                </td>
+                <td class="td-info">
+                Is the Client Regulated
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Is_the_client_regulated__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    7.
+                </td>
+                <td class="td-info">
+                    Confirmation that a face to face meeting has taken place
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Confirmation_for_face_to_face_meeting__c}"/>
+                </td>
+            </tr>                
+            <tr>
+                <td class="td-srNo">
+                    8.
+                </td>
+                <td class="td-info">
+                    Where did the face to face client meeting take place?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Face_to_Face_Meeting_Place__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                9.
+                </td>
+                <td class="td-info">
+                    When was the last meeting date?
+                </td>
+                <td class="td-info">                
+                    <apex:outputText value="{0,date,MM/dd/yy}"> <apex:param value="{!Onboarding_Request__c.When_was_the_last_meeting_date__c}" /> </apex:outputText>
+                </td>
+            </tr>  
+            <tr>
+                <td class="td-srNo">
+                10.
+                </td>
+                <td class="td-info">
+                    No Face To Face Meeting Justification
+                </td>
+                <td class="td-info">  
+                    <apex:outputText value="{!Onboarding_Request__c.No_F2F_Meeting_Justification__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    11.
+                </td>
+                <td class="td-info">
+                    For Instinet / IB referrals,  have they co-signed this form and affirmed to the relevant declaration
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Cosigned_for_Instinet_IB_referrals__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    12.
+                </td>
+                <td class="td-info">
+                    State your division
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.State_your_division__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    13.
+                </td>
+                <td class="td-info">
+                    How do you know of this client?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.How_do_you_know_of_this_client__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    14.
+                </td>
+                <td class="td-info">
+                    How long have you known them?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.How_long_have_you_known_them__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    15.
+                </td>
+                <td class="td-info">
+                    For GM Sales, submit latest client call report with this request
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Client_Call_Report_Name__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    16.
+                </td>
+                <td class="td-info">
+                    Did you originate this client relationship to Nomura?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Did_you_originate_this_client_rltnshp__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    17.
+                </td>
+                <td class="td-info">
+                    Instinet/IBD Employee that knows client
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Instinet_IB_referral_co_signed_contact__r.Name}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    18.
+                </td>
+                <td class="td-info">
+                    GM Employee that knows client
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Instinet_IB_referral_co_signed_user__r.Name}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    19.
+                </td>
+                <td class="td-info">
+                    Is this an Instinet client needing an ID Market setup? If so, state the market.
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Instinet_Client_ID_Market__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    20.
+                </td>
+                <td class="td-info">
+                    Is this an IBD transaction for GM Trading account setup? If so, state the project.
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.IBD_transaction_for_GM_Trading_acc_setup__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    21.
+                </td>
+                <td class="td-info">
+                    Project
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Project__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    22.
+                </td>
+                <td class="td-info">
+                    Are you aware of any matters in the public domain or to your knowledge in relation to the proposed client, its shareholders, directors, controllers and anyone with significant influence on the proposed client, that may be of interest to this transaction or of use to the Client Account Approval/ Financial Crime Teams in conducting their review. Such person can be a senior foreign political figure or politically exposed person (PEP) ?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Are_you_aware_of_matter_in_public_domain__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    23.
+                </td>
+                <td class="td-info">
+                    Estimated Revenue p.a. (USD) from client
+                </td>
+                <td class="td-info">
+                    $<apex:outputText value="{!Onboarding_Request__c.Estimated_Revenue_p_a_USD_from_client__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    24.
+                </td>
+                <td class="td-info">
+                    Is your revenue estimate based on prior relationship with the client (e.g. at previous firm)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Revenue_estimate_based_on_prior_rltnshp__c}"/>
+                </td>
+            </tr>        
+        </table><!-- End of Additional Information-->
+        <br />
+    
+        <table> <!-- Start of EMEA Regional Topup-->
+            <tr>
+                <th colspan="2">
+                    EMEA Regional Topup
+                </th>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    1.
+                </td>
+                <td class="td-info">
+                Does the client have a balance sheet total of at least EUR 20 million?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Balance_sheet_total_of_EUR_20_million__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    2.
+                </td>
+                <td class="td-info">
+                Does the client have net turnover of at least EUR 40 million?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Net_turnover_of_EUR_40_million__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    3.
+                </td>
+                <td class="td-info">
+                Does the client have own funds of at least EUR 2 million? 
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Own_funds_of_EUR_2_million__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    4.
+                </td>
+                <td class="td-info">
+                    Does the client intend to onward distribute to its clients financial instruments that NIP or NFPE manufactures?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Intend_to_distribute_financial_instrment__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    5.
+                </td>
+                <td class="td-info">
+                    Does the client intend on entering into a Title Transfer Collateral Arrangement (“TTCA”)? If so, please confirm the appropriateness of this arrangement has been considered (click here for more information)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Does_client_intend_to_enter_into_TTCA__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    6.
+                </td>
+                <td class="td-info">
+                    Does the client require EMIR Delegated Reporting / C+V Reporting*?
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Require_EMIR_Delegated_C_V_Reporting__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    7.
+                </td>
+                <td class="td-info">
+                    No. of employees at the client entity
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.No_of_employees_at_the_client_entity__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    8.
+                </td>
+                <td class="td-info">
+                    Please confirm that you will be attaching Proof of AUM
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Proof_Of_AUM_Confirmation__c}"/>
+                </td>
+            </tr>
+        </table><!-- End of EMEA Regional Topup-->
+        <br />    
+        
+        <table> <!-- Start of US Regional Topup-->
+            <tr>
+                <th colspan="2">
+                    US Regional Topup
+                </th>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    1.
+                </td>
+                <td class="td-info">
+                    Will your client be trading any of the below delta 1 products?  If so, your client will need to adhere to the 871(m) protocol or include 871(m) language in the ISDA documentation. 
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Will_client_trade_in_delta_1_products__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    2.
+                </td>
+                <td class="td-info">
+                    Does the client wish to receive debt research and commentary (FINRA 2242)
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Receive_debt_research_commentary__c}"/>
+                </td>
+            </tr>
+        </table> <!-- End of US Regional Topup-->
+        <br />
+        
+        <table> <!-- Start of AEJ Regional Topup-->
+            <tr>
+                <th colspan="2">
+                    AEJ Regional Topup
+                </th>
+            </tr>            
+            <tr>
+                <td class="td-srNo">
+                    1.
+                </td>
+                <td class="td-info">
+                    Regulatory Compliance: This client need to be assessed for Singapore Accredited Investor / Institutional Investor (Note: AEJ Branches are out of scope)
+                    <br />1. NSL / NSS entity
+                    <br />2. NSIS / NISP / NIF entity
+                    <br />3. Singapore Sales coverage
+                    <br />4. Singapore domiciled account             
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.SG_Accredited_Institutional_Investor__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    2.
+                </td>
+                <td class="td-info">
+                    Confirm what financial evidence is available to Credit Risk Management
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Financial_evidence_for_Credit_Risk_Mgmt__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    3.
+                </td>
+                <td class="td-info">
+                    Source of financial evidence
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Source_of_AUM__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    4.
+                </td>
+                <td class="td-info">
+                    Other Source of AUM
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Other_Source_of_AUM__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    5.
+                </td>
+                <td class="td-info">
+                    Reported date of financial evidence
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Reported_date_Financial_evidence_period__c}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-srNo">
+                    6.
+                </td>
+                <td class="td-info">
+                    DvP Settlement Setup is required
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Will_client_require_DvP_settlement__c}"/>
+                </td>
+            </tr> 
+            <tr>
+                <td class="td-srNo">
+                    7.
+                </td>
+                <td class="td-info">
+                    Confirm whether this client is an EAM (External Asset Manager) client
+                </td>
+                <td class="td-info">
+                    <apex:outputText value="{!Onboarding_Request__c.Pure_EAM_Client__c}"/>
+                </td>
+            </tr>
+        </table><!-- End of AEJ Regional Topup-->
+        
+        <table style="width:100%; table-layout:fixed;">  <!--Approval Comment History-->   
+            <tr>
+                <th> 
+                    Approval Comment History
+                </th>
+            </tr>
+            <tr>
+                <td class="td-info-large">
+                    <apex:outputField value="{!Onboarding_Request__c.Approval_Comments__c}"/>
+                </td>
+            </tr>
+        </table>
+    </apex:outputPanel>
+</apex:page>

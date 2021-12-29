@@ -1,0 +1,56 @@
+<aura:component controller="ChangeGRPSponsor" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+  	<!-- RECORD ID -->
+    <aura:attribute name="recordId" type="Id" access="global"/>	
+    <aura:attribute name="searchString" type="String" access="global"/>	
+    <aura:attribute name="chosenId" type="Id" access="global"/>	
+    <aura:attribute name="availableUsersMap" type="Map" access="global"/>	
+    <aura:attribute name="availableUser" type="List" access="global"/>	
+    <aura:attribute name="selectedLookupIds" type="STRING[]" access="global"/>	
+    <aura:attribute name="selectedLookupId" type="STRING" access="global"/>
+    <aura:attribute name="contactInfo" type="Contact" default="{ 'sobjectType': 'Contact' }"/> 
+    <aura:attribute name="isGRPAccess" type="Boolean" access="global"/>
+    <aura:attribute name="existingSponsorId" type="STRING" access="global"/>
+
+    <!-- HANDLERS -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <!--Methods -->
+    <aura:method name="doSaveContact" action="{!c.doSaveContact}" />
+    <aura:method name="callInit" action="{!c.doInit}" />
+    <aura:method name="callReset" action="{!c.doReset}" />
+    <!--<aura:method name="getSponsorId" action="{!c.getSponsorIdt}" />-->
+    
+
+      <!-- Contact with GRP Access -->          
+     <aura:if isTrue="{!v.isGRPAccess}">
+         
+   <div class="slds-p-around_medium .slds-p-around--medium">
+             <!--Header -->
+    	<lightning:layout horizontalAlign="space" verticalAlign="stretch">
+            <lightning:layoutItem size="12" class="itemPadding" >
+                
+				
+                <c:SingleLookup aura:id="lookup-contact"   allRecords="true" sObjectAPIName="User" charLimit="2" label="Sales Person" pluralLabel="Sales Persons"
+                                showNomuraEmployee="true" listIconSVGPath="standard:contact" 
+                                listIconClass="slds-icon-standard-contact" itemChange="{!c.doApplySponsor}"/>
+				</lightning:layoutItem>
+        </lightning:layout>
+
+       <div style="clear:both;height:5px;"></div>
+       <lightning:layout horizontalAlign="space" verticalAlign="stretch">
+            <lightning:layoutItem size="12" class="itemPadding" >
+        
+                <div style="clear:both;height:5px;"></div>
+                
+				<lightning:input type="String" label="Sponsor Email" value="{!v.contactInfo.Sponsor_Email_Text__c}" name="sponsorEmail" /> 
+                <lightning:input type="String" label="Sponsor" value="{!v.contactInfo.Sales_Sponsor__c}" name="sponsor"/> 
+
+ 
+            </lightning:layoutItem>
+        </lightning:layout>
+        
+         </div>
+         </aura:if>
+             
+
+</aura:component>

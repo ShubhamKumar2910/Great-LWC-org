@@ -1,0 +1,139 @@
+<apex:page standardController="Account" extensions="Sales_ChampionFullList_Controller" tabStyle="Sales_Champion__c">
+    <apex:sectionHeader title="{!$Label.Label_Sales_Champion_SalesChampionOf}"/>
+    <apex:includeScript value="/support/console/30.0/integration.js" />
+    <style>
+    	.headerStyle{
+        	font-weight:bold; font-size:9pt;
+        }
+        .formStyle{
+        	position: relative;
+        }
+        body .bPageBlock .pbBody .panelTopPosition{
+        	position: absolute;
+        	top: 0;
+        	right : 0;
+        }
+        body .bPageBlock .pbBody .panelNextBottomPosition{
+        	position: absolute;
+        	bottom: -30px;
+        	left : 0;
+        	color:black;
+        }
+  
+        body .bPageBlock .pbBody .panelBottomPosition{
+        	position: absolute;
+        	bottom: -30px;
+        	right : 0;
+        }
+        
+        body .bPageBlock .pbBody .filters{
+        	color: #2a94d6;
+        	text-decoration: none;
+        }
+    </style>
+        <script type="text/javascript" >
+    
+    	    window.onload = function onloadJS()
+    		{         
+                var imgUrlForSalesChampion = '{$Resource.SalesChampionIcon}';   
+                //       console.log('imgUrl:'+imgUrl);
+                sforce.console.setTabTitle('{!$Label.Label_Sales_Champion_SalesChampionOf}');
+                sforce.console.setTabIcon(imgUrlForSalesChampion, null, null);
+                
+    		} ;
+   
+            function openAccountUserSubtab(caseId) {
+                sforce.console.getEnclosingPrimaryTabId(function(result){
+                    sforce.console.openSubtab(result.id, '/' + caseId, true, '', null);
+                });
+            };	
+    
+    </script>
+    <apex:pageBlock mode="maindetail">
+        <apex:form id="formBlock" styleClass="formStyle">
+            
+            <div style="clear:both; height:20px;">                
+            </div>
+            
+            <apex:panelGrid styleClass="panelTopPosition" columns="25">
+            	<apex:repeat value="{!strings}" var="string" >
+                	<apex:commandLink action="{!filterRecords}" styleClass="filters" reRender="formBlock" value="{!string}" rendered="{!IF(selectedFilter == string, TRUE, FALSE)}" style="color:black; background: #9dceec; font-weight: bold;"> 
+                    	<apex:param name="selectedFilter" value="{!string}" assignTo="{!selectedFilter}"/>    
+                    </apex:commandLink>
+                    <apex:commandLink action="{!filterRecords}" styleClass="filters" reRender="formBlock" value="{!string}" rendered="{!IF(selectedFilter != string, TRUE, FALSE)}" > 
+                    	<apex:param name="selectedFilter" value="{!string}" assignTo="{!selectedFilter}"/>    
+                    </apex:commandLink>
+                    &nbsp; | &nbsp;&nbsp;
+                </apex:repeat>
+                <apex:commandLink action="{!filterRecords}" styleClass="filters" reRender="formBlock" value="All" rendered="{!IF(selectedFilter == 'All' || selectedFilter == '', TRUE, FALSE)}" style="color:black; background: #8dc6e9; font-weight: bold;">
+                    <apex:param value="All" assignTo="{!selectedFilter}"/>
+                </apex:commandLink>
+                <apex:commandLink action="{!filterRecords}" styleClass="filters" reRender="formBlock" value="All" rendered="{!IF(selectedFilter != 'All' && selectedFilter != '', TRUE, FALSE)}" >
+                    <apex:param value="All" assignTo="{!selectedFilter}"/>
+                </apex:commandLink>
+            </apex:panelGrid>
+            
+            
+            <apex:pageBlockTable styleClass=".extended.css" value="{!salesChampionAccount}" var="index">
+                
+				<apex:column style="width:50%;">
+                	<apex:facet name="header">
+                        <apex:commandLink action="{!sortedSalesRecords}" reRender="formBlock" value="{!$Label.Label_Sales_Champion_AccountName} {!IF(sortExpression == 'Account__r.Name', IF(sortDirection == 'ASC','▲','▼'), '' )}">
+                            <apex:param value="Account__r.Name" assignTo="{!sortExpression}" />
+                        </apex:commandLink>                        
+                    </apex:facet>
+                    <a href="#" onClick="javascript:srcUp('/{!index.Account__r.Id}');"> {!index.Account__r.Name} </a>
+                    
+                </apex:column>                
+                <apex:column >
+                	<apex:facet name="header">
+                    	<apex:commandLink action="{!sortedSalesRecords}" reRender="formBlock" value="{!$Label.Label_Sales_Champion_ChampionType} {!IF(sortExpression == 'Champion_Type__c', IF(sortDirection == 'ASC',  '▲','▼'), '')}" >
+                            <apex:param value="Champion_Type__c" assignTo="{!sortExpression}"/>
+                        </apex:commandLink>
+                    </apex:facet>
+                    {!index.Champion_Type__c}
+                </apex:column>
+                <apex:column >
+                    <apex:facet name="header">
+                    	<apex:commandLink action="{!sortedSalesRecords}" reRender="formBlock" value="{!$Label.Label_Sales_Champion_Region} {!IF(sortExpression = 'Region__c', IF(sortDirection == 'ASC',  '▲','▼'), '')}">
+                            <apex:param value="Region__c" assignTo="{!sortExpression}" />
+                        </apex:commandLink>
+                    </apex:facet>
+                    {!index.Region__c}
+                </apex:column>
+			</apex:pageBlockTable>
+            
+            <apex:panelGrid styleClass="panelNextBottomPosition" columns="8">
+                <apex:commandLink action="{!previous}" rendered="{!hasPrevious}"> Previous </apex:commandLink>
+                <apex:outputText rendered="{!hasPrevious}"> | </apex:outputText>
+                <apex:commandLink action="{!next}" rendered="{!hasNext}"> Next </apex:commandLink>
+                <apex:outputText rendered="{!hasNext}"> | </apex:outputText>
+                <apex:outputText styleClass=".DesktopFrameCommon.css">
+                    {!IF((pageNumber * pageSize) > resultSize, resultSize, (pageNumber * pageSize))} / {!resultSize} records
+                </apex:outputText>
+                
+            </apex:panelGrid>
+            
+            <apex:panelGrid styleClass="panelBottomPosition" columns="25">
+            	<apex:repeat value="{!strings}" var="string" >
+                	<apex:commandLink action="{!filterRecords}" styleClass="filters" reRender="formBlock" value="{!string}" rendered="{!IF(selectedFilter == string, TRUE, FALSE)}" style="color:black; background: #9dceec; font-weight: bold;"> 
+                    	<apex:param name="selectedFilter" value="{!string}" assignTo="{!selectedFilter}"/>    
+                    </apex:commandLink>
+                    <apex:commandLink action="{!filterRecords}" styleClass="filters" reRender="formBlock" value="{!string}" rendered="{!IF(selectedFilter != string, TRUE, FALSE)}" > 
+                    	<apex:param name="selectedFilter" value="{!string}" assignTo="{!selectedFilter}"/>    
+                    </apex:commandLink>
+                    &nbsp; | &nbsp;&nbsp;
+                </apex:repeat>
+                <apex:commandLink action="{!filterRecords}" styleClass="filters" reRender="formBlock" value="All" rendered="{!IF(selectedFilter == 'All' || selectedFilter == '', TRUE, FALSE)}" style="color:black; background: #8dc6e9; font-weight: bold;">
+                    <apex:param value="All" assignTo="{!selectedFilter}"/>
+                </apex:commandLink>
+                <apex:commandLink action="{!filterRecords}" styleClass="filters" reRender="formBlock" value="All" rendered="{!IF(selectedFilter != 'All' && selectedFilter != '', TRUE, FALSE)}" >
+                    <apex:param value="All" assignTo="{!selectedFilter}"/>
+                </apex:commandLink>
+            </apex:panelGrid>
+            
+        </apex:form>
+       <div style="clear:both; height:20px;">                
+            </div>
+    </apex:pageBlock>
+</apex:page>

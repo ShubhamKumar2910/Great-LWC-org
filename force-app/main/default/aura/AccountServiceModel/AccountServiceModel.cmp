@@ -1,0 +1,176 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,flexipage:availableForRecordHome,force:hasRecordId" access="global"  controller="AccountServiceModelServerController" >	
+    <style>
+    	.inputSelectSize {
+            min-height: 100px !important;
+            height: 100px !important;
+		}
+        
+        .inputSelectOptionSize {
+            padding: .25rem !important;
+        }        
+    </style>
+  
+    <aura:dependency resource="markup://force:navigateToSObject" type="EVENT"/>
+	<aura:dependency resource="markup://force:navigateToList" type="EVENT"/>
+    
+    <!-- Labels -->  
+    <aura:attribute name="modelLabel" type="String" />
+    <aura:attribute name="itemNameLabel" type="String" />
+    <aura:attribute name="callReportTypeLabel" type="String" />
+    <aura:attribute name="weightLabel" type="String" />
+    <aura:attribute name="dealAxisEventTypeLabel" type="String" />
+    <aura:attribute name="dealAxisEventMeetingTypeLabel" type="String" />
+    <aura:attribute name="contactCountLabel" type="String" />
+    <aura:attribute name="orderLabel" type="String" />	
+    <aura:attribute name="Add_to_Existing_Model" type="String" />	
+    <aura:attribute name="Information" type="String" />	
+    <aura:attribute name="Error" type="String" />	
+    <aura:attribute name="Save" type="String" />
+    <aura:attribute name="Cancel" type="String" />
+    
+    <!-- Custom event methods call values -->
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="listViewName" type="String"/>
+    <aura:attribute name="scope" type="String"/>
+    <aura:attribute name="listViewId" type="String"/>
+    
+    <!-- Page values -->
+    <aura:attribute name="newASM" type="Account_Service_Model__c" default="{ 'sobjectType': 'Account_Service_Model__c' }" /> 
+    <aura:attribute name="hasErrors" type="Boolean" default="false" description="Indicate whether there were failures or not" />
+	<aura:attribute name="errorMessages" type="String" />    
+   	<aura:attribute name="modelOptions" type="String" />
+    <aura:attribute name="itemName" type="String" />
+    <aura:attribute name="callReportTypeOptions" type="String" />
+    <aura:attribute name="contactCountOptions" type="String" />
+    <aura:attribute name="weight" type="String" />
+	<aura:attribute name="dealAxisEventTypeOptions" type="String" />
+    <aura:attribute name="dealAxisEventMeetingTypeOptions" type="String" />
+    <aura:attribute name="order" type="String" />
+    <aura:attribute name="owner" type="String" />
+    
+    <!-- Handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:method name="saveButton" action="{!c.saveButton}" description="" />
+    <aura:method name="cancelButton" action="{!c.cancelButton}" description="" />
+    
+    <lightning:layout horizontalAlign="space" verticalAlign="stretch">
+        <lightning:layoutItem size="12" padding="around-small">
+            <label class="slds-text-heading_medium " for="heading" value="heading"> 
+                <ui:outputText value="{!$Label.c.Add_to_Existing_Model}"  />
+            </label>  
+        </lightning:layoutItem>
+    </lightning:layout>
+         
+    <lightning:layout horizontalAlign="space"> <!-- Error layout -->
+        <lightning:layoutItem size="12"> <!-- Column 1 -->
+            <ui:message closable="false" severity="info" title="{!$Label.c.Information}" /> 
+            <aura:if isTrue="{!v.hasErrors}">                
+                <ui:message closable="false" severity="error" title="{!$Label.c.Error}">                                       
+                    <lightning:icon iconName="utility:error" variant="error" size="small"/>
+                    <aura:iteration items="{!v.errorMessages}" var="item">
+                        <ui:outputText value="{!item}" />
+                        <ui:outputText value="{!item.message}" />
+                    </aura:iteration>                    
+                </ui:message>
+            </aura:if>
+        </lightning:layoutItem>
+    </lightning:layout> <!-- End Error layout -->
+        
+    <lightning:layout horizontalAlign="spread" multipleRows="true"> <!-- Main form -->        	
+        <!-- Row 1 -->
+        <lightning:layoutItem size="6" padding="around-small" flexibility="auto"> <!-- Column 1 -->                                             
+            <!-- Model -->
+            <label class="slds-form-element__label" for="model">
+                <abbr class="slds-required" title="required">*</abbr>
+                <ui:outputText value="{!v.modelLabel}" />
+            </label>
+            <ui:inputSelect class="slds-select" aura:id="model" value="{!v.newASM.Name}">
+                <ui:inputSelectOption text="--Select--" label="--Select--" />
+                <aura:iteration items="{!v.modelOptions}" var="modelItem">
+                    <ui:inputSelectOption text="{!modelItem}" label="{!modelItem}" />                       
+                </aura:iteration>
+            </ui:inputSelect>
+        </lightning:layoutItem>
+            
+        <lightning:layoutItem size="6" padding="around-small" flexibility="auto"> <!-- Column 2 -->                               
+            <!-- Item Name -->
+            <label class="slds-form-element__label" for="itemName" >
+                <abbr class="slds-required" title="required">*</abbr>
+                <ui:outputText value="{!v.itemNameLabel}" />
+            </label>
+            <ui:inputText aura:id="itemName" class="slds-input" value="{!v.newASM.Item_Name__c}" />
+        </lightning:layoutItem>
+        <!-- End Row 1 -->
+        
+        <!--Row 2 -->
+        <lightning:layoutItem size="6" padding="around-small" flexibility="auto"> <!-- Column 1 -->                               
+            <!-- Call Report Type -->
+            <label class="slds-form-element__label" for="callReportType">                  
+                <ui:outputText value="{!v.callReportTypeLabel}" />
+            </label>
+            <ui:inputSelect multiple="true" class="slds-select inputSelectSize" aura:id="callReportType" value="{!v.newASM.Call_Report_Type__c}">
+                <aura:iteration items="{!v.callReportTypeOptions}" var="callReportTypeItem">
+                    <ui:inputSelectOption text="{!callReportTypeItem}" label="{!callReportTypeItem}" class="inputSelectOptionSize"/>
+                </aura:iteration>
+            </ui:inputSelect>
+        </lightning:layoutItem>
+            
+        
+        <!-- Row 3 -->
+        <lightning:layoutItem size="6" padding="around-small" flexibility="auto"> <!-- Column 1 -->  
+            <!-- DealAxis Event Type -->
+            <label class="slds-form-element__label" for="dealAxisEventType">                  
+                <ui:outputText value="DealAxis Type" />
+            </label>
+            <ui:inputSelect multiple="true" class="slds-select inputSelectSize" aura:id="dealAxisEventType" value="{!v.newASM.DealAxis_Type__c}" >
+                <aura:iteration items="{!v.dealAxisEventTypeOptions}" var="dealAxisEventTypeItems" >
+                    <ui:inputSelectOption text="{!dealAxisEventTypeItems}" label="{!dealAxisEventTypeItems}" class="inputSelectOptionSize"/>
+                </aura:iteration>                
+            </ui:inputSelect>
+        </lightning:layoutItem>
+            
+       <!-- End Row 3 -->    
+        
+        <lightning:layoutItem size="6" padding="around-small" flexibility="auto"> <!-- Column 2 --> 
+            <!-- Weight -->
+            <label class="slds-form-element__label" for="weight">                  
+                <ui:outputText value="{!v.weightLabel}" />
+            </label>
+            <ui:inputNumber aura:id="weight" class="slds-input" value="{!v.newASM.Weight__c}"/>
+        </lightning:layoutItem>
+        <!-- End Row 2 -->
+        
+        
+        <!-- Row 4 -->
+        <lightning:layoutItem size="6" padding="around-small" flexibility="auto"> <!-- Column 1 -->
+            <!-- Contact Count -->
+            <label class="slds-form-element__label" for="contactCount">                  
+                <ui:outputText value="{!v.contactCountLabel}" />
+            </label>
+            <ui:inputSelect class="slds-select" aura:id="contactCount" value="{!v.newASM.Is_Contact_Count__c}">
+                <ui:inputSelectOption text="--None--" label="--None--" />
+                <aura:iteration items="{!v.contactCountOptions}" var="contactCountItems">
+                    <ui:inputSelectOption text="{!contactCountItems}" label="{!contactCountItems}" />
+                </aura:iteration>                
+            </ui:inputSelect>
+        </lightning:layoutItem>
+            
+        <lightning:layoutItem size="6" padding="around-small" flexibility="auto"> <!-- Column 2 -->  
+            <!-- Order -->
+            <label class="slds-form-element__label" for="order">                  
+                <ui:outputText value="{!v.orderLabel}" />
+            </label>
+            <ui:inputNumber aura:id="order" class="slds-input" value="{!v.newASM.Order__c}" />                        
+        </lightning:layoutItem>
+        <!-- End Row 4 -->    
+    </lightning:layout> <!-- End Main form -->
+            
+    <lightning:layout horizontalAlign="center" verticalAlign="center" class="slds-docked-form-footer">
+        <lightning:layoutItem size="2" flexibility="auto">
+            <lightning:button label="{!$Label.c.Cancel}" onclick="{!c.cancelButton}" variant="neutral" />
+            <lightning:button label="{!$Label.c.Save}" onclick="{!c.saveButton}" variant="brand" />
+        </lightning:layoutItem>
+    </lightning:layout>
+           
+</aura:component>

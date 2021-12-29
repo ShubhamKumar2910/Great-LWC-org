@@ -1,0 +1,10 @@
+.THIS {
+}
+.THIS .fullWidth{
+    width: 100%;
+}
+
+.THIS .errorMessagePadding {
+    align-self: normal;
+    margin-right: 60px;
+}

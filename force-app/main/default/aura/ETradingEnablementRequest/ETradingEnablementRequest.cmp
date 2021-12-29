@@ -1,0 +1,140 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes" access="global" controller="ETradingEnablementRequestController">
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:handler name="newContact" event="c:ETradingEnablementContactEvent" action="{!c.handleETradingEnablementContact}"/>	
+    <aura:handler name="salesCodeProducts" event="c:ETradingEnablementSalesRequestEvent" action="{!c.handleSalesCodeProducts}"/>
+    <aura:handler name="salesCodeRemove" event="c:ETradingEnablementSalesRequestRemoveEvent" action="{!c.handleSalesCodeRemove}" />
+    
+    <aura:attribute name="errors" type="Boolean" default="false"/>
+    <aura:attribute name="errorMessages" type="String[]"/>
+    <aura:attribute name="contactIds" type="String[]"/>
+    <aura:attribute name="platformOptions" type="Object[]"/>
+    <aura:attribute name="platformIds" type="String[]"/>
+    <aura:attribute name="comments" type="String"/>
+    <aura:attribute name="products" type="Object"/>
+    <aura:attribute name="cashRDM" type="Object"/>
+    <aura:attribute name="cashRDMEntity" type="Object"/>
+    <aura:attribute name="irsRDM" type="Object"/>
+    <aura:attribute name="irsRDMEntity" type="Object"/>
+    <aura:attribute name="repoRDM" type="Object"/>
+    <aura:attribute name="repoRDMEntity" type="Object"/>
+    <aura:attribute name="clearing" type="Object" />
+    <aura:attribute name="bilateral" type="Object" />
+    <aura:attribute name="clearingHouses" type="Object"/>
+    <aura:attribute name="clearingBilateralProducts" type="Object"/>
+    <aura:attribute name="globalMarginRequirements" type="Object"/>
+    <aura:attribute name="collateralCurrencies" type="Object"/>
+    <aura:attribute name="collateralTypes" type="Object"/>
+    <aura:attribute name="tenorRestriction" type="Object"/>
+    <aura:attribute name="breakClause" type="Object"/>
+    <aura:attribute name="salesCodeProducts" type="Map"/>
+    <aura:attribute name="salesCodeCashRDMs" type="Map"/>
+    <aura:attribute name="salesCodeCashRDMEntities" type="Map"/>
+    <aura:attribute name="salesCodeIRSRDMs" type="Map"/>
+    <aura:attribute name="salesCodeIRSRDMEntities" type="Map"/>
+    <aura:attribute name="salesCodeRepoRDMs" type="Map"/>
+    <aura:attribute name="salesCodeRepoRDMEntities" type="Map"/>
+    <aura:attribute name="salesCodeClearingBilaterals" type="Map"/>
+    <aura:attribute name="salesCodeClearings" type="Map" />
+    <aura:attribute name="salesCodeBilaterals" type="Map" />
+    <aura:attribute name="salesCodeClearingHouses" type="Map"/>
+    <aura:attribute name="salesCodeClearingBilateralProducts" type="Map"/>
+    <aura:attribute name="salesCodeGlobalMarginRequirements" type="Map"/>
+    <aura:attribute name="salesCodeCollateralCurrencies" type="Map"/>
+    <aura:attribute name="salesCodeCollateralTypes" type="Map"/>
+    <aura:attribute name="salesCodeTenorRestrictions" type="Map"/>
+    <aura:attribute name="salesCodeBreakClauses" type="Map"/>
+     
+    <aura:attribute name="salesRequests" type="Aura.Component[]"/>
+
+    <aura:attribute name="pageReference" type="Object"/>
+
+    <lightning:navigation aura:id="navigationService"/>
+    
+    <lightning:spinner aura:id="spinner" variant="brand" size="large" class="slds-hide"/>
+    
+    <aura:if isTrue="{!v.errors}">
+        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" role="alert">
+            <lightning:icon iconName="utility:warning" variant="warning" class="slds-icon slds-icon_x-small inlineTable"/>
+            <div id="errors" style="">
+                <aura:iteration items="{!v.errorMessages}" var="item">
+                    <ui:outputText value="{!item.message}" class="blockDisplay"/>
+                </aura:iteration>
+            </div>
+            <lightning:buttonIcon iconName="utility:close" variant="bare" onclick="{!c.closeErrorMessages}"/>
+        </div>
+        <aura:set attribute="else">
+            <div></div>
+        </aura:set>
+    </aura:if> 
+    
+    <lightning:layout aura:id="Select" multipleRows="true">
+        <lightning:layoutItem aura:id="filter" size="12">
+            <lightning:card title="eTrading Enablement Request" iconName="custom:custom39">
+                <aura:set attribute="footer">
+                    <lightning:button label="{!$Label.c.CVGTOOL_CANCEL}" title="{!$Label.c.CVGTOOL_CANCEL}" iconName="utility:undo" onclick="{!c.cancel}" variant="neutral"/>
+                    <lightning:button label="{!$Label.c.CVGTOOL_APPLY}" title="{!$Label.c.CVGTOOL_APPLY}" iconName="utility:check" 
+                                      onclick="{!c.apply}" disabled="{!v.disableSaveButton}" variant="brand"/>
+                </aura:set>
+
+                <div class="slds-p-left_small">
+                    <lightning:button  iconName="utility:outcome" variant="neutral" onclick="{!c.clone}" label="{!$Label.c.Clone}" iconPosition="left"/>
+                </div>
+
+                <div style="display:flex;">
+                    <lightning:layoutItem padding="around-small" size="6">
+                        <c:Lookup aura:id="lookup-external-contact"   
+                                  allRecords="false" 
+                                  sObjectAPIName="Contact" 
+                                  showNomuraEmployee="false" 
+                                  charLimit="2" 
+                                  label="Contacts" pluralLabel="Contacts" 
+                                  listIconSVGPath="standard:contact"
+                                  listIconClass="slds-icon-standard-contact" 
+                                  itemChange="{!c.contactChange}"
+                                  preSelectedIds="{!v.contactIds}"
+                                  showMetadata="true"/>
+                        
+                        <div class="slds-p-top_xx-small slds-p-bottom_small">
+                            <lightning:button  iconName="utility:adduser" variant="neutral" onclick="{!c.createNewContact}" label="{!$Label.c.Event_New_Contact}" iconPosition="left"/>
+                        </div>
+                        
+                        <c:SelectMultiple aura:id="platformOpts" setLabelName="Electronic Platform(s)" options="{!v.platformOptions}" selectChange="{!c.platformChange}" selectedItems="{!v.platformIds}" disabled="false"/>
+                        
+                    </lightning:layoutItem>
+                    <lightning:layoutItem padding="around-small" size="6">
+                        <lightning:textarea aura:id="comment" name="Comments" label="Comments" value="{!v.comments}" maxlength="32000"/>
+                    </lightning:layoutItem>
+                </div>
+                
+                <c:ETradingEnablementContact aura:id="newContact"/>
+                
+            </lightning:card>
+        </lightning:layoutItem>
+        
+        <lightning:layoutItem size="12" padding="around-small">
+            <lightning:layoutItem padding="around-small">
+                <lightning:button label="Add Sales Request" title="{!$Label.c.CVGTOOL_APPLY}" iconName="utility:add" onclick="{!c.addSalesRequest}" disabled="{!v.disableSaveButton}" variant="brand"/>
+            </lightning:layoutItem>
+            
+            <lightning:layoutItem >
+                <aura:iteration items="{!v.salesRequests}" var="request">
+                    {!request}
+                </aura:iteration>
+                
+                <c:ETradingEnablementSalesRequest aura:id="salesRequest"/>
+                
+            </lightning:layoutItem>
+        </lightning:layoutItem>
+        <lightning:layoutItem size="12" padding="around-small">
+            <lightning:card>
+                <div class="slds-align_absolute-center">
+                    <lightning:button label="{!$Label.c.CVGTOOL_CANCEL}" title="{!$Label.c.CVGTOOL_CANCEL}" iconName="utility:undo"
+                        onclick="{!c.cancel}" variant="neutral" />
+                    <lightning:button label="{!$Label.c.CVGTOOL_APPLY}" title="{!$Label.c.CVGTOOL_APPLY}" iconName="utility:check"
+                        onclick="{!c.apply}" disabled="{!v.disableSaveButton}" variant="brand" />
+                </div>
+            </lightning:card>
+        </lightning:layoutItem>
+    </lightning:layout>
+    
+</aura:component>

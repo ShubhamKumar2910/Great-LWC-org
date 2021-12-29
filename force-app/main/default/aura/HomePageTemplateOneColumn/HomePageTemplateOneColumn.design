@@ -1,0 +1,16 @@
+<design:component label="Wave Home Page Template">
+    <flexipage:template >
+            <flexipage:region name="left" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+            <flexipage:region name="bottomLeft" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+            <flexipage:region name="bottomRight" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+            <flexipage:region name="bottomMiddle" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+       </flexipage:template>
+</design:component>

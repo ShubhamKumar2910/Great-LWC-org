@@ -1,0 +1,15 @@
+<apex:page title="{!$Label.Upload_Bulk_Coverages}">
+    <apex:includeLightning />
+    <div id="lightning">
+        <script>
+        $Lightning.use("c:BulkUploadVFApp", function() {
+            $Lightning.createComponent("c:CoverageBulkUpload",
+                                       { },
+                                       "lightning",
+                                       function(cmp) {
+                                           // do some stuff
+                                       });
+        });
+        </script>
+    </div>
+</apex:page>

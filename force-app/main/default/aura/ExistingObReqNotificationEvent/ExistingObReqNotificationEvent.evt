@@ -1,0 +1,4 @@
+<aura:event type="COMPONENT">
+    <aura:attribute name="continueBtnClicked" type="Boolean"/>
+    <aura:attribute name="cancelBtnClicked" type="Boolean"/>
+</aura:event>

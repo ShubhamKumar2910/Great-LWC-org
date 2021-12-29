@@ -1,0 +1,117 @@
+<apex:page standardcontroller="Account"   extensions="CoverageMembersListController" tabStyle="Coverage_Team_Member__c" sidebar="false">   
+    
+    <apex:includeScript value="/support/console/29.0/integration.js"/>
+    <style>
+        .headerStyle{
+        	font-weight:bold;font-size: 9pt;        
+        }
+        .formStyle{
+            position: relative;
+        }
+        body .bPageBlock .pbBody .panelTopPosition{
+                position: relative;    			
+        		padding: 0.5rem;
+        }
+       body .bPageBlock .pbBody .panelNextBottomPosition{
+            position: absolute;
+            bottom: -30px;
+            left: 0;
+            color:black;
+        }       
+        body .bPageBlock .pbBody .filters{
+            color:#2a94d6;
+            text-decoration: none;
+        }
+        .secondaryPalette, .individualPalette .contactBlock .secondaryPalette {
+            background-color: white !important;
+            border-color: #56458c !important;
+        }
+        .bPageTitle {
+            margin-bottom: 1px !important;
+        }
+    </style>
+<script type="text/javascript">
+    
+     window.onload = function onloadJS()
+    {         
+        var imgUrl = '{!URLFOR($Resource.VFCoverageIcon)}';   
+        sforce.console.setTabIcon(imgUrl, null, null);
+        
+    } ;
+   
+ </script>
+    
+    <apex:pageBlock mode="maindetail" id="coverageMemberList">    
+        <apex:form styleClass="formStyle">
+            <apex:sectionHeader title="Coverage Team Members" rendered="{!isView}" subtitle="{!a.Name}" />            
+            <apex:panelGrid styleClass="panelTopPosition" columns="26" id="filterTop" > 
+                <apex:repeat value="{!strings}"  var="string" rendered="{!flag}">
+                    <apex:commandLink id="sel" styleClass="filters"  action="{!filterRecords}" reRender="memberTable,GridB,filterTop,filterBottom" value="{!string}" rendered="{!IF(selectedFilter == string, TRUE,FALSE)}" style="color:black; background: #9dceec; font-weight: bold;"> 
+                        <apex:param name="selectedFilter" value="{!string}" assignTo="{!selectedFilter}"/> 
+                     </apex:commandLink>
+                     <apex:commandLink styleClass="filters"  action="{!filterRecords}" reRender="memberTable,GridB,filterTop,filterBottom" value="{!string}" rendered="{!IF(selectedFilter != string, TRUE,FALSE)}"> 
+                        <apex:param name="selectedFilter" value="{!string}" assignTo="{!selectedFilter}"/> 
+                     </apex:commandLink>
+                     &nbsp;|&nbsp;
+                </apex:repeat>
+                <apex:commandLink styleClass="filters" action="{!filterRecords}" reRender="memberTable,GridB,filterTop,filterBottom" value="All" rendered="{!IF((selectedFilter == 'All' || selectedFilter =='') && flag == true, TRUE,FALSE)}" style="color:black; background: #8dc6e9; font-weight: bold;"> 
+                        <apex:param value="All" assignTo="{!selectedFilter}"/> 
+                </apex:commandLink> 
+                <apex:commandLink styleClass="filters" action="{!filterRecords}" reRender="memberTable,GridB,filterTop,filterBottom" value="All" rendered="{!IF(selectedFilter != 'All' && selectedFilter !='', TRUE,FALSE)}" > 
+                        <apex:param value="All" assignTo="{!selectedFilter}"/> 
+                </apex:commandLink>        
+             </apex:panelGrid>
+            
+            <apex:pageBlockTable id="memberTable" styleClass=".DesktopFrameCommon.css" headerClass="headerStyle" value="{!coverageMem}" var="index">
+                 <apex:column >
+                     <apex:facet name="header">
+                         <apex:commandLink action="{!sortedCoverageRecords}" reRender="memberTable,GridB,filterTop,filterBottom" value="{!$Label.Name_Coverage_Team_Member} {!If(sortExpression == 'Sales_Team_for_Coverage__r.Name', If(sortDirection='ASC','▲','▼'),'')}">
+                             <apex:param value="Sales_Team_for_Coverage__r.Name" assignTo="{!sortExpression}"/>
+                         </apex:commandLink>
+                     </apex:facet>
+                     {!index.Name}
+                </apex:column>
+                <apex:column >
+                    <apex:facet name="header">
+                        <apex:commandLink action="{!sortedCoverageRecords}" reRender="memberTable,GridB,filterTop,filterBottom" value="{!$Label.Sales_Team_Name} {!If(sortExpression == 'Sales_Team_for_Coverage__r.Sales_Team__c', If(sortDirection='ASC','▲','▼'),'')}">
+                            <apex:param value="Sales_Team_for_Coverage__r.Sales_Team__c" assignTo="{!sortExpression}"/>
+                        </apex:commandLink>
+                    </apex:facet>
+                    {!index.SalesTeam}
+                </apex:column>
+                <apex:column >
+                    <apex:facet name="header">
+                        <apex:commandLink action="{!sortedCoverageRecords}" reRender="memberTable,GridB,filterTop,filterBottom" value="{!$Label.Sales_Desk_Region} {!If(sortExpression == 'MIN(Sales_Desk_Region__c)', If(sortDirection='ASC','▲','▼'),'')}">
+                            <apex:param value="MIN(Sales_Desk_Region__c)" assignTo="{!sortExpression}"/>
+                        </apex:commandLink>
+                    </apex:facet>
+                    {!index.SalesDeskRegion}
+                </apex:column>
+                <apex:column >
+                    <apex:facet name="header">
+                        <apex:commandLink action="{!sortedCoverageRecords}" reRender="memberTable,GridB,filterTop,filterBottom" value="{!$Label.Start_Date} {!If(sortExpression == 'MIN(Start_Date__c)', If(sortDirection='ASC','▲','▼'),'')}">
+                            <apex:param value="MIN(Start_Date__c)" assignTo="{!sortExpression}"/>
+                        </apex:commandLink>
+                    </apex:facet>
+                    <apex:outputText value="{0,date,dd'-'MMM'-'yyyy}">
+                        <apex:param value="{!index.CoverageStartDate}"/>
+                    </apex:outputText>
+                </apex:column>
+               
+                <!--<apex:column headerValue="{!$Label.Sales_Code_Coverage_Team_Member}" value="{!index.SalesCode}"/>-->
+            </apex:pageBlockTable>
+            
+            <apex:panelGrid id="GridB" styleClass="panelNextBottomPosition"  columns="8">
+                <apex:commandLink styleClass="filters" action="{!previous}" rendered="{!(HasPrevious)}">Previous</apex:commandlink>
+                <apex:outputText rendered="{!(HasPrevious)}">|</apex:outputText>
+                <apex:commandLink styleClass="filters" action="{!next}" rendered="{!(HasNext)}">Next</apex:commandlink>
+                 <apex:outputText rendered="{!(HasNext)}">|</apex:outputText>
+                <apex:outputLabel >                     
+                      {!IF((pageNumber * pageSize) > resultSize, resultSize,(pageNumber * pageSize))} 
+                 / {!resultSize} records 
+                </apex:outputLabel>
+             </apex:panelGrid>
+          
+        </apex:form>
+    </apex:pageBlock>
+</apex:page>

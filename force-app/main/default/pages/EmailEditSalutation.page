@@ -1,0 +1,152 @@
+<apex:page controller="EmailSalutationController" action="{!onInit}">
+    <!-- For Service Console -->
+    <apex:includeScript value="/support/console/20.0/integration.js"/>
+    <script type="text/javascript">
+        function setTabTitle() {
+            //Set the current tabs title
+            sforce.console.setTabTitle('{!camp.Name}');
+        }
+        var pageLoad = window.onload;
+        window.onload = function() {
+            if (pageLoad) {
+                pageLoad();
+            }
+            setTabTitle();
+        }
+    </script>
+    <style type="text/css">
+        td {
+            vertical-align:top;
+        }
+    </style>
+    <script type="text/javascript">
+        var wasChanged = false;
+        function confirmBeforeMoving() {
+            if(wasChanged && !window.confirm('{!$Label.Confirmation_For_Losing_Changes}')){
+                return false;
+            }
+            return true;
+        }
+    </script>
+    
+    <apex:form >
+        <apex:pageBlock >
+            <apex:pageMessages />
+            <apex:outputPanel >
+                <div align="right">
+                    <apex:commandLink action="{!onEditDefaultSalutationClicked}" value="{!$Label.EditDefaultSalutation}" target="_blank"/>
+                </div>
+            </apex:outputPanel>
+            
+            <apex:pageBlockSection columns="2">
+                <apex:inputField value="{!camp.Email_Salutation__c}" />
+                <apex:pageBlockSectionItem />
+                <apex:inputField value="{!camp.Email_SalutationForLocalContacts__c}"/>
+                <apex:commandButton value="{!$Label.ApplyToAll}" action="{!onApplyToAllClicked}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+            <br/>
+    
+        <!-- Pagination Start -->
+        <apex:panelGrid columns="3" width="100%">
+            <apex:outputPanel >
+                <div style="width:100px">
+                    <apex:outputLabel value="{!firstItemIndex}-{!lastItemIndex} / {!numberOfItems}" />
+                </div>
+            </apex:outputPanel>
+
+            <apex:outputPanel >
+                <div align="Center">
+                    <apex:commandLink value="<< {!$Label.Pagination_First}" rendered="{!!isFirst}" action="{!onFirstClicked}" onclick="if(!confirmBeforeMoving()){return false;}" />
+                    <apex:outputLabel value="<< {!$Label.Pagination_First}" rendered="{!isFirst}" />
+                    <apex:outputLabel value=" | " />
+        
+                    <apex:commandLink value="< {!$Label.Pagination_Previous}" rendered="{!hasPrevious}" action="{!onPreviousClicked}" onclick="if(!confirmBeforeMoving()){return false;}" />
+                    <apex:outputLabel value="< {!$Label.Pagination_Previous}" rendered="{!!hasPrevious}" />
+                    <apex:outputLabel value=" | " />
+        
+                    <apex:repeat value="{!pageNumberList}" var="num">
+                        <apex:commandLink value="{!num}" rendered="{!num != memberCurrentPageNumber}" action="{!onPageNumberClicked}" onclick="if(!confirmBeforeMoving()){return false;}" >
+                            <apex:param value="{!num}" name="clickedPageNumber" assignTo="{!memberCurrentPageNumber}" />
+                        </apex:commandLink>
+                        <apex:outputLabel value="{!num}" rendered="{!num == memberCurrentPageNumber}" />
+                        <apex:outputLabel value=" | " />
+                    </apex:repeat>
+        
+                    <apex:commandLink value="{!$Label.Pagination_Next} >" rendered="{!hasNext}" action="{!onNextClicked}" onclick="if(!confirmBeforeMoving()){return false;}" />
+                    <apex:outputLabel value="{!$Label.Pagination_Next} >" rendered="{!!hasNext}" />
+                    <apex:outputLabel value=" | " />
+        
+                    <apex:commandLink value="{!$Label.Pagination_Last} >>" rendered="{!!isLast}" action="{!onLastClicked}" onclick="if(!confirmBeforeMoving()){return false;}" />
+                    <apex:outputLabel value="{!$Label.Pagination_Last} >>" rendered="{!isLast}" />
+                </div>
+            </apex:outputPanel>
+            <apex:outputPanel >
+                <div style="width:100px"></div>
+            </apex:outputPanel>
+        </apex:panelGrid>
+        <!-- Pagination End -->
+            
+        <apex:pageBlock >
+            <apex:pageBlockButtons >
+                <apex:commandButton value="{!$Label.Save}" action="{!onSaveClicked}"/>
+                <apex:commandButton value="{!$Label.Close}" action="{!onCloseClicked}" onclick="if(!confirmBeforeMoving()){return false;}" />
+            </apex:pageBlockButtons>
+            
+            <apex:pageBlockTable value="{!currentMembers}" var="mem" style="overflow:auto">
+                <apex:column value="{!mem.Name}"/>
+                <apex:column value="{!mem.Contact.Local_Language_Last_Name__c} {!mem.Contact.Local_Language_First_Name__c}" headerValue=""/>
+                <apex:column value="{!mem.Salutation}"/>
+                <apex:column value="{!mem.Contact.Account.Name}"/>
+                <apex:column value="{!mem.Contact.Account.Local_Company_Name__c}" headerValue=""/>
+                <apex:column value="{!mem.Email}" style="font-size: 8pt;"/>
+                <apex:column headerValue="{!$Label.EmailSalutation}">
+                    <apex:inputField value="{!mem.Email_Salutation__c}" style="width: 300px;" onchange="wasChanged=true;" />
+                </apex:column>
+            </apex:pageBlockTable>
+
+            <br/>
+        </apex:pageBlock>
+
+        <!-- Pagination Start -->
+        <apex:panelGrid columns="3" width="100%">
+            <apex:outputPanel >
+                <div style="width:100px">
+                    <apex:outputLabel value="{!firstItemIndex}-{!lastItemIndex} / {!numberOfItems}" />
+                </div>
+            </apex:outputPanel>
+
+            <apex:outputPanel >
+                <div align="Center">
+                    <apex:commandLink value="<< {!$Label.Pagination_First}" rendered="{!!isFirst}" action="{!onFirstClicked}" onclick="if(!confirmBeforeMoving()){return false;}" />
+                    <apex:outputLabel value="<< {!$Label.Pagination_First}" rendered="{!isFirst}" />
+                    <apex:outputLabel value=" | " />
+        
+                    <apex:commandLink value="< {!$Label.Pagination_Previous}" rendered="{!hasPrevious}" action="{!onPreviousClicked}" onclick="if(!confirmBeforeMoving()){return false;}" />
+                    <apex:outputLabel value="< {!$Label.Pagination_Previous}" rendered="{!!hasPrevious}" />
+                    <apex:outputLabel value=" | " />
+        
+                    <apex:repeat value="{!pageNumberList}" var="num">
+                        <apex:commandLink value="{!num}" rendered="{!num != memberCurrentPageNumber}" action="{!onPageNumberClicked}" onclick="if(!confirmBeforeMoving()){return false;}" >
+                            <apex:param value="{!num}" name="clickedPageNumber" assignTo="{!memberCurrentPageNumber}" />
+                        </apex:commandLink>
+                        <apex:outputLabel value="{!num}" rendered="{!num == memberCurrentPageNumber}" />
+                        <apex:outputLabel value=" | " />
+                    </apex:repeat>
+        
+                    <apex:commandLink value="{!$Label.Pagination_Next} >" rendered="{!hasNext}" action="{!onNextClicked}" onclick="if(!confirmBeforeMoving()){return false;}" />
+                    <apex:outputLabel value="{!$Label.Pagination_Next} >" rendered="{!!hasNext}" />
+                    <apex:outputLabel value=" | " />
+        
+                    <apex:commandLink value="{!$Label.Pagination_Last} >>" rendered="{!!isLast}" action="{!onLastClicked}" onclick="if(!confirmBeforeMoving()){return false;}" />
+                    <apex:outputLabel value="{!$Label.Pagination_Last} >>" rendered="{!isLast}" />
+                </div>
+            </apex:outputPanel>
+            <apex:outputPanel >
+                <div style="width:100px"></div>
+            </apex:outputPanel>
+        </apex:panelGrid>
+        <!-- Pagination End -->
+
+    </apex:form>
+</apex:page>

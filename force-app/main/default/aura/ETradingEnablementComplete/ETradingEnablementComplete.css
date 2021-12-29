@@ -1,0 +1,29 @@
+.THIS .actionButtons{
+    margin-left:5px;
+}
+
+.THIS .verticalHeader{
+    background: rgb(255, 255, 255);
+    border-bottom: 0;
+    padding: 6px;
+}
+
+.THIS .slds-icon-utility-dislike svg {
+  fill: rgb(135, 5, 0);
+}
+
+.THIS .slds-icon-utility-like svg {
+  fill: rgb(0, 95, 178);
+}
+
+.THIS .slds-icon-utility-ribbon svg {
+  fill: rgb(75, 202, 129);
+}
+
+.THIS .slds-icon-utility-adduser svg {
+  fill: rgb(75, 202, 129);
+}
+
+.THIS .slds-icon-utility-block-visitor svg {
+  fill: rgb(135, 5, 0);
+}

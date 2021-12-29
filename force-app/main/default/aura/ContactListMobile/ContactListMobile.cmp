@@ -1,0 +1,256 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,force:hasRecordId" access="global"  controller="ContactList">	
+     <ltng:require styles="{!$Resource.MobileStyleSheet}" />
+
+    <!-- Attribute for Selected Contact List -->
+    <aura:attribute name="myContactListSelect" type="String" default="1"/>    
+    <aura:attribute name="listMembers" type="Object[]" />    
+    <aura:attribute name="device" type="String" default="DESKTOP" />
+    
+    <!-- For New Phone Book Campaign -->
+    <aura:attribute name="recordErrorForContactList" type="String"/>
+    <aura:attribute name="newContactList" type="Object" />
+    <aura:attribute name="simpleNewContactList" type="Object" />
+    
+    <!-- Attribute for SelectAll -->
+    <aura:attribute name="selectAllCheckboxValue" type="Boolean" default="false" />
+    
+    <aura:attribute name="accounts" type="String" default="" />    
+    <aura:attribute name="selectedAddress" type="String[]" />
+    <!--<aura:attribute name="showSelectAllCheckbox" type="Boolean" default="true" />   -->
+    <aura:attribute name="disabled" type="Boolean" default="true" /> 
+    <aura:attribute name="filterApplied" type="Boolean" default="false" />
+    <aura:attribute name="listChanged" type="Boolean" default="false" />
+    <aura:attribute name="filterJSON" type="String" default="" />
+    <aura:attribute name="pageNumber" type="String" default="1" />
+    <aura:attribute name="renderedRows" type="String" default="0" />
+    <aura:attribute name="pageSize" type="String" default="0" />
+    <aura:attribute name="loadDataFlag" type="Boolean" default="false" />    
+    
+    
+    <aura:method name="resetFilters" action="{!c.resetFilters}" />
+    <aura:method name="showSpinner" action="{!c.showSpinner}" />
+    <aura:method name="hideSpinner" action="{!c.hideSpinner}" />
+    <aura:method name="showShowMore" action="{!c.showShowMore}" />
+    <aura:method name="hideShowMore" action="{!c.hideShowMore}" />
+    
+    <force:recordData aura:id="contactListCreator"
+        fields="Id,Name,IsActive,Type,RecordType.Name,RecordType.DeveloperName"              
+        targetRecord="{!v.newContactList}"
+        targetFields="{!v.simpleNewContactList}"
+        targetError="{!v.recordErrorForContactList}"
+      />
+    
+    <!-- For New Contact Coverage Campaign -->
+    <aura:attribute name="recordErrorForContactCoverageList" type="String"/>
+    <aura:attribute name="newContactCoverageList" type="Object" />
+    <aura:attribute name="simpleNewContactCoverageList" type="Object" />
+    
+    <force:recordData aura:id="contactCoverageListCreator"
+        layoutType="FULL"
+        targetRecord="{!v.newContactCoverageList}"
+        targetFields="{!v.simpleNewContactCoverageList}"
+        targetError="{!v.recordErrorForContactCoverageList}"
+      />
+    
+    <!-- For New Mass Email Campaign -->
+    <aura:attribute name="recordErrorForMassEmail" type="String"/>
+    <aura:attribute name="newMassEmail" type="Object" />
+    <aura:attribute name="simpleNewMassEmail" type="Object" />
+    
+    <force:recordData aura:id="massEmailCreator"
+        fields="Id,Name,Type,RecordType.Name,RecordType.DeveloperName"
+        targetRecord="{!v.newMassEmail}"
+        targetFields="{!v.simpleNewMassEmail}"
+        targetError="{!v.recordErrorForMassEmail}"
+      />
+   
+    <!-- Attribute for User Contact Lists (Phone Book and Coverage) -->
+    <aura:attribute name="contactLists" type="CampaignShare[]"/>
+   
+    <aura:attribute name="internalAttendees" type="String[]" />
+    <aura:attribute name="clientAttendees" type="String[]" />
+    <aura:attribute name="rgAccounts" type="String[]" />
+    
+    
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
+    
+    
+   <!-- Methods : Start -->
+    
+	<aura:method name="formRecordTemplates" action="{!c.formRecordTemplates}" /> 
+    <aura:method name="showMembers" action="{!c.showMembers}" />
+    <aura:method name="emptyTableData" action="{!c.emptyTableData}" />
+    <aura:method name="getPageDataForMobile" action="{!c.getPageDataForMobile}" />
+    <aura:method name="showSelectAllCheckbox" action="{!c.showSelectAllCheckbox}" />
+    <aura:method name="hideSelectAllCheckbox" action="{!c.hideSelectAllCheckbox}" />
+    
+    <!-- //sam ,commented out to fix a bug , 3/4/2020
+    <aura:method name="sortArrow" action="{!c.sortArrow}" >
+        <aura:attribute name="fieldName" type="String" />
+    </aura:method>
+-->
+
+    
+    <aura:method name="getSelectedContacts" action="{!c.getSelectedContacts}" >
+        <aura:attribute name="selectedContacts" type="Object" />
+    </aura:method>
+    
+    <aura:method name="setDataTableCheckboxValues" action="{!c.setDataTableCheckboxValues}">
+        <aura:attribute name="headerCheckboxValue" type="Boolean" />
+    </aura:method>
+    
+     <aura:method name="showMessage" action="{!c.showMessage}">
+        <aura:attribute name="title" type="String"/> 
+        <aura:attribute name="message" type="String"/> 
+        <aura:attribute name="type" type="String"/> 
+    </aura:method>
+    
+    <aura:method name="seperateIdsForCallReport" action="{!c.seperateIdsForCallReport}" >
+        <aura:attribute name="selectedContactId" type="String[]" />
+    </aura:method>
+    
+    <aura:method name="createFilterJSON" action="{!c.createFilterJSON}" />
+    <!-- <aura:method name="createRGFilterJSON" action="{!c.createRGFilterJSON}" /> -->
+    
+    <!-- Method : End -->
+      
+    <!-- Start Header Container -->
+    <div class="headerContainer">
+        <!-- Add button -->
+        <div style="float: left;" class="slds-button-group" role="group">
+            <div aura:id="addItems" onfocusout="{!c.hideAddItems}" class="slds-dropdown-trigger slds-dropdown-trigger_click slds-button_last">
+                <lightning:buttonIcon onclick="{!c.add}" class="slds-button slds-button_icon slds-button_icon-border-filled headerIcon" iconName="utility:add" variant="container" alternativeText="add" />
+                <div class="slds-dropdown slds-dropdown_left">
+                    <ul class="slds-dropdown__list" role="menu">
+                        <li class="slds-dropdown__item" role="presentation">
+                            <a  role="menuitem" tabindex="0" onclick="{!c.addCallReport}">   
+                                <span class="slds-truncate" title="Name">Call Report</span> &nbsp;
+                                <lightning:icon aura:id="callReport" size="xx-small"  iconName="utility:event"/>                                        
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>                
+        </div>
+        
+        <!-- Filter & Sort -->
+        <div style="float: right;" class="slds-button-group" role="group">
+            <aura:if isTrue="{!v.myContactListSelect != '1'}" >
+                <lightning:buttonIcon onclick="{!c.showfilter}" class="slds-button slds-button_icon slds-button_icon-border-filled headerIcon"  iconName="utility:filterList" variant="container" alternativeText="filter"/>
+            </aura:if>
+            <!-- Sorting -->           
+           <c:mSortFilter aura:id="sortComponent" visible="true" onSort="{!c.onCustomSort}" 
+                          data="{!v.listMembers}"  labels="Name,Account,Legal Entity" 
+                          apiNames="name,accountName,accountRMName"
+                          sortedBy="name"
+                          sortedDirection="asc"/>
+ 
+            
+        </div>          
+    </div>        
+    <!-- End Header Container -->
+    
+    <div aura:id="errorDiv" class="slds-hide"><br />
+    		<label  class="slds-form-element__label " for="records"> You cannot select more than 50 contacts in a Call Report. Please create one call report per account.</label>  
+    </div>
+    
+    <div style="margin-left: 8px !important; margin-right: 8px !important;">
+        <table>
+            <tr>
+            	<td style="width:85%;">
+                    <lightning:select aura:id="myContactListSelect" name="myContactListSelect" label="" onchange="{!c.showMembers}"  value="{!v.myContactListSelect}" class="hideLabelClass">
+                        <option value="1" text="Recently Viewed Contacts"></option>
+                        <aura:iteration items="{!v.contactLists}" var="val">
+                            <aura:if isTrue="{!(v.myContactListSelect == val.Campaign.Id)}">
+                                <option value="{!val.Campaign.Id}" text="{!val.Campaign.Name}" selected="true"></option>
+                                <aura:set attribute="else">
+                                    <option value="{!val.Campaign.Id}" text="{!val.Campaign.Name}"></option>
+                                </aura:set>    
+                            </aura:if>
+                            
+                        </aura:iteration>
+       			</lightning:select>                  
+                </td>               
+                <td style="padding: 1.2rem 0rem 0rem .4rem; ">
+                    <ui:inputCheckbox class="slds-hide " aura:id="selectAll" label=" " value="{!v.selectAllCheckboxValue}" change="{!c.selectAll}" name="selectAll" /> 
+                </td>               
+            </tr>
+        </table>          
+    </div>  
+        
+    <ui:scrollerWrapper class="scrollerSize">
+    	<aura:iteration items="{!v.listMembers}" var="item" >
+        	<lightning:card >
+            	<aura:set attribute="title">
+                	<table >
+                    	<tr>                           
+                            <td class="headerTable">
+                                <!--<a onclick="{!c.redirectToRecord}" >  <strong ><h4> {!item.name} </h4></strong>  </a> -->
+                                <strong> <c:RedirectToRecord recordId="{!item.contactId}" recordName="{!item.name}" /> </strong>
+                            </td>
+                            <td >
+                                <ui:inputCheckbox  aura:id="selectedContacts" label=" " name="{!item.recordId}" value="" text="{!item.contactId}" change="{!c.rowSelectDeselect}" />
+                            </td>
+                        </tr>
+                    </table>
+                </aura:set>
+                
+                <aura:set attribute="body">
+                    <div class="slds-card__body slds-card__body_inner subContent">
+                	<table>
+                    	<tr>                          
+                            <td class="padding-left">{!item.accountName}</td>
+                        </tr>
+                        <tr>                           
+                            <td class="headerTable"> {!item.accountRMName} </td>
+                        </tr>
+                        <!--
+                        <tr>                          
+                            <td>
+                               <aura:if isTrue="{!and(item.phone != '+000000000000', item.phone != '+0000000000')}" >
+                               		
+                                   <lightning:clickToDial value="{!item.phone}" recordId="{!item.contactId}" />
+                                </aura:if>
+                                <aura:set attribute="else">
+                                	&nbsp;
+                                </aura:set>
+                            </td>
+                              
+                        </tr>
+                        <tr>                           
+                            <td>
+                               <aura:if isTrue="{!and(item.mobile != '+000000000000', item.mobile != '+0000000000')}" >
+                               		 {!item.mobile} 
+                                </aura:if>
+                                <aura:set attribute="else">
+                                	&nbsp;
+                                </aura:set>
+                            </td>                              
+                        </tr>
+                        <tr>
+                            <td> <ui:outputEmail value="{!item.email}"/> </td>
+                        </tr>  
+                      -->
+                    </table>
+                    </div>
+                </aura:set>
+            </lightning:card>
+        </aura:iteration>
+        
+        <div aura:id="showMore" class="slds-hide" style="margin-left: 8rem;"><br />
+            <label  class="slds-form-element__label " for="showMore"> <a onclick="{!c.loadData}">Show More </a></label>  
+    	</div>
+        
+        <div aura:id="noRecordDiv" class="slds-hide"><br />
+    		<label  class="slds-form-element__label " for="records"> No records found.</label>  
+    	</div>
+        
+    </ui:scrollerWrapper>
+    
+   <div class="slds-docked_container">
+            <lightning:spinner aura:id="spinner" variant="brand"  size="medium" class="slds-hide"/>
+   </div>
+    
+    
+ 	
+</aura:component>

@@ -1,0 +1,151 @@
+.THIS {
+}
+
+.THIS .addContact{
+   /* margin-left: 65%;
+    margin-bottom: -9pt;*/
+    margin-top: 1pt;    
+    z-index: 9999;
+    
+}
+
+.THIS .marginLeftPadding {
+   
+    margin-left: 0.5rem; 
+}
+
+.THIS .whiteBackground{
+    background-color: white; 
+}
+
+.THIS .fullWidth{
+    width: 100%;
+}
+
+.THIS .contactPopUpError{
+    padding-bottom: 2em;
+    position: fixed;
+    z-index: 9000;
+    margin-bottom: 85px;
+    height: 800px;
+    overflow-anchor: visible;
+    right: 2em;
+    bottom: 2em;
+}
+
+.THIS .contactPopUp{
+    position: fixed;
+    z-index: 9000;
+    margin-bottom: 85px;
+    height: 600px;
+    overflow-anchor: visible;
+    right: 2em;
+    bottom: 2em;
+}
+
+.THIS .slds-grid.slds-grid--align-center.slds-grid--vertical-align-center.slds-docked-form-footer{
+        height: 35pt;
+        /*background-color: #da2420;*/
+        backrground-color: rgb(66, 82, 109);
+    
+}
+
+.THIS .slds-docked-composer.slds-is-open{
+    height: 600px;
+}
+
+.THIS .objectives textarea {
+    height: 150px;
+}
+
+.THIS .blockDisplay{
+    display: block;
+    text-align: left;
+}
+
+.THIS .slds-theme_shade{
+    background-color: #e9f1f5;
+    /*background-color: rgba(186, 48, 38, 0.15); */
+}
+
+
+.THIS .inlinePadding{
+    padding-right:15%;
+    padding-left:15%;
+}
+
+.THIS .dropdownStylingAssignedTo{
+    position: absolute;
+    z-index: 900;
+    background: white;
+    width: 100%;
+    border: 1px solid rgb(216, 221, 230);
+    border-radius: .25rem;
+    margin-top: -5%;
+}
+
+.THIS .dropdownStylingRelatedTo{
+    position: absolute;
+    z-index: 900;
+    background: white;
+    width: 75%;
+    border: 1px solid rgb(216, 221, 230);
+    border-radius: .25rem;
+    margin-top: -2%
+}
+
+.THIS .parentPaddingEdit{
+    padding-top: 1.5%;
+}
+.THIS .primaryContact{
+    background: darkred;
+    border-color: darkred;
+}
+.THIS .inlineTable{
+    display: inline-table;
+    margin-right: 40px;
+}
+
+.THIS .tableHeaderGroup{
+    display: table-header-group;
+}
+.THIS .uiPillContainer--default.uiPillContainer.maxAllowed.noinput.focused{
+    padding: 0;
+}
+.THIS .default.input.uiInput.uiInputTextForAutocomplete.uiInput--default.uiInput--input.uiInput.uiAutocomplete.uiInput--default.uiInput--lookup {
+    height: 10mm;
+    width: 200mm;
+    margin-left: 10mm;
+}
+.THIS .slds-box--border {
+            height: 10mm;
+        }
+
+.THIS .primaryContact {
+            background: #da2420;
+        }
+
+.THIS.scrollerSize {
+    height: 100%;
+}
+
+@media (min-width: 48em) {
+    .THIS .slds-modal__container {
+        margin: 0 auto;
+        width: 90%;
+        max-width: 80rem;
+        min-width: 20rem;
+    }
+}
+.THIS .objectivemandaory{
+    font-family: 'Salesforce Sans',Arial,sans-serif;
+    font-size: .75rem;
+    color: rgb(194, 57, 52);
+}
+.THIS .objectivemandaoryitalic{
+    font-family: 'Salesforce Sans',Arial,sans-serif;
+    font-size: .75rem;
+    color: rgb(194, 57, 52);
+    font-weight: bold;
+    font-style:italic;
+}

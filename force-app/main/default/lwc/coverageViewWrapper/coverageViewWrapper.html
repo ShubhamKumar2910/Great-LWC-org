@@ -1,0 +1,118 @@
+<template>
+    <!--Spinner-->
+    <lightning-spinner alternative-text="Loading" size="large" variant="brand" class="slds-hide" data-field="spinner">       
+    </lightning-spinner>
+    
+    <!--Header-->
+    <template if:true={displayView}>
+        <lightning-card variant="narrow" icon-name="standard:person_account">
+            <h1 slot="title">{coverageLabel}</h1>
+            <div slot="actions">
+                <span if:true={isSearchShowingRGCoverageDetails}>
+                    <lightning-badge label={drillDownBadgeName} class="slds-badge_inverse"></lightning-badge>
+                    <lightning-button label={backToMainResultLabel} title={backToMainResultLabel} icon-name="action:back" class="slds-m-left_x-small" onclick={returnToMainSearch}></lightning-button>
+                </span>
+                <ul class="slds-button-group-list">
+                    <li>
+                        <lightning-button label={addBtnLabel} title={addBtnLabel} data-name="add" icon-name="action:add_relationship"
+                            class="slds-m-left_x-small" onclick={handleCvgOperationNavEvent}></lightning-button>
+                        <lightning-button label={deleteBtnLabel} title={deleteBtnLabel} data-name="delete" icon-name="action:delete"
+                            class="slds-m-left_x-small" disabled={isCvgRowsSelectionEmpty} onclick={handleCvgOperationNavEvent}>
+                        </lightning-button>
+                        <lightning-button label={updateBtnLabel} title={updateBtnLabel} data-name="update" icon-name="action:update_status"
+                            class="slds-m-left_x-small" disabled={isCvgRowsSelectionEmpty} onclick={handleCvgOperationNavEvent}>
+                        </lightning-button>
+                        <!-- <lightning-button label={transferBtnLabel} disabled title={transferBtnLabel} icon-name="action:change_record_type"
+                            class="slds-m-left_x-small"></lightning-button>
+                        <lightning-button label={cloneBtnLabel} disabled title={cloneBtnLabel} icon-name="action:clone" class="slds-m-left_x-small">
+                        </lightning-button> -->
+                        <lightning-button label={cancelReqBtnLabel} title={cancelReqBtnLabel} data-name="cancel" icon-name="action:close"
+                            class="slds-m-left_x-small" onclick={handleCvgOperationNavEvent}></lightning-button>
+                    </li>
+                    <li>
+                        <lightning-button-menu alternative-text="Show menu" menu-alignment="right">
+                            <!-- <lightning-menu-item disabled value="MenuItemOne" label={exportCvgLabel}></lightning-menu-item> -->
+                            <lightning-menu-item value="MenuItemTwo" label={uploadBulkCvgLabel} data-name="bulkupload" onclick={handleCvgOperationNavEvent}></lightning-menu-item>
+                        </lightning-button-menu>
+                        <lightning-button-icon-stateful icon-name="utility:filterList" selected={filterState} disabled={isCvgViewDisabled}
+                            onclick={toggleFilter} class="slds-m-left_x-small" alternative-text={filterLabel}>
+                        </lightning-button-icon-stateful>
+                    </li>
+                </ul>
+            </div>
+        </lightning-card>
+    </template>
+
+    <article> <!--class="slds-card"-->
+        <!-- View Coverage -->
+        <div class={displayViewClass}> <!--comment -->
+            <div if:false={SearchResultsReady} class="bg-text" data-bg-text={placeholderText}></div>
+            <!-- SLDS data table -->
+            <table if:true={SearchResultsReady} class="slds-table slds-table_bordered  slds-table_fixed-layout slds-table_resizable-cols slds-m-right_xx-small" role="grid">
+                <thead>
+                    <tr>
+                        <th if:true={allowResultsSelection} class="" scope="col" style="width:3.25rem">
+                            <span id="column-group-header" class="slds-assistive-text">Choose a row</span>
+                            <lightning-input type="checkbox" class="slds-m-left_medium" variant="label-hidden" name="cvgRowHeaderCB" data-field="cvgRowHeaderCB" onchange={handleTblHeadCBSelection}></lightning-input>
+                        </th>
+                        <!-- Header generation -->
+                        <template for:each={filteredColumns} for:item="column">
+                            <th key={column.fieldName} aria-label={column.label} aria-sort="none" class="slds-is-resizable dv-dynamic-width slds-is-sortable colStyle" scope="col" style={column.style}>
+                                <a if:true={column.sortable} data-id={column.fieldName} onclick={sortData} class="slds-th__action slds-text-link_reset" role="button" tabindex="0">
+                                    <span class="slds-assistive-text">Sort by: </span>
+                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                        <span class="slds-truncate" title={column.label}>{column.label}</span>
+                                        <span class="slds-icon_container slds-icon-utility-arrowdown">
+                                                <lightning-button-icon data-id={column.sortAscId} variant="bare" icon-name="utility:up" alternative-text="Sort Ascending" class="slds-hide slds-m-left_xx-small" title="Sort"></lightning-button-icon>
+                                                <lightning-button-icon data-id={column.sortDescId} variant="bare" icon-name="utility:down" alternative-text="Sort Descending" class="slds-hide slds-m-left_xx-small" title="Sort"></lightning-button-icon>
+                                            </span>
+                                    </div>
+                                </a>
+                                <span if:false={column.sortable} class="slds-th__action slds-text-link_reset" href="#" role="button" title={column.label}>{column.label}</span>
+                                <div class="slds-resizable">
+                                    <input type="range" aria-label="Name column width" class="slds-resizable__input slds-assistive-text" id={column.label} max="1000" min="20" tabindex="0" />
+                                    <span class="slds-resizable__handle">
+                                            <span class="slds-resizable__divider"></span>
+                                    </span>
+                                </div>
+                            </th>
+                        </template>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows generation -->
+                    <template for:each={data} for:item="dataRow">
+                        <tr key={dataRow.Id} aria-selected="true" class={dataRow.rowDisabledClass}>
+                            <td if:true={allowResultsSelection} title={dataRow.Comments} key={dataRow.column} role="gridcell">
+                                <lightning-input class="slds-m-right_xx-small" type="checkbox" disabled={dataRow.disabled} variant="label-hidden" data-field="cvgRowCB" data-id={dataRow.Id} onchange={handleCvgRowCBSelection}></lightning-input>
+                            </td>
+                            <template for:each={filteredColumns} for:item="column">
+                                <td key={dataRow.column} class="dv-dynamic-width" role="gridcell">
+                                    <c-coverage-table-element wrapper-object={dataRow} object-field={column} onshowdrilldown={handleDrillDownDisplay}></c-coverage-table-element>
+                                </td>
+                            </template>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            
+            <!--Filter Panel-->
+            <c-coverage-view-filter oncvgviewsearch={handleCoverageViewSearch}></c-coverage-view-filter>
+        </div>
+        
+        <!-- Add Coverage -->
+        <template if:true={displayAdd}>
+            <c-coverage-add onshowcvgviewandsearch={displayViewAndRetriggerSearch}></c-coverage-add>
+        </template>
+
+        <!-- Update Coverage -->
+        <template if:true={displayUpdate}>
+            <c-coverage-update client-level={clientLevel} level={level} current-user-region={currentUser.region} selected-coverage-ids={selectedRowIds} coverage-data={data} onshowcvgviewandsearch={displayViewAndRetriggerSearch}></c-coverage-update>
+        </template>
+        
+        <!-- Delete Coverage -->
+        <template if:true={displayDelete}>
+            <c-coverage-delete client-level={clientLevel} level={level} selected-coverage-ids={selectedRowIds} coverage-data={data} onshowcvgviewandsearch={displayViewAndRetriggerSearch}></c-coverage-delete>
+        </template>
+    </article>
+</template>

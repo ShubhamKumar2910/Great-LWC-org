@@ -1,0 +1,34 @@
+<design:component label="Wave Tiled Home Page Template">
+    <flexipage:template >
+            <flexipage:region name="left" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+            <flexipage:region name="bottomLeft" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+            <flexipage:region name="bottomRight" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+            <flexipage:region name="bottomMiddle" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+            <flexipage:region name="topTileLeft" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+            <flexipage:region name="topTileRight" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+            <flexipage:region name="wave" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+            <flexipage:region name="news" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+            <flexipage:region name="middleTileLeft" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+            <flexipage:region name="middleTileRight" defaultWidth="Large">
+                <flexipage:formfactor type="Large" width="Large" />
+            </flexipage:region>
+       </flexipage:template>
+</design:component>

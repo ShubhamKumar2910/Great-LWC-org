@@ -1,0 +1,41 @@
+<aura:component controller="UtilityBarNotificationsController"
+				implements="flexipage:availableForAllPageTypes"
+				access="global">
+				
+    <ltng:require scripts="{!$Resource.cometd}" afterScriptsLoaded="{!c.onCometdLoaded}"/>
+    <ltng:require scripts="{!$Resource.ApprovalsCount}" afterScriptsLoaded="{!c.onApprovalsCountScriptLoaded}"/>
+    <lightning:utilityBarAPI aura:id="utilitybar" />
+    <lightning:navigation aura:id="navService" />
+    <aura:attribute name="pageReference" type="Object"/>
+	<aura:attribute name="ApprovalCount" type="String" />
+	<aura:attribute name="isButtonEnabled" type="String"/>
+	<aura:attribute name="messageText" type="String"/>
+	<aura:attribute name="showApprovalButton" type="String"/>
+    <aura:attribute name="sessionId" type="String"/>
+	<aura:attribute name="cometd" type="Object"/>
+	<aura:attribute name="cometdSubscriptions" type="Object[]"/>
+    <aura:attribute name="UsrAndSubscriptionDtls" type="UserandSubscriptionDetails"/>
+    <aura:attribute name="approvalCountJson" type="String" default="" />
+    <aura:attribute name="scriptsLoaded" type="Boolean" default="false" />
+    <aura:attribute name="refreshCount" type="Boolean" default="false" />
+
+	<aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:method name="displayUtilityBar" action="{!c.displayUtilityBar}" />
+
+	<lightning:card >
+        
+        <aura:set attribute="footer">
+            <lightning:button variant="brand" label="{!$Label.c.APPROVAL_btnLabel}" disabled="{!v.ApprovalCount =='0'}" iconName="action:approval" onclick="{!c.openPendingApprovals}"/> 
+        </aura:set>
+        
+        <aura:set attribute="actions">
+            
+        </aura:set>
+        
+        <p class="slds-p-horizontal_small">
+           {!v.messageText}
+        </p>
+        
+    </lightning:card>
+
+</aura:component>

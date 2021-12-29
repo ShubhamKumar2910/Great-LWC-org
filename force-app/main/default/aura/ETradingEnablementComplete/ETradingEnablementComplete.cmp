@@ -1,0 +1,215 @@
+<!--c:ETradingEnablementComplete-->
+<aura:component controller="ETradingEnablementCompleteController" implements="lightning:isUrlAddressable,force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:isUrlAddressable" access="global">
+	<!-- ATTRIBUTES  -->
+	<aura:attribute name="openCreateNewContPlatDialog" type="Boolean" default="false" />
+	<aura:attribute name="keepCreateNewContPlatDialogOpen" type="Boolean" default="false" />
+	<aura:attribute name="contIdForNewContPlat" type="String"/>
+	<aura:attribute name="platfromForNewContPlat" type="String"/>
+	<aura:attribute name="platfromIDForNewContPlat" type="String"/>
+	<aura:attribute name="newPlatIdDialogHeight" type="String" default="280"/>
+	<!-- <aura:attribute name="newContactPlaformsCreated" type="List"/> -->
+	<aura:attribute name="eTradinRecsIdList" type="String[]"/>
+	<aura:attribute name="pageReference" type="Object"/>
+    <!-- TABLE-ATTRIBUTES -->
+    <aura:attribute name="tableAddReqColumns" type="List"/>
+    <aura:attribute name="tableAddReqRows" type="Object"/>
+    <aura:attribute name="tableAddReqErrors" type="Object"/>
+    <aura:attribute name="selectedAddReqData" type="Object" />
+	<aura:attribute name="selectedAddETIdRows" type="List" />
+	<aura:attribute name="selectedRevETIdRows" type="List" />
+	<aura:attribute name="completedTableColumns" type="List"/>
+    <aura:attribute name="completedTableRows" type="Object"/>
+    <aura:attribute name="maxETReqTableHeight" type="Integer" default="200"/>
+	<aura:attribute name="maxETCovTableHeight" type="Integer" default="200"/>
+	
+	<aura:attribute name="tableRevReqColumns" type="List"/>
+    <aura:attribute name="tableRevokeReqRows" type="Object"/>
+    <aura:attribute name="tableRevokeReqErrors" type="Object"/>
+ 
+	<!-- <aura:attribute name="defaultContact" type="String[]" /> -->
+	<aura:attribute name="activeSections" type="List" default="['newReqSec','revokeReqSec', 'transferReqSec', 'resultReqSec']" />
+	<aura:attribute name="showNewReqSec" type="Boolean" default="true" />
+	<aura:attribute name="showRevokeReqSec" type="Boolean" default="true" />
+	<aura:attribute name="showTransferReqSec" type="Boolean" default="false" />
+	<aura:attribute name="showResultReqSec" type="Boolean" default="false" />
+	<aura:attribute name="showAddReqBtn" type="Boolean" default="false" />
+	<aura:attribute name="showRevokeReqBtn" type="Boolean" default="false" />
+	<aura:attribute name="showTransferReqBtn" type="Boolean" default="false" />
+	
+	<aura:attribute name="disableAddCovBtn" type="Boolean" default="false" />
+	<aura:attribute name="disableRevCovBtn" type="Boolean" default="false" />
+
+	<!-- HANDLE EVENTS -->
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+    
+    <!-- NVIGATION COMPONENT -->
+    <lightning:navigation aura:id="navigationService"/>
+    
+    <!-- BODY -->
+    <div aura:id="spinnerblock" class="slds-spinner_container slds-hide">
+        <div class="slds-spinner_brand slds-spinner slds-spinner_large" aria-hidden="false" role="alert">
+            <div class="slds-spinner__dot-a"></div>
+            <div class="slds-spinner__dot-b"></div>
+        </div>
+    </div>
+
+
+	<article class="slds-card">
+		<div class="slds-card__header slds-grid">
+			<header class="slds-media slds-media_center slds-has-flexi-truncate">
+				<div class="slds-media__figure">
+					<!--<span class="slds-icon_container slds-icon-standard-opportunity slds-icon-action-description" title="Complete eTrading Requests">-->
+						<lightning:icon iconName="standard:user_role" alternativeText="edit coverage" size="small"/>
+					<!--</span>-->
+				</div>
+				<div class="slds-media__body">
+					<h2 class="slds-card__header-title">
+						<a href="javascript:void(0);" class="slds-card__header-link slds-truncate" 
+								title="Complete eTrading Requests">
+							<span class="slds-text-heading_small">Complete eTrading Requests</span>
+						</a>
+					</h2>
+				</div>
+				<lightning:buttonIcon iconName="utility:back" 
+					variant="inverse" onclick="{!c.handleBack}" alternativeText="Back" size="medium"/>
+			</header>
+		</div>
+	</article>
+	
+	<lightning:accordion allowMultipleSectionsOpen="true" 
+			onsectiontoggle="{! c.handleSectionToggle }" activeSectionName="{!v.activeSections}"
+	>
+		<!--ADD NEW COVERAGE-->
+		<aura:if isTrue="{!v.showNewReqSec}">
+			<lightning:accordionSection name="newReqSec" label="Create New Coverage">
+				<aura:set attribute="actions">
+					<aura:if isTrue="{!v.showAddReqBtn}">
+						<lightning:button variant="neutral"  iconName="utility:adduser"  title="Add" 
+							label="Add" onclick="{!c.handleAddNewCoverage}" disabled="{!v.disableAddCovBtn}"></lightning:button>
+					</aura:if>
+				</aura:set>
+				<aura:set attribute="body">
+					<div aura:id="results">
+						<div class="slds-table_bordered tableStyle" style="{!'height:' + v.maxETReqTableHeight +'px'}" aura:id="dataTableDiv">
+							<lightning:datatable aura:id="addCoverageTableId"
+												columns="{!v.tableAddReqColumns}" 
+												data="{!v.tableAddReqRows}" 
+												errors="{!v.tableAddReqErrors}"
+												keyField="eTradId"                                   
+												maxColumnWidth="600"
+												sortedBy="clientRG"
+												sortedDirection="asc"
+												onsort="{!c.updateAddReqColumnSorting}"
+												onrowaction="{!c.handleRowAction }"
+												hideCheckboxColumn="false"
+												showRowNumberColumn="true"
+												hideTableHeader="false"
+												selectedRows="{!v.selectedAddETIdRows}"
+												onrowselection="{!c.onAddReqRowSelection}">
+							</lightning:datatable>
+						</div>
+					</div>
+				</aura:set>
+			</lightning:accordionSection>
+		</aura:if>
+		<!--REVOKE EXISTING COVERAGE-->
+		<aura:if isTrue="{!v.showRevokeReqSec}">
+			<lightning:accordionSection name="revokeReqSec" label="Revoke Existing Coverage">
+				<aura:set attribute="actions">
+					<aura:if isTrue="{!v.showRevokeReqBtn}">
+						<lightning:button variant="neutral"  iconName="utility:block_visitor"  title="Revoke" 
+							label="Revoke" onclick="{!c.handleRevokeCoverage}" disabled="{!v.disableRevCovBtn}"></lightning:button>
+					</aura:if>
+				</aura:set>
+				<aura:set attribute="body">
+					<div aura:id="results">
+						<div class="slds-table_bordered tableStyle" style="{!'height:' + v.maxETReqTableHeight +'px'}" aura:id="dataTableDiv">
+							<lightning:datatable aura:id="revokeCoverageTableId"
+												columns="{!v.tableRevReqColumns }" 
+												data="{!v.tableRevokeReqRows}" 
+												errors="{!v.tableRevokeReqErrors}"
+												keyField="eTradId"
+												maxColumnWidth="600"
+												sortedBy="clientRG"
+												sortedDirection="asc"
+												onsort="{!c.updateRevReqColumnSorting}"
+												hideCheckboxColumn="false"
+												showRowNumberColumn="true"
+												hideTableHeader="false"
+												selectedRows="{!v.selectedRevETIdRows}"
+												onrowselection="{!c.onRevReqRowSelection}">
+							</lightning:datatable>
+						</div>
+					</div>
+				</aura:set>
+			</lightning:accordionSection>
+		</aura:if>
+		<!--TRANSFER EXISTING COVERAGE-->
+		<aura:if isTrue="{!v.showTransferReqSec}">
+			<lightning:accordionSection name="transferReqSec" label="Transfer Existing Coverage">
+				<!--TO DO-->
+			</lightning:accordionSection>
+		</aura:if>
+		<!--SHOW RESULTS-->
+		<aura:if isTrue="{!v.showResultReqSec}">
+			<lightning:accordionSection name="resultReqSec" label="Results">
+				<div class="slds-table_bordered tableStyle" style="{!'height:' + v.maxETCovTableHeight +'px'}" aura:id="dataTableDiv">
+					<lightning:datatable aura:id="completedTable"
+										columns="{!v.completedTableColumns }" 
+										data="{!v.completedTableRows}" 
+										keyField="eTradId"                                   
+										maxColumnWidth="600"
+										hideCheckboxColumn="true"
+										showRowNumberColumn="true">
+					</lightning:datatable>
+				</div>
+			</lightning:accordionSection>
+		</aura:if>
+    </lightning:accordion>
+
+	<!--ORIGINAL CODE HERE-->
+
+	<!-- Create new Contact Platform Record Dialog-box  -->
+	<aura:if isTrue="{!v.openCreateNewContPlatDialog}"> 
+		<div class="assignModalId" style="height: 640px">   
+        <!-- <div class="assignModalId" style="{!'height: 640px;"> -->
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                            <lightning:icon class="slds-hide" aura:id="filter" iconName="utility:close" size="x-small" alternativeText="Indicates add"/>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Contact Platform</h2>
+                        <!-- <p class="slds-m-top_x-small">Select the User to assign the records</p> -->
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <!-- <div style="clear:both; height:300px;"> -->
+                        <div style="{!'clear:both; height:'+v.newPlatIdDialogHeight+'px;'}">
+                            <span class="slds-col listClass">
+								<lightning:recordEditForm aura:id="recordEditForm"
+							                          objectApiName="ContactPlatform__c" onerror="{!c.handleError}" onsuccess="{!c.handleSuccess}">
+							       	<lightning:messages/>
+							       	<h3 class="slds-section__title slds-theme--shade primaryPaletteBorder test-id__section-header-container">
+							       			<span class="test-id__section-header-title section-header-title slds-p-horizontal--small slds-truncate">Information</span>
+									</h3>
+							       	<lightning:inputField fieldName="Name" value="{!v.platfromIDForNewContPlat}" aura:id="nameInputId"/>
+							       	<lightning:inputField fieldName="Contact__c" value="{!v.contIdForNewContPlat}"/>
+							       	<lightning:inputField fieldName="Platform__c" value="{!v.platfromForNewContPlat}"/>
+							       	<lightning:inputField fieldName="Email__c"/>
+							   	</lightning:recordEditForm>
+                            </span>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+						<lightning:button title="Cancel" label="Cancel" iconName="utility:close" onclick="{!c.handleCancel}"/>
+						<lightning:button title="Save &amp; New" label="Save &amp; New" iconName="utility:save" onclick="{!c.handleSaveAndNewContPlat}"/>
+						<lightning:button title="Save" label="Save" iconName="utility:save" onclick="{!c.handleSaveContPlat}" variant="brand"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:if>
+</aura:component>

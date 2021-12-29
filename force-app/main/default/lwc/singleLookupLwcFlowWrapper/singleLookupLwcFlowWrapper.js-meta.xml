@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>47.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="lookupLabel" type="String" role="inputOnly"/>
+            <property name="parentAccId" type="String" role="inputOnly"/>
+            <property name="rmAccId" type="String" description="RM Account Id"/>
+            <property name="rgAccId" type="String" description="RM Account Id"/>
+            <property name="nomuraPersonUserId" type="String" description="RM Account Id"/>
+            <property name="nomuraPersonContactId" type="String" description="RM Account Id"/>
+            <property name="callReportId" type="String" description="Call Report Id"/>
+            <property name="callReportName" type="String" description="Call Report Id"/>
+            <property name="contactId" type="String" description="Contact Id"/>
+            <property name="lookupType" type="String" role="inputOnly"/>
+            <property name="rgA1FlowsLookupSrchRslt" type="apex://A1Flows_LookupSearchResult"/>
+            <property name="leA1FlowsLookupSrchRslt" type="apex://A1Flows_LookupSearchResult"/>
+            <property name="preDefinedIdType" type="String" role="inputOnly"/>
+            <property name="preDefinedId" type="String"/>
+            <property name="rgLookupLabel" type="String" role="inputOnly"/>
+            <property name="rmLookupLabel" type="String" role="inputOnly"/>
+            <property name="instinetClientMarketValue" type="String"/>
+            <property name="obContactTypeValue" type="String"/>
+            <property name="additionalPermissionsName" type="String" role="inputOnly"/>
+            <property name="includeNomuraContacts" type="Boolean" role="inputOnly"/>
+            <property name="considerAdditionalPermissions" type="Boolean" role="inputOnly"/>
+            <property name="isCoverageAndSharingReq" type="Boolean" role="inputOnly"/>
+            <property name="currentOnbRequestId" type="String" role="inputOnly" description="ID of the Onboarding Request"/>
+            <property name="strContactFirstNameValue" type="String"/>
+            <property name="strContactLastNameValue" type="String"/>
+            <property name="isContactNameChanged" type="Boolean"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

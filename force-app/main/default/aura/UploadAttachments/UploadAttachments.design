@@ -1,0 +1,4 @@
+<design:component >
+	<design:attribute name="frameWidth" Label="Frame Width" default="250" /><!--250-->
+    <design:attribute name="frameHeight" Label="Frame Height" default="30" /><!--30-->
+</design:component>

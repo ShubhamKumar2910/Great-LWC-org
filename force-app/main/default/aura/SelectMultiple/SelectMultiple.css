@@ -1,0 +1,28 @@
+.THIS .slds-picklist__label .slds-icon {
+    width: .75rem;
+    height: .75rem;
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    margin-top: -.375rem;
+    fill: rgb(107, 109, 112);
+}
+
+.THIS .slds-dropdown_large .slds-dropdown--large {
+            min-width: -webkit-fill-available !important;
+            max-width: 512px;
+    }  
+.THIS iconCustom
+{
+    fill:rgb(107, 109, 112);
+}
+.THIS .slds-icon-text-default
+{
+    fill:gray !important
+}
+
+
+.THIS .slds-form-element__icon
+{
+   padding-top: 0rem !important;
+}

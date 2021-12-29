@@ -1,0 +1,9 @@
+.THIS .blockDisplay{
+    display: block;
+    text-align: left;
+}
+
+.THIS .inlineTable{
+    display: inline-table;
+    margin-right: 40px;
+}

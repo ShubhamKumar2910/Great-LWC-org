@@ -1,0 +1,22 @@
+<apex:page standardController="Contact" extensions="SurveyDynamicCustomLinkController">
+    <apex:includeScript value="/support/console/29.0/integration.js"/>
+    <script type="text/javascript">
+ 		
+    	/* Opening Sub Tab */
+    	var contactSurveyTabId = null;
+        
+        function openContactSurvey(redirectURL, surveyName) {
+            sforce.console.getEnclosingPrimaryTabId( function(primaryTabResult){  
+                sforce.console.openSubtab(primaryTabResult.id, redirectURL, true, surveyName, null, getSubTabIdContactSurvey,surveyName);
+            });
+        }
+        
+        var getSubTabIdContactSurvey = function(result) {
+        	contactSurveyTabId = result.id;
+            var imgUrl = '{!URLFOR($Resource.VFContactSurveyIcon)}';   
+            sforce.console.setTabIcon(imgUrl, contactSurveyTabId, null);
+        }  
+ 	</script>
+
+    <apex:dynamicComponent componentValue="{!surveyDynamicCustomLinks}"/>
+</apex:page>

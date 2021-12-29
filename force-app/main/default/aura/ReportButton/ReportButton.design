@@ -1,0 +1,6 @@
+<design:component>
+    <design:attribute name="reportDeveloperName" label="Report Developer Name"  default="" description="Report Developer Name" />
+    <design:attribute name="buttonLabel" label="Button Label"  default="" description="Button Label" />
+    <design:attribute name="recordId" label="Record Id"  default="" description="Record Id" />
+	
+</design:component>

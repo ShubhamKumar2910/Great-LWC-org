@@ -1,0 +1,361 @@
+<apex:page standardController="Onboarding_Request__c" applyBodyTag="false">
+    <head>
+        <style>
+            table{              
+                    padding:2%;
+                    width:100%;
+            }
+            .td-srNo{
+                width: 1%; 
+                border: 1px solid;  
+                text-align: center
+            }
+            .td-info{
+                width: 20%;
+                border: 1px solid;            
+                height: 30px;  
+                padding: 3px;
+            }
+            
+        </style>
+    </head>
+    <h3>
+        Client Legal Entity :&nbsp;<apex:outputText value="{!Onboarding_Request__c.RM_Account_Name__c}"/> <br />
+        Onboarding Request Name :&nbsp;<apex:outputText value="{!Onboarding_Request__c.Name}"/> 
+    </h3>
+    
+    <table >  <!-- Start of Additional Information-->   
+        <tr>
+            <th colspan="3">
+                Additional Information
+            </th>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                1.
+            </td>
+            <td class="td-info">
+                Business Line
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Business_line__c}"/>
+            </td>
+        </tr>
+        <tr>
+             <td class="td-srNo">
+                2.
+            </td>
+            <td class="td-info">
+                Is the Client a MiFID Investment Firm?
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Is_the_Client_a_MiFID_Investment_Firm__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                3.
+            </td>
+            <td class="td-info">
+                Does the client need to be on-boarded for electronic trading?
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.On_board_client_for_electronic_trading__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                4.
+            </td>
+            <td class="td-info">
+               Legal agreements required(if applicable)
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Legal_agreements_required_if_applicable__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                5.
+            </td>
+            <td class="td-info">
+               Legal Agreement Other
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Legal_Agreement_Other__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                6.
+            </td>
+            <td class="td-info">
+               Has Client requested a Nomura Guarantee?
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Has_Client_requested_a_Nomura_Guarantee__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                7.
+            </td>
+            <td class="td-info">
+               Guarantee required from Nomura entity
+            </td>
+            <td class="td-info">
+                <!--<apex:outputText value="{!Onboarding_Request__c.Nomura_Entity__c}"/> -->
+            </td>
+        </tr>
+    </table><!-- End of Additional Information-->
+    <br />
+    
+    <table><!-- Start of Regulatory Nexus-->
+        <tr>
+            <th colspan="2">
+                Regulatory Nexus
+            </th>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                1.
+            </td>
+            <td class="td-info">
+                Regulatory Nexus (i.e. Australia/ EMEA/ US): 
+                <br />For the products included in the request, does the client strategy require additional Trader or Sales coverage from another sales/trading location?
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Regulatory_Nexus_Consideration__c}"/>
+           </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                2.
+            </td>
+            <td class="td-info">
+                If yes, where are the Trader or Sales locations? 
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Addt_Sales_and_Trading_Location__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                3.
+            </td>
+            <td class="td-info">
+                If yes, given there may be additional KYC requirements in order for Nomura to comply with Nexus rules, please provide roles and responsibilities of Traders/Sales (i.e. will they; execute trades, meet with client, provide pricing only etc.)?
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Roles_and_Responsibilities__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                4.
+            </td>
+            <td class="td-info">
+                If yes, is the trader or sales support from another location critical to the strategy, meaning the account cannot “go live” without this?
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Nexus_critical_to_Client_strategy__c}"/>
+            </td>
+        </tr>
+    </table><!-- End of Regulatory Nexus-->
+    <br />
+    
+    <table> <!-- Start of EMEA Regional Topup-->
+        <tr>
+            <th colspan="2">
+                EMEA Regional Topup
+            </th>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                1.
+            </td>
+            <td class="td-info">
+               Does the client have a balance sheet total of at least EUR 20 million?
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Balance_sheet_total_of_EUR_20_million__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                2.
+            </td>
+            <td class="td-info">
+               Does the client have net turnover of at least EUR 40 million?
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Net_turnover_of_EUR_40_million__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                3.
+            </td>
+            <td class="td-info">
+               Does the client have own funds of at least EUR 2 million? 
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Own_funds_of_EUR_2_million__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                4.
+            </td>
+            <td class="td-info">
+                Does the client intend to onward distribute to its clients financial instruments that NIP or NFPE manufactures?
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Intend_to_distribute_financial_instrment__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                5.
+            </td>
+            <td class="td-info">
+                Does the client intend on entering into a Title Transfer Collateral Arrangement (“TTCA”)? If so, please confirm the appropriateness of this arrangement has been considered (click here for more information)
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Does_client_intend_to_enter_into_TTCA__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                6.
+            </td>
+            <td class="td-info">
+                Does the client require EMIR Delegated Reporting / C+V Reporting*?
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Require_EMIR_Delegated_C_V_Reporting__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                7.
+            </td>
+            <td class="td-info">
+                No. of employees at the client entity
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.No_of_employees_at_the_client_entity__c}"/>
+            </td>
+        </tr>
+    </table><!-- End of EMEA Regional Topup-->
+    <br />    
+    
+    <table> <!-- Start of US Regional Topup-->
+        <tr>
+            <th colspan="2">
+                US Regional Topup
+            </th>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                1.
+            </td>
+            <td class="td-info">
+                Will your client be trading any of the below delta 1 products?  If so, your client will need to adhere to the 871(m) protocol or include 871(m) language in the ISDA documentation. 
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Will_client_trade_in_delta_1_products__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                2.
+            </td>
+            <td class="td-info">
+                Does the client wish to receive debt research and commentary (FINRA 2242)
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Receive_debt_research_commentary__c}"/>
+            </td>
+        </tr>
+         <tr>
+             <td class="td-srNo">
+                3.
+            </td>
+            <td class="td-info">
+                In your communication with the client, what is your understanding as to the source of the funds that will be used to transact business with Nomura?
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Your_understanding_of_source_of_funds__c}"/>
+            </td>
+        </tr>
+    </table> <!-- End of US Regional Topup-->
+    <br />
+    
+    <table> <!-- Start of AEJ Regional Topup-->
+        <tr>
+            <th colspan="2">
+                AEJ Regional Topup
+            </th>
+        </tr>            
+        <tr>
+            <td class="td-srNo">
+                1.
+            </td>
+            <td class="td-info">
+                Regulatory Compliance: This client need to be assessed for Singapore Accredited Investor / Institutional Investor (Note: AEJ Branches are out of scope)
+                <br />1. NSL / NSS entity
+                <br />2. NSIS / NISP / NIF entity
+                <br />3. Singapore Sales coverage
+                <br />4. Singapore domiciled account             
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.SG_Accredited_Institutional_Investor__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                2.
+            </td>
+            <td class="td-info">
+                Confirm what financial evidence is available to Credit Risk Management
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Financial_evidence_for_Credit_Risk_Mgmt__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                3.
+            </td>
+            <td class="td-info">
+                Source of financial evidence
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Source_of_AUM__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                4.
+            </td>
+            <td class="td-info">
+                Reported date of financial evidence
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Reported_date_Financial_evidence_period__c}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td-srNo">
+                5.
+            </td>
+            <td class="td-info">
+                DvP Settlement Setup is required
+            </td>
+            <td class="td-info">
+                <apex:outputText value="{!Onboarding_Request__c.Will_client_require_DvP_settlement__c}"/>
+            </td>
+        </tr>        
+    </table><!-- End of AEJ Regional Topup-->
+</apex:page>

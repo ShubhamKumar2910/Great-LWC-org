@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>50.0</apiVersion>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="isRequired" type="Boolean" role="inputOnly" required="true"/>
+            <property name="apiName" type="String" role="inputOnly" required="true"/>
+            <property name="label" type="String" role="inputOnly" required="true" default="Default Label"/>
+            <property name="currentValue" type="String"/>
+        </targetConfig>
+    </targetConfigs>
+    <isExposed>true</isExposed>
+</LightningComponentBundle>

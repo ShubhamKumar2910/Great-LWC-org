@@ -1,0 +1,84 @@
+<template>
+    <div class="slds-box">
+      
+        <!-- RS Details -->
+        <div class="slds-m-left_large">
+            <div class="slds-float_right">
+                <lightning-button label={helpLabel} title={helpLabel} onclick={openHelpFile} variant="outline" class="slds-float_right">
+                </lightning-button>
+            </div>
+
+            <fieldset class="slds-form-element slds-form-element_compound">
+                <div class="slds-form-element__control">
+                    <div class="slds-form-element__row">
+                        <div class="slds-form-element">
+                            <div class="slds-text-title_caps" style="text-decoration: underline;">{ultimateParentRSEntityLabel}: </div>
+                        </div>
+                        <template if:true={rsAccountDetailsShow}>
+                            <div class="slds-form-element">
+                                <lightning-formatted-url value={rsAccountUrl} label={rsAccountName} target="_blank"></lightning-formatted-url>
+                            </div>
+                            <div class="slds-form-element">
+                                <lightning-badge label={rsAccountLabelName} class={rsAccountLabelClass}></lightning-badge>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    
+        
+
+        <!-- RG Details -->
+        <template if:true={showRgHierarchyDetails}>
+            <div class="slds-m-left_x-large">
+                <div class="slds-m-left_large">
+                    <fieldset class="slds-form-element slds-form-element_compound">
+                        <div class="slds-form-element__row">
+                            <img src={hierarchyEndNodeImg}>
+                            <div class="slds-form-element slds-m-top_xx-small">
+                                <div class="slds-text-title_caps" style="text-decoration: underline;">{functionalGroupRGEntityLabel}: </div>
+                            </div>
+                            <template if:true={rgAccountDetailsShow}>
+                                <div class="slds-form-element slds-m-top_xx-small">
+                                    <lightning-formatted-url value={rgAccountUrl} label={rgAccountName} target="_blank"></lightning-formatted-url>
+                                </div>
+                                <div class="slds-form-element slds-m-top_xx-small">
+                                    <lightning-badge label={rgAccountLabelName} class={rgAccountLabelClass}></lightning-badge>
+                                </div>
+                            </template>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </template>
+
+        <!-- RM Details -->
+        <template if:true={showRmHierarchyDetails}>
+            <div class="slds-m-left_xx-large">
+                <div class="slds-m-left_large">
+                    <div class="slds-m-left_large">
+                        <fieldset class="slds-form-element slds-form-element_compound">
+                            <div class="slds-form-element__row">
+                                <img src={hierarchyEndNodeImg}>
+                                <div class="slds-form-element slds-m-top_xx-small">
+                                    <div class="slds-text-title_caps" style="text-decoration: underline;">{legalRMEntityLabel}: </div>
+                                </div>
+                                <template if:true={rmAccountDetailsShow}>
+                                    <div class="slds-form-element slds-m-top_xx-small">
+                                        <lightning-formatted-url value={rmAccountUrl} label={rmAccountName} target="_blank"></lightning-formatted-url>
+                                    </div>
+                                    <div class="slds-form-element slds-m-top_xx-small">
+                                        <lightning-badge label={rmAccountLabelName} class={rmAccountLabelClass}></lightning-badge>
+                                    </div>
+                                </template>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+        
+    
+</template>

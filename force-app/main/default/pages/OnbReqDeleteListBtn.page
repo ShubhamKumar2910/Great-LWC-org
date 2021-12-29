@@ -1,0 +1,50 @@
+<apex:page standardController="Onboarding_Request__c" standardStylesheets="false" sidebar="false" docType="html-5.0"
+           recordSetVar="OnbReq" extensions="OnbReqDeleteListBtnController" lightningStylesheets="true">
+    
+    <apex:slds />
+    
+    <style>
+    .errorText .pbSubheader {
+        color:red;
+    }
+    .successText .pbSubheader {
+    	color:green;
+    }
+    .pbButtons {
+        align:left;
+    }
+    </style>
+    
+    <div class="slds-text-heading_medium slds-text-align_center">
+        <apex:outputText value="Delete Client Onboarding Requests" />
+    </div>
+    <br/>
+    
+    <apex:form >
+        <apex:pageBlock >
+            <apex:outputPanel layout="block" rendered="{!displayContinueButton}">
+                <apex:pageBlockSection title="Are you sure you want to delete the selected Client Onboarding Requests?" collapsible="false">
+                    <apex:outputText label="Message" value="{!introMessage}" escape="false"/>
+                    <br/>
+                </apex:pageBlockSection>
+            </apex:outputPanel>
+            <!-- Full or partial failure -->
+            <apex:outputPanel styleClass="errorText" layout="block" rendered="{!displayErrorToUser && displayContinueButton == false}">
+                <apex:pageBlockSection title="Completed. See Messages..." collapsible="false">
+                    <apex:outputText label="Message" value="{!errorMessageToDisplay}" escape="false"/> 
+                </apex:pageBlockSection>
+            </apex:outputPanel>
+            <!-- Success -->
+            <apex:outputPanel styleClass="successText" layout="block" rendered="{!displayErrorToUser == false && displayContinueButton == false}">
+                <apex:pageBlockSection title="Success! Successfully deleted all Onboarding Requests" collapsible="false">
+                    <apex:outputText label="Success" value="{!success}" escape="false"/> 
+                </apex:pageBlockSection>
+            </apex:outputPanel>
+            <div class="slds-m-bottom_small" align="center" draggable="false">
+                <apex:commandButton value="Finish" action="{!returnToObReq}" rendered="{!displayContinueButton == false}"/>
+                <apex:commandButton value="Yes" action="{!continueToDelete}" rendered="{!displayContinueButton}" />
+                <apex:commandButton value="No" action="{!returnToObReq}" rendered="{!displayContinueButton}" />
+            </div>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

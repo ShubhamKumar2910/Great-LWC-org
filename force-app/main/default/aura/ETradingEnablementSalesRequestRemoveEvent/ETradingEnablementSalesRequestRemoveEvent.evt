@@ -1,0 +1,3 @@
+<aura:event type="COMPONENT" description="Event for removing Sales Code and Products">
+    <aura:attribute name="salesCodes" type="String[]" />
+</aura:event>

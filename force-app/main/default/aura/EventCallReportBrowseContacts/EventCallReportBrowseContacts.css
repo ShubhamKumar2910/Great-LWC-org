@@ -1,0 +1,52 @@
+.THIS {
+}
+
+.THIS .slds-box {
+            padding: 0.4rem;
+            border-radius: .25rem;
+            border: 1px solid rgb(221, 219, 218);
+            background-color: #f4f6f9;
+}
+
+.THIS .slds-card__body {
+            margin-bottom: .1rem !important;
+}
+
+.THIS .slds-card__header {
+            padding: .5rem 1rem 0 !important;
+            margin: 0 0 0rem !important;
+}
+        
+.THIS .slds-p-around_small .slds-p-around--small {
+            padding: .5rem .75rem .5rem !important;
+        }
+        
+.THIS .SRbuttons{
+        	float: left;
+        }
+        
+.THIS .tableStyle {
+        	padding: .75rem !important;
+            height: 455px;
+        }        
+        
+.THIS .footerAlign{
+        	text-align: left !important;
+        	padding: .2rem .2rem !important;
+        }        
+        
+.THIS .uiMessage{
+        	margin-top: 2px !important;
+        	margin-left: 0px !important;
+        	margin-right: 0px !important;
+        	margin-bottom: 5px !important;
+        }
+
+        
+.THIS .slds-hint-parent .slds-is-selected {
+           background-color: rgb(153, 243, 155);
+        }
+        
+.THIS .totalRecordLabelStyle{
+        	float : right;
+        }

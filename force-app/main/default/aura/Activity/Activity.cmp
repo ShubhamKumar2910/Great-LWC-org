@@ -1,0 +1,72 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride" 
+                controller="ActivityController"
+                access="global">
+	
+      <style>    	
+        .slds-p-around_small, .slds-p-around--small {
+            padding: 0rem .75rem 0rem !important;
+        }
+    </style>
+    
+    <!-- Attribute declaration -->
+	<aura:attribute name="calledFrom" type="String" default="ContactList" />
+    <aura:attribute name="newActivity" type="Boolean" default="false" />
+    <aura:attribute name="totalClientAttendees" type="String" />
+    <aura:attribute name="massActivityFlag" type="Boolean" default="false" />    
+    
+    <!-- Data to be recieved from ContactList -->
+    <aura:attribute name="campaignId" type="String" default=""  description="For updating the activity"/>
+    <aura:attribute name="activityId" type="String" default=""  description="For updating the event. Will be used when we navigate through contactList"/>
+    <aura:attribute name="recordId" type="String" default="" description="For update recordId. Will be used when we navigate through other sources "/>
+    <aura:attribute name="selectedContactData" type="Object" />
+    <aura:attribute name="selectedContactCount" type="String" />
+    <aura:attribute name="myContactListSelect" type="String" default="1" description="Get the ids of selected contact list"/>
+    <aura:attribute name="selectAllCheckboxValue" type="Boolean" default="false" />
+    <aura:attribute name="filters" type="String" />
+    <aura:attribute name="modelRequest" type="Boolean" default="false" />
+    <aura:attribute name="activityType" type="String" />
+    
+    <!-- Methods -->
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+    <aura:method name="showSpinner" action="{!c.showSpinner}" />   
+    
+    <aura:if isTrue="{!v.massActivityFlag}"> 
+        <!-- New or Edit Mass Activity -->
+        <lightning:layout horizontalAlign="space" verticalAlign="start">
+            <lightning:layoutItem size="12">
+                <lightning:tabset >
+                    <lightning:tab id="activityTab" label="Activity">
+                       	<c:EventCallReport calledFrom="ContactList"
+                                          recordId="{!v.activityId}"         
+                                          campaignId="{!v.campaignId}"
+                                          selectedContactData="{!v.selectedContactData}"
+                                          selectedContactCount="{!v.totalClientAttendees}" 
+                                          myContactListSelect="{!v.myContactListSelect}"
+                                          selectAllCheckboxValue="{!v.selectAllCheckboxValue}" 
+                                          activityType="{!v.activityType}"
+                                          filters="{!v.filters}"
+                                           />                        	
+                    </lightning:tab>
+                    <lightning:tab id="clientAttendeesTab" label="Client Attendees">                        
+                        <c:ActivityTable campaignId="{!v.campaignId}"
+                                        selectedContactData="{!v.selectedContactData}"
+                                        myContactListSelect="{!v.myContactListSelect}"
+                                        selectAllCheckboxValue="{!v.selectAllCheckboxValue}"
+                                        filters="{!v.filters}"
+                                         />
+                    </lightning:tab>
+            </lightning:tabset>
+                
+            </lightning:layoutItem>
+    	</lightning:layout>        
+        <aura:set attribute="else">
+            <!-- Invoked when is not called from ContactList -->
+            <c:EventCallReport calledFrom="Home"  
+                               recordId="{!v.activityId}"    
+                               selectedContactData="{!v.selectedContactData}"
+                               myContactListSelect="{!v.myContactListSelect}"
+                               />
+        </aura:set>
+    </aura:if>
+    
+</aura:component>

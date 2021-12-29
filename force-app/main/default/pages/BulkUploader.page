@@ -1,0 +1,116 @@
+<apex:page controller="BulkUploadController" standardStylesheets="false" tabStyle="Event" docType="html-5.0" title="Bulk Upload - {!sourceObjectLabelPlural}">
+    <apex:includeScript value="/support/console/20.0/integration.js"/>
+     <apex:stylesheet value="{! $Resource.SurveyForce_SLDS + '/assets/styles/salesforce-lightning-design-system-vf.min.css'}" />
+    <apex:sectionHeader title="{!sourceObjectLabelPlural}" rendered="{!IF(sourceObject<>null,true,false)}" subtitle="Bulk Upload" />
+     <script type="text/javascript">
+       sforce.console.setTabTitle('Bulk Upload - {!sourceObjectLabelPlural}');
+       function openPopup(fieldName,recordTypeName) { 
+            console.log(fieldName);
+            var myWindow;
+            if(recordTypeName != null)
+            myWindow = window.open('/apex/BulkUploadPopup?objectName={!sourceObject}&fieldName='+fieldName+'&type='+recordTypeName,'','width=500,height=300,scrollbars=no,resizable=no');
+            else
+            myWindow = window.open('/apex/BulkUploadPopup?objectName={!sourceObject}&fieldName='+fieldName,'','width=500,height=300,scrollbars=no,resizable=no');    
+            return false;
+        }
+    
+    </script>
+    <style>
+        body{
+        font-family: 'SalesforceSans-Regular',Helvetica,Arial,sans-serif;
+        }
+        body .bPageBlock .pbBody .pbSubheader{
+        background-color:#D5D5D5;
+        color: black;!important;
+        }
+        
+        body .bPageBlock .pbBody .pbSubheader h3{
+        color: #443e3e;;
+        }
+        
+        .upload{
+        border-color: #4a90e2 !important;
+        background: #0070d2 !important;
+        color: #fff !important;
+        padding: 5px 10px;
+        }
+        
+        .upload:hover {
+ 	       background: #005fb2 !important;
+        }
+        .instructions
+        {
+            padding: 10px;
+            line-height: 24px;
+            font-size: 12px;
+        }
+        
+        a {
+        color: #0060B6; !important;
+        text-decoration: none; !important;
+        }
+        
+        a:hover 
+        {
+        color:#00A0C6; 
+        text-decoration:none; 
+        cursor:pointer;  
+        }
+    </style>
+    <div style="height:10px; clear:both;"></div>
+    <apex:form id="frmUpload">
+        <apex:pageBlock >   
+            <apex:pageBlockSection id="result" collapsible="false" columns="1" title="Message"  rendered="{!displayResult}" >
+                <apex:pageBlockSectionItem >
+                    <apex:pageMessages id="error"  />  
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection> 
+            <apex:pageBlockSection collapsible="false" rendered="{!!isError}" title="Select File" columns="1">
+                <div id="filediv" style="padding:5px;">
+                    <apex:inputFile id="file"  fileName="{!filename}" value="{!csvblob}"/> 
+                    <apex:commandButton value="Upload {!sourceObjectLabelPlural}" style="padding:8px;margin-left: 3px;" styleClass="upload" action="{!startUpload}"/>    
+                </div>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection collapsible="false" rendered="{!!isError}" title="Import Help" columns="1">
+                <apex:pageBlockSectionItem rendered="{!IF(sourceObject='Event',true,false)}" >
+                    <div class="instructions">
+                        <h2>Download Sample Template</h2> <br/>
+                        Click <a style="color:blue;" href="/servlet/servlet.FileDownload?file={!downloadid}" download="true">here</a> to download sample import file.<br/>
+                        <br/>                  
+                        <h2>Mandatory Fields</h2> <br/>
+                        1.&nbsp;&nbsp;RG ID<br/>
+                        2.&nbsp;&nbsp;User Participants           - User XP login Ids must be semicolon (;) separated.<br/>
+                        3.&nbsp;&nbsp;Contact Participants        - Primary Email Ids must be semicolon (;) separated.<br/>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.g. example1@gmail.com;example2@gmail.com;example3@gmail.com<br/>
+                        4.&nbsp;&nbsp;Subject                    - 255 Max length characters supported.<br/>
+                        5.&nbsp;&nbsp;Meeting Date               - Format: mm/dd/yyyy e.g. 12/09/2017<br/>
+                        6.&nbsp;&nbsp;Meeting Start Time           - Format: 24 hrs (hh:mm:sec)<br/>
+                        7.&nbsp;&nbsp;Meeting End Time           - Format: 24 hrs (hh:mm:sec)<br/>
+                        8.&nbsp;&nbsp;TimeZone                 - Click <a style="color:blue;" onclick="return openPopup('TimeZone');">here</a> for possible values.<br/>
+                        9.&nbsp;&nbsp;Event Types                       - Click <a style="color:blue;" onclick="return openPopup('Event_Type__c','DealAxis_Event_Integration');">here</a> for possible values.<br/>
+                        10.&nbsp;Event Meeting Types                - Click <a style="color:blue;" onclick="return openPopup('Type','DealAxis_Event_Integration');">here</a> for possible values.<br/>
+                        <br/>
+                        <h2>Other Fields</h2> <br/>
+                        1.&nbsp;&nbsp;Meeting Region             - Multiple Meeting Regions values must be semicolon (;) separated. Click <a style="color:blue;" onclick="return openPopup('Event_Origination_Region__c','DealAxis_Event_Integration');">here</a> for possible values.<br/>
+                        2.&nbsp;&nbsp;Ticker                     - Ticker values must be separated by comma (,)<br/>
+                        <br/>
+                        <h2 style='color:red;'>Note: Your import file must not exceed more than 1500 records.</h2>
+                        
+                    </div>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem rendered="{!IF(sourceObject='Survey_Question__c',true,false)}" >
+                    <div class="instructions">
+                        <h2>Download Sample Template</h2> <br/>
+                        Click <a style="color:blue;" href="/servlet/servlet.FileDownload?file={!downloadid}" download="true">here</a> to download sample import file.<br/>
+                        <br/>                  
+                        <h2>Mandatory Fields</h2> <br/>
+                        1.&nbsp;&nbsp;Survey ID<br/>
+                        2.&nbsp;&nbsp;Member                        - User login Id e.g. mike65.<br/>
+                        3.&nbsp;&nbsp;Category                      - Click <a style="color:blue;" onclick="return openPopup('Category__c');">here</a> for possible values.<br/>
+     			   </div>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>            
+            
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

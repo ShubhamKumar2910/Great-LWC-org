@@ -1,0 +1,3 @@
+<apex:page standardController="Event" tabstyle="Event" extensions="EventExtension" readOnly="true">
+    <apex:outputField id="task__lta" value="{!tLTA.LTA_1__c}" />
+</apex:page>

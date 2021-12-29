@@ -1,0 +1,334 @@
+<!--
+**	Author 		: Pravin Kundal
+**	Company 	: Nomura
+**	Description : LWC component for new SCH Reuest Form
+-->
+
+<!--c:sch-request-->
+<template>
+	<c-sch-account-hierarchy-summary record-id={recordId} requestor-details={currentUserDetails}
+		is-rs-srcd-manual={isRsSrcdManual} is-rs-srcd-rdm={isRsSrcdRdm} is-rs-srcd-bbg={isRsSrcdBbg} rs-acc-id={selectedRsAccId} rs-acc-name={selectedRsAccName}
+		is-rg-srcd-manual={isRgSrcdManual} is-rg-srcd-rdm={isRgSrcdRdm} rg-acc-id={selectedRgAccId} rg-acc-name={selectedRgAccName}
+		is-rm-srcd-manual={isRmSrcdManual} is-rm-srcd-rdm={isRmSrcdRdm} is-rm-srcd-bbg={isRmSrcdBbg} rm-acc-id={selectedRmAccId} rm-acc-name={selectedRmAccName}
+		rm-acc-loc={rmClientLoc}
+		can-edit-request={currUserCanEditSchReq}
+		onexpandcollapse={handleExpandCollapse}> 
+	</c-sch-account-hierarchy-summary>
+	<div class="slds-m-bottom_xx-small"></div>
+	<template if:true={showSpinner}>
+		<lightning-spinner alternative-text="Processing"></lightning-spinner>
+	</template>
+
+	<template if:true={isExpanded}>
+	<lightning-card>
+	<!--<div class="slds-box slds-box_xx-small slds-m-left_medium slds-m-right_medium">-->
+	<div class="slds-m-left_medium slds-m-right_medium">		
+		<lightning-layout pull-to-boundary="medium">
+			<lightning-layout-item size="12" flexibility="auto" padding="horizontal-medium">
+				<!--<template if:true={isRecordIdNotEmpty}>
+					<lightning-record-view-form
+							record-id={recordId}
+							object-api-name="SCH_Request__c">
+						<div class="slds-text-heading_medium slds-text-align_center">
+							<lightning-output-field field-name="Name" variant="label-hidden"></lightning-output-field>
+						</div>
+					</lightning-record-view-form>
+				</template>-->
+				<template if:false={isRecordIdNotEmpty}>
+					<div class="slds-text-heading_medium slds-text-align_center">
+						New Request
+					</div>
+				</template>
+			</lightning-layout-item>
+		</lightning-layout>
+	</div>
+	
+
+    <lightning-accordion allow-multiple-sections-open
+            onsectiontoggle={handleSectionToggle}
+			active-section-name={activeSections}
+			data-acc="section2"
+			>
+		<!--SECTION : STEP 1: LEGAL ENTITY DETAILS-->
+        <lightning-accordion-section name="legalEntitySec" label="STEP 1: LEGAL (RM) ENTITY DETAILS">
+			<!--SEARCH CRITERIA FIELDS-->
+
+			<lightning-layout pull-to-boundary="medium">
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" flexibility="auto" padding="horizontal-small">
+					<lightning-input
+						data-field="rmEntitySearch"
+						name="rm-entity-search"
+						label="Legal (RM) Entity Name"
+						type="search"
+						onchange={handleRMNameChange}
+						is-loading={showRMSearchingSpinner}
+						required>
+					</lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" flexibility="auto" padding="horizontal-small">
+                    <lightning-record-edit-form id="schReqClientLoc" object-api-name="SCH_Request__c">
+						<template if:false={isRmSrcdBbg}>
+								<div class="slds-float_left slds-required">*</div>
+						</template>
+						<lightning-input-field field-name='RM_Client_Location__c' onchange={handleRmClientLocChange}
+							variant='label-stacked' data-field="rmEntityLocation">
+						</lightning-input-field>
+                    </lightning-record-edit-form>
+                </lightning-layout-item>
+            </lightning-layout>
+		
+			<!--LEGAL ENTITY SEARCH RESULT TABLES-->	
+			<lightning-layout pull-to-boundary="medium">
+				<!--RDM : RM ENTITY MATCHES-->
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" flexibility="auto" padding="horizontal-small">
+					<!--<div style="height: 300px; width: 690px;" class="slds-box">-->
+					<div style="height: 300px;" class="slds-box">	
+						<div class="slds-text-title_caps slds-m-bottom_xx-small">
+							<lightning-icon icon-name="standard:account" size="small" class="slds-m-right_x-small" alternative-text="Existing: Legal (RM) Entity Matches" ></lightning-icon>
+							Existing: Legal (RM) Entity Matches
+						</div>
+
+						<template if:true={showSearchingRmEntityInRDM}>
+							<div class="slds-m-top_x-large inlineSpinner">
+								<lightning-spinner variant="brand" alternative-text="Loading"></lightning-spinner>
+							</div>
+						</template>
+
+						<template if:true={showRdmRMEntities}>
+							<!--<div style="height: 250px; width: 660px;">-->
+							<div style="height: 250px;">
+								<lightning-datatable
+										key-field="Id"
+										data-field="rmRdmEntDataTable"
+										data={rmEntityRdmData}
+										columns={rmEntityRdmCols}
+										hide-checkbox-column
+										enable-infinite-loading
+                						onloadmore={loadMoreRmRdmData}>
+								</lightning-datatable>
+							</div>
+						</template>
+						<template if:false={showRdmRMEntities}>
+							<div class="slds-p-top_x-large"></div><div class="slds-p-top_x-large"></div>
+							<div class="slds-p-top_x-large slds-text-title_caps slds-text-align_center">
+								No matching records found
+							</div>
+						</template>
+					</div> 
+				</lightning-layout-item>
+				<!--BLOOMBERG : LEGAL ENTITY MATCHES-->
+				<lightning-layout-item size="12" small-device-size="12" medium-device-size="6" flexibility="auto" padding="horizontal-small">
+					<!--<div style="height: 300px; width: 480px;" class="slds-box">-->
+					<div style="height: 300px;" class="slds-box">
+						<div class="slds-text-title_caps slds-m-bottom_xx-small">
+							<lightning-icon icon-name="standard:investment_account" size="small" class="slds-m-right_x-small" alternative-text="Bloomberg: Legal (RM) Entity Matches" ></lightning-icon>
+							Bloomberg: Legal (RM) Entity Matches 
+							<template if:true={selectedBbgLegalEntity}>
+								<lightning-button-icon icon-name="utility:refresh" size="x-small" 
+									class="slds-float_right" alternative-text="refresh" onclick={resetBbgRmEntity}>
+								</lightning-button-icon>
+							</template>
+						</div>
+						
+						<template if:true={showSearchingRmEntityInBBG}>
+							<div class="slds-m-top_x-large inlineSpinner">
+								<lightning-spinner variant="brand" alternative-text="Loading"></lightning-spinner>
+							</div>
+						</template>
+
+						<template if:true={showBbgRMEntities}>
+							<!--<div style="height: 250px; width: 450px;">-->
+							<div style="height: 250px;">
+								<lightning-datatable
+										key-field="Id"
+										data-field="rmBbgEntDataTable"
+										data={rmEntityBBGData}
+										columns={rmEntityBBGCols}
+										selected-rows={slectedRmBbgRow}
+										max-row-selection="1"
+										onrowselection={onBbgRmEntityselection}
+										enable-infinite-loading
+										onloadmore={loadMoreRmBbgData}>
+								</lightning-datatable>
+							</div>
+						</template>
+						<template if:false={showBbgRMEntities}>
+							<div class="slds-p-top_x-large"></div><div class="slds-p-top_x-large"></div>
+							<div class="slds-p-top_x-large slds-text-title_caps slds-text-align_center">
+								No matching records found
+							</div>
+						</template>
+					</div>
+				</lightning-layout-item>
+			</lightning-layout>
+
+			<h3 class="slds-m-top_small slds-m-bottom_x-small slds-section__title slds-theme_shade">
+				<span class="slds-truncate slds-p-horizontal_small" title="Additional Details">Additional Details</span>
+			</h3>
+
+			<lightning-layout pull-to-boundary="medium">
+				<lightning-layout-item size="12" small-device-size="12" medium-device-size="6" flexibility="auto" padding="horizontal-small">
+						<lightning-record-edit-form id="schReqClientType" object-api-name="SCH_Request__c">
+							<div class="slds-float_left slds-required">*</div>
+							<lightning-input-field field-name='Client_Type__c' onchange={handleClientTypeChange}
+							data-field="rmEntityClientType" variant="label-stacked"
+							></lightning-input-field>
+						</lightning-record-edit-form>
+					</lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="12" medium-device-size="6" flexibility="auto" padding="horizontal-small">
+                    <lightning-record-edit-form id="schReqClientStage" object-api-name="SCH_Request__c">
+						<div class="slds-float_left slds-required">*</div>
+						<lightning-input-field field-name='Legal_Entity_Stage__c' onchange={handleRmStageChange}
+							data-field="rmEntityStage" variant="label-stacked" disabled>
+						</lightning-input-field>
+                    </lightning-record-edit-form>
+				</lightning-layout-item>
+                <!--<lightning-layout-item size="4" flexibility="auto" padding="horizontal-medium">
+						<div></div>
+				</lightning-layout-item>
+				<lightning-layout-item size="4" flexibility="auto" padding="horizontal-medium">
+						<div></div>
+                </lightning-layout-item>-->
+            </lightning-layout>
+
+			<!--NEXT BUTTON-->
+			<div class="slds-text-align_right">
+				<lightning-button variant="brand" label="Next" title="Next" onclick={handleNextClick} 
+						class="slds-m-left_x-small" disabled={isRmDataInComplete} >
+				</lightning-button>
+			</div>
+		</lightning-accordion-section> <!--END OF SECTION 1-->
+
+		<!--SECTION : STEP 2: LEGAL ENTITY DETAILS-->	
+        <lightning-accordion-section name="parentEntitySec" label="STEP 2: ULTIMATE PARENT (RS) ENTITY AND FUNCTIONAL GROUP (RG) ENTITY DETAILS">
+			<lightning-layout pull-to-boundary="medium">
+				<lightning-layout-item size="12" small-device-size="12" medium-device-size="6" flexibility="auto" padding="horizontal-small">
+					<lightning-input
+						name="rs-entity-search"
+						data-field="rsEntitySearch"
+						label="Ultimate Parent (RS) Entity Name"
+						type="search"
+						onchange={handleRSNameChange}
+						is-loading={showRSSearchingSpinner}>
+					</lightning-input>
+				</lightning-layout-item>
+				<lightning-layout-item size="12" small-device-size="12" medium-device-size="6" flexibility="auto" padding="horizontal-small">
+					<lightning-input
+						name="rg-entity-search"
+						data-field="rgEntitySearch"
+						label="Functional Group (RG) Entity Name"
+						type="search"
+						onchange={handleRGNameChange}
+						is-loading={showRGSearchingSpinner}>
+					</lightning-input>
+				</lightning-layout-item>
+			</lightning-layout>
+
+			<lightning-layout pull-to-boundary="medium">
+				<lightning-layout-item flexibility="auto" size="12" small-device-size="12" medium-device-size="6" padding="horizontal-small">
+					<lightning-record-edit-form id="schReqRsClientLoc" object-api-name="SCH_Request__c">
+						<template if:false={isRsLocNotReq}>
+							<div class="slds-float_left slds-required">*</div>
+						</template>
+						<lightning-input-field field-name='RS_Client_Location__c' onchange={handleRsClientLocChange}
+							data-field="rsEntityLocation" variant=" label-stacked" disabled={isRsLocNotReq}>
+						</lightning-input-field>
+					</lightning-record-edit-form>
+				</lightning-layout-item>
+				<lightning-layout-item flexibility="auto" size="12" small-device-size="12" medium-device-size="6" padding="horizontal-small">
+					<lightning-input type="checkbox" class="slds-m-top_large" checked={setupRgNameFromRm} onchange={handleSetupRgNameFromRmName} 
+						label="Setup Functional Group (RG) Entity Name from Legal (RM) Entity Name" name="copyNameFromRMAcc">
+					</lightning-input>	
+				</lightning-layout-item>
+			</lightning-layout>
+			
+			<!--RS and RG hierarchy ENTITY SEARCH RESULT TABLES-->	
+			<lightning-layout pull-to-boundary="medium" class="slds-m-top_x-small">
+				<!--RDM : RS and RG ENTITY MATCHES-->
+                <lightning-layout-item flexibility="auto" size="12" small-device-size="12" medium-device-size="6" padding="horizontal-small">
+					<!--<div style="height: 300px; width: 690px;" class="slds-box">-->
+					<div style="height: 300px;" class="slds-box">
+						<div class="slds-text-title_caps slds-m-bottom_xx-small">
+							<lightning-icon icon-name="standard:account" size="small" class="slds-m-right_x-small" alternative-text="Select from existing Ultimate (RS) Entity and Functional Group	(RG) Entity details" ></lightning-icon>
+							Existing: Ultimate Parent (RS) - Functional Group (RG) Entity Matches
+						</div>
+							<!--<div style="height: 250px; width: 660px;">-->
+							<div style="height: 250px; width: 565px;">
+							<!--width="660"-->
+							<c-account-hierarchy 
+									height="250"
+									width="565"
+									rg-entity-name={rgEntityRDMSrchStr} 
+									rg-entity-id-list={rgEntityIdList}
+									rs-entity-name={rsEntityRDMSrchStr}
+									rs-entity-name-operator={rsEntityNameOperator}
+									rs-entity-id-list={rsEntityIdList}
+									onloadcomplete={handleLoadComplete}
+									onupdatehierarchy={handleUpdateHierarchy}
+									initial-rs-acc-id={initialRSAccId} 
+									initial-rg-acc-id={initialRGAccId}>
+							</c-account-hierarchy>
+						</div>
+					</div> 
+				</lightning-layout-item>
+				<!--BLOOMBERG : ULTIMATE ENTITY MATCHES-->
+				<lightning-layout-item flexibility="auto" size="12" small-device-size="12" medium-device-size="6" padding="horizontal-small">
+					<!--<div style="height: 300px; width: 480px;" class="slds-box">-->
+					<div style="height: 300px;" class="slds-box">
+						<div class="slds-text-title_caps slds-m-bottom_xx-small">
+							<lightning-icon icon-name="standard:investment_account" size="small" class="slds-m-right_x-small" alternative-text="Existing Legal (RM) Entities" ></lightning-icon>
+							Bloomberg: Ultimate Parent (RS) Entity Matches 
+							<template if:true={selectedBbgUltParentEntity}>
+								<lightning-button-icon icon-name="utility:refresh" size="x-small" 
+									class="slds-float_right" alternative-text="refresh" onclick={resetBbgRsEntity}>
+								</lightning-button-icon>
+							</template>
+						</div>
+
+						<template if:true={showSearchingRsEntityInBBG}>
+							<div class="slds-m-top_x-large inlineSpinner">
+								<lightning-spinner variant="brand" alternative-text="Loading"></lightning-spinner>
+							</div>
+						</template>
+
+						<template if:true={showBbgRSEntities}>
+							<!--<div style="height: 250px; width: 450px;">-->
+							<div style="height: 250px;">
+							<lightning-datatable
+									key-field="Id"
+									data-field="rsBbgEntDataTable"
+									data={rsEntityBBGData}
+									columns={rsEntityBBGCols}
+									selected-rows={slectedRsBbgRow}
+									max-row-selection="1"
+									onrowselection={onBbgRsEntityselection}
+									enable-infinite-loading
+									onloadmore={loadMoreRsBbgData}>
+							</lightning-datatable>
+						</div>
+						</template>
+						<template if:false={showBbgRSEntities}>
+							<div class="slds-p-top_x-large"></div><div class="slds-p-top_x-large"></div>
+							<div class="slds-p-top_x-large slds-text-title_caps slds-text-align_center">
+								No matching records found
+							</div>
+						</template>
+						
+					</div>
+				</lightning-layout-item>
+			</lightning-layout>
+
+			<!--SUBMIT BUTTON-->
+			<div class="slds-text-align_right slds-m-top_small">
+				<lightning-button variant="brand" label="Previous" title="Previous" 
+						onclick={handlePreviousClick} class="slds-m-left_x-small">
+				</lightning-button>
+				<lightning-button variant="brand" label="Submit" title="Submit" disabled={isHierarchyDataInComplete} 
+						onclick={handleSubmitClick} class="slds-m-left_x-small">
+				</lightning-button>
+			</div>
+		</lightning-accordion-section> <!--END OF SECTION 2-->
+	</lightning-accordion>
+	</lightning-card>
+	</template>
+</template>

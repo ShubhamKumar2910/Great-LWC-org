@@ -1,0 +1,20 @@
+.THIS {
+}
+
+.THIS .slds-combobox_container{
+	border:none;
+}
+
+.THIS .overflowScrollbar{
+	max-height: 300px;
+	overflow-y: scroll;
+
+}
+
+.THIS .scrollerSize{
+    height: 250px;
+}
+
+.THIS .hideComboboxListItems{
+    visibility : hidden !important;
+}

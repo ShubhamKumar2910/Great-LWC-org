@@ -1,0 +1,128 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,lightning:isUrlAddressable,force:hasRecordId" 
+                access="global" 
+                controller="ContactCoverageCmpServerController">
+	
+    <!--Form attribute -->
+    <aura:attribute name="contactCoverageData" type="Object" />
+    <aura:attribute name="datatableColumn" type="List" />
+    <aura:attribute name="totalRecordCount" type="String" />
+    <aura:attribute name="recordId" type="Id" /> 
+    <aura:attribute name="initialRows" type="Integer" default="500"/>
+    <aura:attribute name="rowsToLoad" type="Integer" default="500"/>
+    <aura:attribute name="enableInfiniteLoading" type="Boolean" default="true"/>
+    <aura:attribute name="currentCount" type="Integer" default="500"/>
+    <aura:attribute name="totalNumberOfRows" type="Integer" default="0"/>
+  
+    <!-- Labels -->
+    <aura:attribute name="contactNameField" type="String" default="{!$Label.c.ContactName}" />
+    <aura:attribute name="ownerName" type="String" default="{!$Label.c.Contact_Coverage_User_Name}" />
+   	<aura:attribute name="team" type="String"  default="{!$Label.c.Contact_Coverage_User_Team_Name}"/>
+    <aura:attribute name="contactLink" type="String"  default=""/>
+    <aura:attribute name="ownerActive" type="String"  default="{!$Label.c.Contact_Coverage_User_Active}"/>
+    <!-- Added for JIRA SALES-3701 -->
+    <aura:attribute name="ownerDivision" type="String"  default="{!$Label.c.Division}"/>
+    <aura:attribute name="ownerRegion" type="String"  default="{!$Label.c.Region}"/>
+    
+    <!-- Added for JIRA SALES-3695-->
+    <aura:attribute name="sendContactCoverageEmail" type="String"  default="Send Email"/>
+    
+    <aura:attribute name="TotalRecords" type="String"/>
+    <!-- Added for JIRA SALES-3082 -->
+    <aura:attribute name="isAccount" type="Boolean" default = "false" />
+    <aura:attribute name="calledFromFormulaField" type="Boolean" default="false" />
+    <aura:attribute name="recordErrorForContactView" type="String"/>
+    <aura:attribute name="contactViewRecord" type="Object" />
+    <aura:attribute name="simpleContactViewRecord" type="Object" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+   	<aura:method name="updateColumnSorting" action="{!c.updateColumnSorting}" />
+    <aura:method name="fetchData" action="fetchData" />
+    <aura:method name="setRecordDetails" action="{!c.setRecordDetails}" />
+    
+    <!-- Changes for JIRA SALES-3547 : Start -->
+    <aura:if isTrue="{!v.calledFromFormulaField == TRUE}">
+        
+        <force:recordData aura:id="contactRecordLoader"
+            recordId="{!v.recordId}"
+            fields="Id, Name,Account.Parent.Name"
+            targetRecord="{!v.contactViewRecord}"
+            targetFields="{!v.simpleContactViewRecord}"
+            targetError="{!v.recordErrorForContactView}"
+            mode="VIEW"            
+        />
+        
+        <!-- Display Lightning Data Service errors for Contact View Record --> 
+        <aura:if isTrue="{!not(empty(v.recordErrorForContactView))}"> 
+            <div class="recordError"> 
+                <ui:message title="Error" severity="error" closable="true"> 
+                    {!v.recordErrorForContactView} 
+                </ui:message> 
+            </div> 
+        </aura:if>
+
+        <!-- Display Contact Name and Account Name -->
+        <div class="slds-p-horizontal--small slds-p-vertical--xx-small">
+            <lightning:layout verticalAlign="center">
+                <lightning:icon iconName="standard:contact" class="iconMargin"/>
+                <lightning:layoutItem flexibility="auto" size="6">
+                    <label class="slds-form-element__label labelFormat" for="contactNameLabel">
+                        <ui:outputText aura:id="contactNameLabel" value="{!$Label.c.Contact_Coverage_Contact_Name}" />
+                    </label>
+                    <div class="outputTextFormat">
+                        <ui:outputText aura:id="contactName" value="{!v.simpleContactViewRecord.Name}" />
+                    </div>
+                </lightning:layoutItem>
+                
+                <lightning:icon iconName="standard:account" class="iconMargin"/>
+                <lightning:layoutItem flexibility="auto" size="6">
+                    <label class="slds-form-element__label labelFormat" for="accountNameLabel">
+                        <ui:outputText aura:id="accountNameLabel" value="{!$Label.c.Account}" />
+                    </label>
+                    <div class="outputTextFormat">
+                        <ui:outputText aura:id="accountName" value="{!v.simpleContactViewRecord.Account.Parent.Name}" />    
+                    </div>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </div> 
+        
+        <!--SALES-3702-->
+        <c:ToplineClientScorecard recordId="{!v.recordId}"/> 
+
+    </aura:if>
+    <!-- Changes for JIRA SALES-3547 : End -->
+    
+    <!--SALES-3695-->
+    <lightning:button variant="brand" label="{!$Label.c.Send_Email}" title="Send Email" onclick="{! c.sendContactCoverageEmail }" class="slds-hide sendEmailBtn" aura:id="sendEmailBtn"/>
+    
+    <!--DataTable --> 
+   
+            <div id="table" class="slds-p-horizontal--xx-small slds-hide" aura:id="dataTableDiv">               
+           
+            <aura:if isTrue="{!v.totalNumberOfRows >= 100}">
+                <lightning:datatable aura:id="contactCoverageTable"
+                                     data="{!v.contactCoverageData}"                                     
+                                     columns="{!v.datatableColumn}"
+                                     keyField="Id"                                   
+                                     enableInfiniteLoading="true"
+                                     onsort="{!c.updateColumnSorting}"
+                                     hideCheckboxColumn="true"                                     
+                                     onloadmore="{! c.loadMoreData }"/>
+            <aura:set attribute="else">
+                 <lightning:datatable aura:id="contactCoverageTable1"
+                                     data="{!v.contactCoverageData}"                                     
+                                     columns="{!v.datatableColumn}"
+                                     keyField="Id"   
+                                     onsort="{!c.updateColumnSorting}"
+                                     hideCheckboxColumn="true" />
+            </aura:set>
+            </aura:if>
+            </div> 
+            <footer class="footerAlign" aura:id="footerId">
+        	<label class="slds-form-element__label" for="totalRecords" >
+                    <ui:outputText aura:id="totalRecords" value="" />
+                	{!$Label.c.TotalRecords} &nbsp;{!v.totalRecordCount}
+            </label>             
+        </footer>   
+       
+     
+</aura:component>

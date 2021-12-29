@@ -1,0 +1,10 @@
+<aura:component >
+	<!-- Attributes -->
+    <aura:attribute name="recordId" type="Id" required="true" />
+    <aura:attribute name="recordName" type="String" required="true" />
+    
+    <span>
+    	<a href="" onclick="{!c.navigateToRecord}" title="{!v.recordName}">{!v.recordName}</a>
+    </span>
+   
+</aura:component>

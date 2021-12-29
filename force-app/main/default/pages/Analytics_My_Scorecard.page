@@ -1,0 +1,3 @@
+<apex:page sidebar="true" controller="AnalyticsDefaultRevenueViewController">
+    <wave:dashboard developerName="{!dashboard}" height="1000" hideOnError="true" openLinksInNewWindow="false" showSharing="true" rendered="true" width="100%" showTitle="true"/>
+</apex:page>

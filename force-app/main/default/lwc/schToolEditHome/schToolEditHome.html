@@ -1,0 +1,107 @@
+<template>
+    <template if:true={showSchToolEditHomeViewFlag} >
+
+    
+        <template if:true={spinner}>
+            <div class="slds-m-top_x-large inlineSpinner">
+                <lightning-spinner variant="brand" alternative-text="Loading"></lightning-spinner>
+            </div>
+        </template>
+
+        <lightning-layout pull-to-boundary="medium">
+            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" flexibility="auto" padding="horizontal-small">
+                <div class="slds-p-around_medium lgc-bg">
+                        <lightning-input type="text" label="Search Accounts"  minlength="3" onchange={handleTextInput} value={entitySearchStr} required></lightning-input>
+                    </div>
+            </lightning-layout-item>
+        </lightning-layout>
+
+
+        <lightning-layout>
+            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" flexibility="auto" padding="horizontal-small">
+                <div class="slds-text-align_right" style="padding:5px;">
+                    <lightning-button variant="brand" label={ReparentingLbl} title={ReparentingLbl} data-name="reparenting" onclick={handleBtnClick} 
+                        class="slds-m-left_x-small" disabled={reparentingBtnDisabled} >
+                    </lightning-button>
+                   
+                    <lightning-button variant="brand" label={mapExternalCodeLbl} title={mapExternalCodeLbl} data-name="mapExternalCode" onclick={handleBtnClick} 
+                        class="slds-m-left_x-small" disabled={extCodeMappingBtnDisabled} >
+                    </lightning-button>                    
+
+                    <lightning-button variant="brand" label={EditLbl} title={EditLbl} data-name="edit" onclick={handleBtnClick} 
+                        class="slds-m-left_x-small" disabled={editBtnDisabled}>
+                    </lightning-button> 
+                    
+                    <template if:false={showTieringFocusListBtn}>
+                        <lightning-button variant="brand" label="Priority List" title="Priority List" data-name="Priority_List" onclick={handleBtnClick} 
+                            class="slds-m-left_x-small">
+                        </lightning-button> 
+                    </template>
+                    <template if:true={showTieringFocusListBtn} >
+                        <lightning-button variant="brand" label="Global Tiering" title="Global Tiering" data-name="Global_Tiering" onclick={handleBtnClick} 
+                            class="slds-m-left_x-small">
+                        </lightning-button> 
+
+                        <lightning-button variant="brand" label="Product Focus List" title="Product Focus List" data-name="Product_Focus_List" onclick={handleBtnClick} 
+                            class="slds-m-left_x-small">
+                        </lightning-button> 
+                    </template>
+
+                </div>
+            </lightning-layout-item>
+        </lightning-layout>
+
+
+        <lightning-layout>
+            <lightning-layout-item size="12" small-device-size="12" medium-device-size="12" flexibility="auto" padding="horizontal-small">
+                <div class="slds-p-around_medium lgc-bg">
+                    <lightning-tree-grid
+                        class="lgc-example-treegrid"
+                        columns={gridColumns}
+                        data={gridData}                    
+                        key-field="Id"   
+                        onrowselection={handleEntitySelection}
+                        max-row-selection="1"
+                        expanded-rows={expandedIds}
+                    ></lightning-tree-grid>
+                </div>
+            </lightning-layout-item>
+        </lightning-layout>
+
+    </template>
+
+    <template if:true={showRmEditViewFlag}>
+        <c-sch-rm-attribute-modifications selected-table-data={selectedTableData}  
+                    is-sales-cao={isSalesCAO} is-japan-sales-cao={isJapanSalesCAO} 
+                    logged-in-user-profile-name = {loggedInUserProfileName} onshowschtooledithomeview={displaySchToolEditView}>
+
+        </c-sch-rm-attribute-modifications>
+    </template>
+
+    <template if:true={showRgEditViewFlag}>
+        <c-sch-rg-attribute-modification onshowschtooledithomeview={displaySchToolEditView} selected-table-data={selectedTableData} >
+        </c-sch-rg-attribute-modification>
+    </template>
+
+    <template if:true={showRsEditViewFlag}>
+        <c-sch-rs-attribute-modification onshowschtooledithomeview={displaySchToolEditView} selected-table-data={selectedTableData} >
+        </c-sch-rs-attribute-modification>
+    </template>
+
+    <template if:true={showPriorityListViewFlag}>
+        <c-sch-priority-list onshowschtooledithomeview={displaySchToolEditView} selected-table-data={selectedTableData} category-selected-from-home={categorySelected}>
+        </c-sch-priority-list>
+    </template>
+
+    <template if:true={showMapExternalCodeViewFlag}>
+        <c-sch-rm-map-external-code selected-table-data={selectedTableData} onshowschtooledithomeview={displaySchToolEditView}>
+        </c-sch-rm-map-external-code>
+    </template>
+
+    <template if:true={showReparentingViewFlag}>
+        <c-sch-request-submission onshowschtooledithomeview={displaySchToolEditView} 
+            is-rm-reparenting={isRmReparentingFlag} is-rg-reparenting={isRgReparentingFlag} selected-table-data={selectedTableData}>
+        </c-sch-request-submission>
+    </template>
+
+</template>

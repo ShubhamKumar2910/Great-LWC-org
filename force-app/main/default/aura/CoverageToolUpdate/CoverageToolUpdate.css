@@ -1,0 +1,37 @@
+.THIS .validationNote{
+    background-color: #dddcdc;
+    color: black;
+    padding-left: 6px;
+    clear: both;
+}
+.THIS .slds-form-element__row{
+    align-items: flex-start !important;
+}
+.THIS .note{
+    color:white;
+} 
+
+.THIS.row {
+    padding: 5px 0;
+    margin-bottom: 15px;
+}
+
+.THIS.row .header {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.THIS .custombadgeHeader{
+    padding: 0.60rem 1.5rem;
+    border-radius: 15rem;
+    font-size: .625rem;
+    line-height: normal;
+    text-transform: uppercase;
+    letter-spacing: .0625em;
+    color: rgb(62, 62, 60);
+    vertical-align: bottom;
+    white-space: nowrap;
+    background-color: rgb(112, 110, 107);
+    color: rgb(255, 255, 255);
+}

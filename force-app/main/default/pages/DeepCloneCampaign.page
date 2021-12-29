@@ -1,0 +1,31 @@
+<apex:page standardController="Campaign" extensions="DeepCloneCampaignController" >
+  
+  <apex:sectionHeader title="{!$Label.Deep_Clone_Campaign}"/>
+  <script>
+    function doSomething(test) {
+      
+        //alert('hi-->'+test);        
+        PassingParameter1(test);       
+    }
+  </script>
+  <apex:form >  
+      <apex:pageBlock >
+          <apex:actionFunction name="PassingParameter1" action="{!PassingParameter}" reRender="all">
+  				<apex:param value="" name="recordId"/>
+  		  </apex:actionFunction>
+          <apex:outputLabel value="{!$Label.Name_of_Campaign} : " />&nbsp;&nbsp;       
+          <apex:inputText value="{!campCloneName}"  /> <br/> <br/>      	
+        	<apex:outputLabel value="{!$Label.Parent_Campaign}"  for="theLookup"  />&nbsp;
+          &nbsp; &nbsp; &nbsp; 
+                      	
+          <apex:inputField id="theLookup" value="{!Camp.parentId}">
+      		<apex:actionSupport event="onchange" onComplete="doSomething('{!Camp.parentId}');" rerender="all" />
+    	  </apex:inputField>
+  
+          
+     </apex:pageBlock>
+        	
+      		<apex:commandButton value="{!$Label.Clone}" action="{!clonedeep}" rerender="all"/>  
+      		<apex:commandButton value="{!$Label.Cancel}" action="{!clonedeepCancel}" rerender="all" />
+  </apex:form> 
+</apex:page>

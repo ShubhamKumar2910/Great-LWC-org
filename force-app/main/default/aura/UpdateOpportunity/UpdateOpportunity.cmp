@@ -1,0 +1,23 @@
+<aura:component controller="OpportunityTriggerHandler" implements="force:lightningQuickActionWithoutHeader,force:hasRecordId" access="global">
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />  
+    <aura:attribute name="showConfirmBox" type="Boolean" default="false" />
+    <aura:method name="showSpinner" action="{!c.showSpinner}" />
+    <aura:method name="hideSpinner" action="{!c.hideSpinner}" />
+   <div>
+    <aura:if isTrue="{!v.showConfirmBox}">
+   <div align="center">
+   {!$Label.c.ValidateConfirmStopCollaboration}
+    <br/>
+    <br/> 
+    <lightning:button variant="success"  label="{!$Label.c.ValidateConfirmYes}" iconName="action:approval" onclick="{!c.update}"/>
+    <lightning:button variant="Neutral" label="{!$Label.c.ValidateConfirmNo}" iconName="action:close" onclick="{!c.cancel}"/>
+    </div>
+    </aura:if>
+     <div aura:id="spinnerblock" class="slds-spinner_container slds-hide"  >
+	    <div class="slds-spinner_brand slds-spinner slds-spinner_large" aria-hidden="false" role="alert">
+	         <div class="slds-spinner__dot-a"></div>
+	         <div class="slds-spinner__dot-b"></div>
+	    </div>
+    </div>
+   </div>
+</aura:component>

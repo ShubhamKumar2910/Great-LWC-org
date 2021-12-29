@@ -1,0 +1,18 @@
+.THIS.scrollerSize{
+    height : 520px; 
+    font-size: 14px;
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+}
+.THIS  .slds-text-heading--small {
+    font-size: 12px;
+    line-height: 1.25;
+}
+
+.THIS .slds-card+.slds-card {
+    margin-top: 1px;
+}
+.THIS .headerTable{
+	width:90%;
+    font-size: 14px !important;
+}

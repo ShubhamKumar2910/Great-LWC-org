@@ -1,0 +1,89 @@
+<aura:component controller="ItemsToApproveControllerMobile" implements="force:appHostable,flexipage:availableForAllPageTypes">
+    <!-- HANDLER -->
+   <aura:handler name="init" value="{! this }" action="{!c.doInit}"/>
+   
+   
+   <aura:attribute name="items" type="Object[]" description="Items to approve" access="global"/>
+   <aura:attribute name="IDList" type="String[]"/>
+   <aura:method name="showSpinner" action="{!c.showSpinner}" /> 
+   <aura:method name="hideSpinner" action="{!c.hideSpinner}" /> 
+   <aura:method name="showToast" action="{!c.showToast}"> 
+       <aura:attribute name="title" type="String"/> 
+       <aura:attribute name="type" type="String" default="success"/> 
+       <aura:attribute name="message" type="String"  default="This is test message."/>
+       <aura:attribute name="mode" type="String"  default="dismissible"/>
+       <aura:attribute name="key" type="String"/>
+   </aura:method>
+   
+   <div aura:id="spinnerblock" class="slds-spinner_container slds-hide">
+       <div class="slds-spinner--brand slds-spinner slds-spinner--large" aria-hidden="false" role="alert">
+           <div class="slds-spinner__dot-a"></div>
+           <div class="slds-spinner__dot-b"></div>
+       </div>
+   </div>
+   <!--<div class="mainContainer">
+       <div style="float: right;" class="slds-button-group" role="group">
+           <lightning:buttonIcon onclick="{!c.showfilter}" class="slds-button slds-button_icon slds-button_icon-border-filled headerIcon"  iconName="utility:filterList" variant="container" alternativeText="filter"/>
+           <c:mSortFilter aura:id="sortComponent" visible="false" onSort="{!c.onCustomSort}" 
+                          data="{!v.items}"  labels="Account,Product" 
+                          apiNames="AccountName,Product"
+                          sortedBy="AccountName"
+                          sortedDirection="asc"/>
+       </div>
+   </div> -->
+   
+   <ui:scrollerWrapper class="scrollerSize">
+       <aura:iteration items="{!v.items}" var="item" indexVar="j">
+           <lightning:card >
+               <aura:set attribute="title" >
+                   <table>
+                       <tr>
+                           <td style="width: 80%;white-space: normal;font-size: 12px;"> {!item.AccountName} - <strong>{!item.RequestType}</strong></td>
+                           <td>
+                               <div style="float:right;" data-value="{!item.processInstanceWorkItemID}" data-index="{!j}" onclick="{!c.reject}">
+                                   <lightning:buttonIcon class="reject" iconName="utility:close" variant="border"  alternativeText="{!$Label.c.ButtonReject}" />
+                               </div>
+                               <div style="float:right;"  data-value="{!item.processInstanceWorkItemID}" data-index="{!j}" onclick="{!c.approve}">
+                                   <lightning:buttonIcon class="approve" iconName="utility:check" variant="border"  alternativeText="{!$Label.c.ButtonApprove}" />
+                               </div>
+                           </td>
+                       </tr>
+                   </table>
+                   
+                   
+                   
+               </aura:set>
+               <aura:set attribute="body">
+                   <div class="slds-card__body slds-card__body_inner subContent"  >
+                       <table>
+                           <tr>
+                               <th>Requested for</th>
+                               <td>{!item.RequestedFor}</td>
+                           </tr>
+                           <aura:if isTrue="{!and(notequals(item.Product,''),notequals(item.Product,null))}">
+                               <tr>
+                                   <th>Product</th>
+                                   <td>{!item.Product} - {!item.ProductRegion}</td>
+                               </tr>
+                           </aura:if>
+                           <aura:if isTrue="{!and(notequals(item.FromDate,''),notequals(item.FromDate,null))}">
+                               <tr>
+                                   <th>From Date</th>
+                                   <td>{!item.FromDate}</td>
+                               </tr>
+                           </aura:if>
+                       </table>
+                       
+                       <!--
+                   <aura:if isTrue="{!and(notequals(item.Role,''),notequals(item.Role,null))}">
+                       <p> Role: {!item.Role}</p>
+                   </aura:if>
+                   <p> By {!item.RequestedBy}</p>-->
+                        
+                    </div>
+                </aura:set>
+                  </lightning:card>
+        </aura:iteration>
+    </ui:scrollerWrapper>
+    
+</aura:component>

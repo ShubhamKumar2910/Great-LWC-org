@@ -1,0 +1,26 @@
+<apex:page controller="CampaignBulkUploadController" tabStyle="Campaign">
+    <apex:sectionHeader title="Campaign" subtitle="Bulk Email Upload"/>
+    <apex:includeScript value="/support/console/30.0/integration.js"/>
+    <script type="text/javascript"> 
+     $(".emailAddresses").val(document.getElementById('{!$Component.emailAddressCtrl}').value);
+    </script>
+    
+   <!-- <apex:sectionHeader title="{!$Label.Bulk_Email_Upload}"/>  --> 
+    <apex:form >     
+        {!$Label.Email_Addresses} :  <br/><br/>
+        <apex:inputTextArea id="emailAddressCtrl" value="{!emailAddresses}" richText="false" style="width: 520px; height: 100px"/><br/><br/><br/>        
+        <apex:outputpanel style="display:{!if(showContent,"block","none")};">
+            <apex:commandButton action="{!bulkUpload}" value=" {!$Label.Bulk_Upload}" />
+            <apex:commandButton action="{!clonedeepCancel}" value="{!$Label.Cancel}" />
+        </apex:outputpanel>
+        <apex:outputpanel style="display:{!if(showContent1,"block","none")};">
+            <apex:outputText style="text-align:center;color:red;BackColor:#efefef;
+                                    borderColor:#336699; borderSize:3;font-weight:bold;" value="{!existingContactsMsg}"></apex:outputText><br/><br/>
+            <apex:outputText style="text-align:center;color:red;BackColor:#efefef;
+                                    borderColor:#336699; borderSize:3;font-weight:bold;" value="{!InactiveContactsMsg}"></apex:outputText><br/><br/>
+            <apex:outputText style="text-align:center;color:red;BackColor:#efefef;
+                                    borderColor:#336699; borderSize:3;font-weight:bold;" value="{!NotExistingContactsMsg}"></apex:outputText><br/><br/>
+            <apex:commandButton action="{!clonedeepOK}" value="OK"/>
+        </apex:outputpanel>
+    </apex:form> 
+</apex:page>

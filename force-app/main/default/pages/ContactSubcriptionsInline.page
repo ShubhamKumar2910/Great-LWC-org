@@ -1,0 +1,7 @@
+<apex:page standardController="Account" extensions="ContactSubcriptionsInline" standardStylesheets="false">
+    <apex:form style="margin-left: -10px;">
+       
+        {!accountProducts}
+
+    </apex:form>
+</apex:page>

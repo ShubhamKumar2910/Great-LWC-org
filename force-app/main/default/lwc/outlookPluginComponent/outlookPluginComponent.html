@@ -1,0 +1,145 @@
+<template>
+    <div class="slds-m-around_small">
+        <div if:true={displayMeetingView}>
+                                        <!-- Meeting main attributes -->
+            <div class="slds-grid slds-size_2-of-3 slds-wrap slds-m-top_small slds-m-bottom_small">
+                <div class="slds-col slds-size_3-of-5">
+                    <lightning-combobox name="meetingType" label="Activity Type" value={meetingType}
+                                        placeholder="please select" options={meetingTypeValues}
+                                        data-field="meetingtype" disabled={displayReadOnlyView} onchange={handleChange}>
+                    </lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_3-of-5 slds-m-top_small">
+                    <lightning-combobox name="meetingSubType" label="Activity Subtype" value={meetingSubType}
+                                        placeholder="please select" options={meetingSubTypeValues}
+                                        data-field="meetingsubtype" disabled={displayReadOnlyView} onchange={handleChange}>
+                    </lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_3-of-4 slds-m-top_small ">
+                    <lightning-record-edit-form object-api-name="Contact">
+                        <lightning-messages>
+                        </lightning-messages>
+                        <lightning-input-field data-field="primaryaccount" field-name="RG_Account__c" value={primaryRGAccountId}
+                                               disabled={displayReadOnlyView} onchange={handleChange}></lightning-input-field>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+                                          <!-- Client attendees -->
+            <div class="tableHeaderClass">
+                <span><lightning-icon icon-name="standard:contact"></lightning-icon></span>
+                <span class="labelClass">Client Attendees</span>
+            </div>
+            <div if:true={clientAttendeeContactListEmpty} class="slds-m-left_x-large"><h3><b>No results to display here</b></h3></div>
+            <template for:each={clientAttendeeContactList} for:item="clientattendee">
+                <article key={clientattendee.Id} class="slds-tile slds-media slds-m-left_xx-small slds-m-top_x-small">
+                    <div class="slds-media__figure">
+                      <span class="slds-icon_container" title="contact">
+                            <lightning-icon  icon-name="standard:contact" size="small" alternative-text="contact"></lightning-icon>
+                      </span>
+                    </div>
+                    <div class="slds-media__body">
+                        <b><h3 class=" slds-truncate" title={clientattendee.Name}>
+                            {clientattendee.Name}
+                        </h3></b>
+                        <div class="slds-tile__detail">
+                            <dl class="slds-list_horizontal slds-wrap">
+                                <dt class="slds-item_label slds-text-color_weak slds-truncate" title="Company">Company:</dt>
+                                <dd class="slds-item_detail slds-truncate" title={clientattendee.Account.Name}>{clientattendee.Account.Name}</dd>
+                                <dt class="slds-item_label slds-text-color_weak slds-truncate" title="Email">Email:</dt>
+                                <dd class="slds-item_detail slds-truncate" title={clientattendee.Email}>{clientattendee.Email}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </article>
+            </template>
+                                            <!-- Missing contacts  -->
+            <div class="slds-m-top_small slds-m-bottom_small">
+                <table if:true={missingContactsEmailsArrHasData} class="slds-table">
+                    <thead>
+                    <tr class="tableHeaderClass">
+                        <th scope="col" colspan="4" title="No matching contacts could be found for this email">No Contact Matches Found
+                        </th>
+                        <th scope="col" colspan="1" title="A 3rd party attendee does not have to be added as a contact in the system" class="slds-cell-wrap">Non-Client Attendee</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={missingContactsEmailsArr} for:item="missingcontactemail">
+                            <tr key={missingcontactemail.email}>
+                                <td key={missingcontactemail.email} scope="col" colspan="4">
+                                    <article key={missingcontactemail.email} class="slds-tile slds-media slds-m-top_x-small">
+                                        <div class="slds-media__figure">
+                                          <span class="slds-icon_container" title="New contact">
+                                                <lightning-button-icon data-id={missingcontactemail.email} onclick={handleNewContactCreation} disabled={displayReadOnlyView} icon-name="utility:new" variant="brand" alternative-text="Add new client contact" size="small" class="slds-m-left_xx-small" title="Add new client contact"></lightning-button-icon>
+                                          </span>
+                                        </div>
+                                        <div class="slds-media__body">
+                                            <h3 class="slds-truncate slds-m-top_xx-small" title={missingcontactemail.email}>
+                                                <b>{missingcontactemail.email}</b>
+                                            </h3>
+                                        </div>
+                                    </article>
+                                </td>
+                                <td key={missingcontactemail.email} scope="col" colspan="1" class="slds-cell-wrap tableContentRightAlignment">
+                                    <lightning-input type="checkbox" disabled={displayReadOnlyView} variant="label-hidden" checked={missingcontactemail.is3rdparty} data-id={missingcontactemail.email} onchange={handle3rdPartySelection}></lightning-input>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+                                            <!-- Internal invitees -->
+            <div class="tableHeaderClass slds-m-top_x-small">
+                <span><lightning-icon icon-name="standard:user"></lightning-icon></span>
+                <span class="labelClass">Internal Invitees</span>
+            </div>
+            <div if:true={internalInviteesContactListEmpty} class="slds-m-left_x-large"><h3><b>No results to display here</b></h3></div>
+            <template for:each={internalInviteesContactList} for:item="invitee">
+                <article key={invitee.Id} class="slds-tile slds-media slds-m-left_xx-small slds-m-top_x-small">
+                    <div class="slds-media__figure">
+                      <span class="slds-icon_container" title="description of icon when needed">
+                            <lightning-icon  icon-name="standard:user" size="small" alternative-text="contact"></lightning-icon>
+                      </span>
+                    </div>
+                    <div class="slds-media__body">
+                        <b><h3 class=" slds-truncate" title={invitee.Name}>
+                            {invitee.Name}
+                        </h3></b>
+                        <div class="slds-tile__detail">
+                            <dl class="slds-list_horizontal slds-wrap">
+                                <dt class="slds-item_label slds-text-color_weak slds-truncate" title="Email">Email:</dt>
+                                <dd class="slds-item_detail slds-truncate" title={invitee.Email}>{invitee.Email}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </article>
+            </template>
+        </div>
+                                        <!-- NEW contact -->
+        <div if:true={displayNewContactView} class="slds-m-top_medium slds-m-bottom_small">
+            <div class="tableHeaderClass">
+                <span><lightning-icon icon-name="standard:contact"></lightning-icon></span>
+                <span class="labelClass">New Client Contact</span>
+            </div>
+            <div class="slds-size_2-of-3">
+                <lightning-record-edit-form data-field="newcontacteditform" object-api-name="Contact" onsubmit={handleNewContactSubmit} onsuccess={handleNewContactCreationSuccess}>
+                    <lightning-messages>
+                    </lightning-messages>
+                    <lightning-input-field data-field="contactformaccount" field-name="RG_Account__c" value={newContactRGAccountId} onchange={handleChange}></lightning-input-field>
+                    <div class="slds-hide">
+                        <lightning-input-field field-name="AccountId" value={rmAccountId}></lightning-input-field>
+                    </div>
+                    <lightning-combobox name="rmaddress" data-field="rmaddress" label="Address" placeholder="Select Address" options={rmAccountOptions} disabled={isRMListDisabled} onchange={handleRMAccountFieldChange} class="slds-m-bottom_small"></lightning-combobox>
+                    <lightning-input-field field-name="Name"></lightning-input-field>
+                    <lightning-input-field field-name="PositionPicklist__c"></lightning-input-field>
+                    <lightning-input-field field-name="Title"></lightning-input-field>
+                    <lightning-input-field field-name="Email" disabled value={newContactEmail}></lightning-input-field>
+                    <lightning-input-field field-name="Phone"></lightning-input-field>
+
+                    <lightning-button data-field="btnContactSubmit" variant="brand" class="slds-m-top_medium slds-m-left_x-small" type="submit" label="Create Contact"></lightning-button>
+                    <lightning-button data-field="btnContactCancel" class="slds-m-top_medium slds-m-left_small" label="Cancel" onclick={handleNewContactFormReset}></lightning-button>
+                </lightning-record-edit-form>
+            </div>
+        </div>
+    </div>
+</template>

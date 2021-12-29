@@ -1,0 +1,12 @@
+.THIS {
+}
+
+.THIS .errorMessagePadding {
+    align-self: normal;
+    margin-right: 60px;
+}
+
+.THIS .marginLeftPadding {
+   
+    margin-left: .5rem;
+}

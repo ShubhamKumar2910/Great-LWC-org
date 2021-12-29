@@ -1,0 +1,3 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:isUrlAddressable" access="global" >
+    <c:CoverageTool aura:id="mycoverage"  withoutSharing="false" parentID="mycoverage"/> 
+</aura:component>

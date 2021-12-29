@@ -1,0 +1,36 @@
+<apex:page standardController="Account" extensions="Sales_Champion_Controller" title="{!$Label.Label_Sales_Champion_SalesChampionOf}">
+    <apex:includeScript value="/support/console/30.0/integration.js" />
+    <script type="text/javascript" >
+    	function openAccountUserSubtab(caseId) {  
+    	sforce.console.getEnclosingPrimaryTabId(function(result){
+     		sforce.console.openSubtab(result.id, '/' + caseId, true, '', null);
+      	});         
+  	}; 
+    </script>
+    
+    <apex:pageBlock mode="new">
+        <apex:form >
+            <apex:outputLabel styleClass=".extended.css" style="font-size:14px; font-family:Arial,Helvetica,sans-serif; font-weight:bold;" value="{!$Label.Label_Sales_Champion_SalesChampionOf}"></apex:outputLabel><br /> <br />
+            <apex:pageBlockTable styleClass=".extended.css" value="{!salesChampionAccount}" var="index">
+                
+                <apex:column headerValue="{!$Label.Label_Sales_Champion_AccountName}" styleClass=".extended.css" style="width:50%;">
+                    <a href="#" onClick="javascript:srcUp('/{!index.Account__r.Id}');"> {!index.Account__r.Name} </a>
+                </apex:column>
+                <apex:column headerValue="{!$Label.Label_Sales_Champion_ChampionType}" value="{!index.Champion_Type__c}" />
+                <apex:column headerValue="{!$Label.Label_Sales_Champion_Region}" value="{!index.Region__c}" />
+			</apex:pageBlockTable>
+            
+            <apex:panelGrid styleClass=".DesktopFrameCommon.css" columns="8">
+                <apex:commandLink action="{!previous}" rendered="{!hasPrevious}"> Previous </apex:commandLink>
+                <apex:outputText rendered="{!hasPrevious}"> | </apex:outputText>
+                <apex:commandLink action="{!next}" rendered="{!hasNext}"> Next </apex:commandLink>
+                <apex:outputText rendered="{!hasNext}"> | </apex:outputText>
+                <apex:outputText styleClass=".DesktopFrameCommon.css">
+                    {!IF((pageNumber * pageSize) > resultSize, resultSize, (pageNumber * pageSize))} / {!resultSize} records |
+                </apex:outputText>
+                <apex:outputLink id="gotoList" value="apex/Sales_ChampionFullList"> Go to list ({!resultSize}) >></apex:outputLink>
+            </apex:panelGrid>
+        </apex:form>
+       
+    </apex:pageBlock>
+</apex:page>

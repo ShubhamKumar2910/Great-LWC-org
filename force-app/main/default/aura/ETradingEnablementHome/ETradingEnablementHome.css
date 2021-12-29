@@ -1,0 +1,47 @@
+/* STYLE FOR ICONS*/
+.THIS li .slds-icon-text-default {
+    fill: black;
+}
+
+.THIS .extn{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgb(249, 249, 250);
+    box-shadow: 0 -2px 2px 0 rgba(0, 0, 0, 0.16);
+    z-index: 8000;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    padding: .5rem 0;
+}
+
+.THIS .actionButtons{
+    margin-left:5px;
+}
+
+.THIS .verticalHeader{
+    background: rgb(255, 255, 255);
+    border-bottom: 0;
+    padding: 6px;
+}
+
+.THIS .dark
+{
+    background-color: #5a5858;
+    color: white;
+}
+
+.THIS .slds-icon-utility-clear svg {
+  fill: rgb(255,0,0);
+}
+
+.THIS .slds-icon-utility-new svg {
+  fill: rgb(0, 200, 0);
+}

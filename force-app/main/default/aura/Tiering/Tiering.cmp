@@ -1,0 +1,67 @@
+<aura:component controller="TieringController" 
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global">
+    
+    <!-- Attribute for Tiering Details -->
+    <aura:attribute name="tieringDetails" type="GenericInterface" />
+    <aura:attribute name="childRecordId" type="Id" />	
+    
+    <!-- Methods : Start -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>    
+    <!-- Methods : End -->
+    
+    <!-- Tiering Table -->
+    <div class="slds-grid">
+         <div id="tieringTableDiv">        
+		    <table class="slds-table slds-table_bordered">
+            	<thead>
+                	<tr>
+                        <th scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">&nbsp;</th>
+                        <th scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!$Label.c.Tiering_GM}</th>
+                        <th scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!$Label.c.Tiering_EQ_Research}</th>
+                	</tr>
+               </thead>
+                
+               <tbody>
+                    <!-- Americas Region -->
+                    <tr>
+                        <th scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!$Label.c.Tiering_Americas_Region}</th>
+                        <td scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!v.tieringDetails.americasGMTier}</td>
+                        <td scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!v.tieringDetails.americasEQRschTier}</td>
+                    </tr>
+                    
+                    <!-- Europe Region -->
+                    <tr>
+                        <th scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!$Label.c.Tiering_Europe_Region}</th>
+                        <td scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!v.tieringDetails.europeGMTier}</td>
+                        <td scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!v.tieringDetails.europeEQRschTier}</td>
+                    </tr>
+                    
+                    <!-- Japan Region -->
+                    <tr>
+                        <th scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!$Label.c.Tiering_Japan_Region}</th>
+                        <td scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!v.tieringDetails.japanGMTier}</td>
+                        <td scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!v.tieringDetails.japanEQRschTier}</td>
+                    </tr>
+                    
+                    <!-- AsiaEx Region -->
+                    <tr>
+                        <th scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!$Label.c.Tiering_AsiaEx_Region}</th>
+                        <td scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!v.tieringDetails.asiaExGMTier}</td>
+                        <td scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!v.tieringDetails.asiaExEQRschTier}</td>
+                    </tr>
+                    
+                    <!-- Global Region -->
+                    <tr>
+                        <th scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!$Label.c.Tiering_Global}</th>
+                        <td scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!v.tieringDetails.globalGMTier}</td>
+                        <td scope="col" class="slds-cell-buffer_left slds-cell-buffer_right">{!v.tieringDetails.globalEQRschTier}</td>
+                    </tr>
+                </tbody>
+                
+            </table>
+        </div>
+    </div>
+    
+	
+</aura:component>

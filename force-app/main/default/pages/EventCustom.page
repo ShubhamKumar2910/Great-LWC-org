@@ -1,0 +1,138 @@
+<apex:page id="myPage" standardController="Event" extensions="EventCustomController"  tabStyle="event" >
+    <apex:sectionHeader title="Calendar"  subtitle="{!Title}" />
+    <apex:includeScript value="/support/console/30.0/integration.js"/>
+    <script type="text/javascript">
+     sforce.console.getFocusedPrimaryTabId(function(result){
+        sforce.console.setTabTitle('{!Title}', result.id);
+        });
+    function testCloseTab() {        
+        //First find the ID of the current tab to close it        
+        sforce.console.getEnclosingTabId(closeSubtab);        
+    }
+    
+    var closeSubtab = function closeSubtab(result) {        
+        //Now that we have the tab ID, we can close it        
+        var tabId = result.id;        
+        sforce.console.closeTab(tabId); 
+    };
+    
+    window.onload = function onloadJS()
+    {
+        
+        sforce.console.getEnclosingPrimaryTabId(setTabIcon);
+        function setTabIcon(result)
+        {   
+            sforce.console.setTabTitle('{!Title}'); 
+            var imgUrl = '{!$Resource.EventIcon}';            
+            sforce.console.setTabIcon(imgUrl, result.id, null);
+            
+        }
+        
+        /*   if({!thisEvent.Id == NULL} && {!thisEvent.WhatId == NULL}){
+         var selectedList = document.getElementById('myPage:myForm:myPageBlock:myPBSCalendarDetail:j_id38_mlktp');
+         selectedList.value = '006';
+         document.getElementById('myPage:myForm:myPageBlock:myPBSCalendarDetail:j_id38_mod').lookupType = 
+             }*/
+     }
+     
+     function passIdstoController(){
+         $("[id$='evt2_manyCWId']").val(fileName);
+     }
+    
+    function setPopupValue()
+    {
+        v= document.getElementById('myPage:myForm:myPageBlock:myPBSHiddenField:evt2_manyCWId')         
+        //alert('cids=' + v.value);
+        var url = 'console/apex/CustomExternalContactLookup?cIds='+v.value;  
+        window.open(url,'popuppage','width=800,toolbar=0,resizable=1,scrollbars=yes,height=575,top=200,left=300');
+    }
+    
+    
+    
+    function setPopupValueNomuraParticipants(){
+        v= document.getElementById('myPage:myForm:myPageBlock:myPBSHiddenField:evt2_manyNWId')         
+        //alert('eids=' + v.value);
+        var url = 'console/apex/CustomNomuraParticipantLookup?cIds='+v.value;  
+        window.open(url,'popuppage','width=675,toolbar=0,resizable=1,scrollbars=no,location=no,menubar=no,toolbar=no,titlebar=no,height=550,top=200,left=300');
+    }
+    
+    
+    </script>
+    
+    <style type="text/css">
+        .pull-right {
+        float: right !Important
+        }
+        
+        .WarningText { color: brown; font-weight:Bold}
+        .SectionText { color: brown; font-weight:Bold}
+    </style>
+    <apex:form id="myForm">
+        <apex:pageBlock mode="detail" title="{!$Label.Event_Custom_Event_Edit}" id="myPageBlock">   
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton value="{!$Label.Event_Custom_Save}" action="{!Save}" onclick="passIdstoController()" />
+                <apex:commandButton value="{!$Label.Event_Custom_Cancel}" action="{!doCancel}" immediate="true" oncomplete="testCloseTab()"  />
+            </apex:pageBlockButtons>
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton value="{!$Label.Event_Custom_Save}" action="{!Save}"  />
+                <apex:commandButton value="{!$Label.Event_Custom_Cancel}" action="{!doCancel}"  />
+            </apex:pageBlockButtons>
+            <apex:pageMessages />
+            <apex:pageBlockSection columns="2" collapsible="false" id="myPBSCalendarDetail">            
+                <font color="#ff0000">
+                    <apex:facet name="header">
+                        <span style="font-size:12px;color:black">{!$Label.Event_Custom_Calendar_Details}</span>                
+                    </apex:facet>    
+                </font>    
+                <apex:inputField value="{!event.OwnerId}" required="true"/> 
+                <apex:inputField value="{!event.Private__c}"/>                 
+                
+                <apex:inputField value="{!event.subject}" required="true"/> 
+                <apex:inputField value="{!event.WhatId}"/>                 
+                
+                <apex:inputField value="{!event.type}" required="true"/> 
+                <apex:inputField value="{!event.IsAllDayEvent}"  />
+                
+                <apex:inputField id="EventStartDate" value="{!Event.StartDateTime}" required="true"/>                
+                <apex:inputField value="{!event.Ticker__c}"  />                    
+                <apex:inputField id="EventEndDate" value="{!Event.EndDateTime}" required="true"/>
+            </apex:pageBlockSection>  
+            <apex:pageBlockSection columns="1" collapsible="false" id="myPBSAttendee">
+                <apex:inputText label="{!$Label.Event_Custom_Client_Attendees}" html-readonly="true"  style="Height:20px;Width:90%" id="ContactWhoIds"  value="{!externalContactsName}"  ><div class="col-lg-10"><apex:commandLink id="lookuplink" value="Lookup"  onclick="setPopupValue();return false;" ></apex:commandLink></div></apex:inputText>                 
+                <apex:inputText label="{!$Label.Event_Custom_Internal_Invitees}"  html-readonly="true"    style="Height:20px;Width:90%" id="NomuraWhoIds"  value="{!internalContactsName}"  ><div class="col-lg-10"><apex:commandLink id="lookuplinknP" value="Lookup"  onclick="setPopupValueNomuraParticipants();return false;" ></apex:commandLink></div></apex:inputText>
+            </apex:pageBlockSection>             
+            <apex:pageBlockSection collapsible="false"  id="myPBSHiddenField" >
+                <apex:inputHidden id="evt2_manyCWId"  value="{!hiddenExternalContactsId}"/>
+                <apex:inputHidden id="evt2_manyNWId"  value="{!hiddenNomuraIds}"/>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection columns="1" collapsible="false" id="myPBSDesc">
+                <font color="#ff0000">
+                    <apex:facet name="header">
+                        <span style="font-size:12px;color:black">{!$Label.Event_Custom_Description_Information}</span>                
+                    </apex:facet>    
+                </font>  
+                <apex:inputField style="Height:50px;Width:100%" value="{!Event.Description}" required="false"/>
+            </apex:pageBlockSection> 
+            <apex:pageBlockSection columns="1" collapsible="true" id="myPBSDetailDesc" >
+                <font color="#ff0000">
+                    <apex:facet name="header">
+                        <span style="font-size:12px;color:black">{!$Label.Event_Custom_Detail_Description}</span>                
+                    </apex:facet>    
+                </font> 
+                <apex:inputfield style="Height:100px;width:100%"  id="event__lta" value="{!tLTA.LTA_1__c}" />
+                <apex:outputLabel id="InfoLabel" rendered="{!thisEvent.Id == NULL}" styleClass="WarningText" Value="{!$Label.Event_Custom_Info_Text}"></apex:outputLabel>
+            </apex:pageBlockSection> 
+            <script>
+            twistSection(document.getElementById('{!$Component.myPageBlock.myPBSDetailDesc}').getElementsByTagName('img')[0]);
+            </script> 
+            <apex:pageBlockSection rendered="{!thisEvent.Id != null}" columns="1" collapsible="false" id="myPBSAttachment">
+                <font color="#ff0000" >
+                    <apex:facet name="header">
+                        <span style="font-size:12px;color:black">{!$Label.Event_Custom_Add_Attachments}</span>                
+                    </apex:facet>    
+                </font> 
+                <apex:iframe scrolling="true" height="107px" src="AddAttachments?eventId={!thisEvent.Id}"  />
+            </apex:pageBlockSection> 
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

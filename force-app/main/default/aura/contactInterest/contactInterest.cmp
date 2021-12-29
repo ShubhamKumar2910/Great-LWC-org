@@ -1,0 +1,115 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader,lightning:actionOverride,force:hasRecordId" access="global"
+                controller="ContactInterestController">
+  
+     <!--<ltng:require styles="{! $Resource.select2 + '/select2-3.5.2/select2.css'}" 
+      scripts="{!join(',', 
+               $Resource.select2 + '/select2-3.5.2/jquery-2.2.4.min.js',
+               $Resource.select2 + '/select2-3.5.2/select2.min.js' )
+      }" afterScriptsLoaded="{!c.scriptsLoaded}"/>-->
+    <ltng:require styles="{! $Resource.select2 + '/select2-3.5.2/select2.css'}" 
+                  scripts="{!join(',', 
+                           $Resource.CVGBulkJQueryMinJS,
+                           $Resource.select2 + '/select2-3.5.2/select2.js' )
+                           }" afterScriptsLoaded="{!c.scriptsLoaded}"/>
+    
+    <aura:attribute name="sObjectName" type="String" />
+    <aura:attribute name="contact" type="Contact" default="{'sobjectType': 'Contact', 'name' : 'notSet'}"/>
+    <aura:attribute name="contactName" type="String" />
+    <aura:attribute name="dataRows" type="List" />
+    <aura:attribute name="validDataRows" type="List" />
+    <aura:attribute name="showTable" type="Boolean" default="false" />
+    <aura:attribute name="disableCreateButton" type="Boolean" default="true" />
+    <aura:attribute name="onClose" type="Aura.Action" default="{!c.defaultCloseAction}"/> 
+    <aura:attribute name="isHelperScriptLoaded" type="Boolean" description="Flag to indicate jquery is loaded"/>
+    <aura:attribute name="needToRenderHelperLogic" type="Boolean" description="Flag to indicate need to process the logic rerender since it is called many times during the component's lifecycle"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+	<aura:handler name="treeListValueChanged" event="c:treeListValueChangedEvent"
+ 	action="{!c.handleTreeListValueChanged}"/>    
+    
+       <div class="spinnerHolder">
+	        <lightning:spinner aura:id="ciSpinner" />
+	    </div>
+    	
+	  <div class="slds-form slds-form_stacked"> 
+          
+        <div class="slds-form-element">  
+           <ui:outputRichText value="{!v.contactName}"  />
+        </div> 
+         <hr/>  
+       <div class="slds-form-element">          
+			<c:treelist aura:id="asset" sourceEntity="assetclass__c" idField="code__c" textField="name" label="{!$Label.c.Asset_class+' :'}" placeHolder="e.g. Cash" parentIdsField="parent_codes__c"/>
+        </div>   
+       <div class="slds-form-element">
+			<c:treelist aura:id="market" sourceEntity="market__c" idField="code__c" textField="name" label="{!$Label.c.Market+' :'}" placeHolder="e.g. Asia-Ex" parentIdsField="parent_codes__c" />
+       </div>           
+	   <div class="slds-form-element"> 
+			<c:treelist aura:id="sector" sourceEntity="sector__c" idField="code__c" textField="name" label="{!$Label.c.Sector+' :'}" placeHolder="e.g. Media" parentIdsField="parent_codes__c"/>
+        </div>  
+        <div class="slds-form-element"> 
+            <label class="slds-form-element__label" for="flagsMultiSelect">{!$Label.c.Flags} :</label>
+            <input aura:id="flagsMultiSelect" id = "flagsMultiSelect" type="text"/>
+        </div> 
+	    <br/>
+        <div class="c-container">   
+            <lightning:layout horizontalAlign="space">
+                <lightning:layoutItem flexibility="auto" padding="around-small">
+                    <div class="slds-form-element">  
+                       <lightning:button class="slds-button slds-button_success" onclick="{!c.doValidations}">{!$Label.c.Validate}</lightning:button>   
+                    </div>	 
+                </lightning:layoutItem>    
+                <lightning:layoutItem flexibility="auto" padding="around-small">    
+                    <div class="slds-form-element">  
+                            <aura:if isTrue="{!v.disableCreateButton}">
+                            	<lightning:button aura:id="create-button-ci" disabled="true">{!$Label.c.Create}</lightning:button>  
+                            <aura:set attribute="else">
+                                <lightning:button aura:id="create-button-ci" class="slds-button slds-button_success" onclick="{!c.doCreateCI}">{!$Label.c.Create}</lightning:button>   
+                            </aura:set>
+                          </aura:if>
+                    </div> 
+                </lightning:layoutItem>    
+             </lightning:layout>   
+          </div>   
+        <br/>
+         <aura:if isTrue="{!v.showTable}">
+         <div class="slds">
+            <table class="slds-table slds-table--bordered slds-table_col-bordered ">
+                <thead>
+                    <tr class="slds-text-title_caps">
+                        <th scope="col"><span class="slds-truncate">{!$Label.c.Asset_class}</span></th>
+                        <th scope="col"><span class="slds-truncate">{!$Label.c.Market}</span></th>
+                        <th scope="col"><span class="slds-truncate">{!$Label.c.Sector}</span></th>
+                        <th scope="col"><span class="slds-truncate">{!$Label.c.Message}</span></th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    <aura:iteration items="{!v.dataRows}" var="row">
+                        <tr>
+                            <td class="slds-cell-wrap">{!row.ASSET}</td>
+                            <td class="slds-cell-wrap">{!row.MARKET}</td>
+                            <td class="slds-cell-wrap">{!row.SECTOR}</td>
+                            <aura:if isTrue="{!equals(row.RESULT,'FAILED')}">
+                            	<td class="slds-cell-wrap cell-error">
+                                    Duplicate record found for <ui:outputURL value="{!row.HYPERLINK}" target="_blank" label="{!row.MESSAGE}"/>.
+                                </td>
+                            <aura:set attribute="else">
+                                <td class="slds-cell-wrap cell-passed">
+                                     <ui:outputURL value="{!row.HYPERLINK}" target="_blank" label="{!row.MESSAGE}"/>
+                                </td>
+                            </aura:set>   
+                            </aura:if>    
+                        </tr>
+                    </aura:iteration>
+                </tbody>
+            </table>             
+          </div>    
+         </aura:if>  
+        	
+  </div>
+    <br/> 
+                   <button class="slds-button slds-button_brand slds-col--bump-right slds-float_right" style="text-align:right;" onclick="{!c.defaultCloseAction}" >
+                        Close
+                   </button>  
+
+</aura:component>

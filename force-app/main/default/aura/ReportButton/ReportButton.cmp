@@ -1,0 +1,20 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" 
+                access="global" controller="ReportController">
+    
+    <!-- Attributes -->
+    <aura:attribute name="reportDeveloperName" type="String" />
+    <aura:attribute name="buttonLabel" type="String" />
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="reportId" type="String" />
+    
+     <!-- Methods -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:method name="navigateToReport" action="{!c.navigateToReport}" />
+    
+    <span>
+    	<aura:if isTrue="{!v.buttonLabel != ''}">
+            <lightning:button variant="brand" label="{!v.buttonLabel}" iconName="utility:open" iconposition="left" class="buttonClass" onclick="{!c.navigateToReport}"/>
+        </aura:if>
+    </span>
+	
+</aura:component>

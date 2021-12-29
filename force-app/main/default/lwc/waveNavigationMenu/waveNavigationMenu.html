@@ -1,0 +1,45 @@
+<template>
+    <template if:true={renderMenu}>
+        <lightning-button-group class="slds-m-left_xx-small">
+            <lightning-button label={analyticsLabel} icon-name="utility:apps" class="default-cursor"></lightning-button>
+            <div class="slds-dropdown-trigger  slds-button_last slds-dropdown-trigger_click" onclick={toggleWaveMenu}>
+                <a aria-haspopup="true" title="Show More">
+                    <lightning-button-icon icon-name="utility:down" size="medium"></lightning-button-icon>
+                </a>
+                <div class="slds-dropdown slds-dropdown_right slds-dropdown_actions dropdown-bg">
+                    <ul class="slds-dropdown__list" role="menu" aria-label="Show More" >
+                        <template if:true={renderWaveMenu}>
+                            <template for:each={menuItems} for:item='menuItem'>
+                                <c-wave-navigation-menu-item key={menuItem.id} folder-name={menuItem.folderName} item-label={menuItem.dashboardLabel} dashboard-name={menuItem.dashboardName} user-folder-permissions={userFolderPermissions}></c-wave-navigation-menu-item>
+                            </template>
+                        </template>
+                        <template if:true={renderPowerBIMenuItem}>
+                            <li title={mgmtReportsLabel} class="slds-dropdown__header slds-truncate slds-text-title_caps slds-theme_default header-text" role="separator">
+                                <span>{mgmtReportsLabel}</span>
+                            </li> 
+                            <template for:each={powerBiReports} for:item='reportItem'>
+                                <li class="slds-dropdown__item" role="presentation" key={reportItem.value}>
+                                    <button onclick={openWebPage} data-webpageurl={reportItem.value} class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                        {reportItem.label}
+                                    </button>
+                                </li>
+                            </template>
+                        </template>
+                        <template if:true={renderTableauMenuItem}>
+                            <li title={electronicTradingReportsLabel} class="slds-dropdown__header slds-truncate slds-text-title_caps slds-theme_default header-text" role="separator">
+                                <span>{electronicTradingReportsLabel}</span>
+                            </li> 
+                            <template for:each={tableauReports} for:item='reportItem'>
+                                <li class="slds-dropdown__item" role="presentation" key={reportItem.value}>
+                                    <button onclick={openWebPage} data-webpageurl={reportItem.value} class="slds-button slds-button_neutral slds-button_stretch button-text">
+                                        {reportItem.label}
+                                    </button>
+                                </li>
+                            </template>
+                        </template>                        
+                    </ul>
+                </div>
+            </div>
+        </lightning-button-group> 
+    </template>
+</template>

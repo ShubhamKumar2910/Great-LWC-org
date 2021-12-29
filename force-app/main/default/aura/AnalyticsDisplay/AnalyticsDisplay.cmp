@@ -1,0 +1,22 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,lightning:isUrlAddressable" access="global">
+    <aura:attribute name="dashboardName" type="String" />
+    <aura:attribute name="folders" type="String[]"/>
+    <aura:handler name="init" value="{!this}" action="{!c.onPageReferenceChange}"/>
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.onPageReferenceChange}" />
+    <c:AnalyticsFolderRightsPublisher/>
+    <div class="c-container">
+        <lightning:layout class="side-padng">
+            <lightning:layoutItem>
+                <c:navHomeButton/>
+            </lightning:layoutItem>
+            <lightning:layoutItem>
+                <c:waveNavigationMenu/>
+            </lightning:layoutItem>
+        </lightning:layout>
+        <lightning:layout>
+            <lightning:layoutItem padding="around-small" size="12">            
+                <wave:waveDashboard developerName="{!v.dashboardName}" height="1000" hideOnError="true" openLinksInNewWindow="false" showSharing="true" rendered="true" showTitle="true"/>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+</aura:component>

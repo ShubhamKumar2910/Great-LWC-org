@@ -1,0 +1,104 @@
+<template>
+        <template if:true={showSpinner}>
+                <lightning-spinner alternative-text={processingLabel}></lightning-spinner>
+        </template>
+    
+    <lightning-card variant="narrow" >
+        <lightning-layout multiple-rows>
+
+            <lightning-layout-item size="5" small-device-size="5" medium-device-size="5" flexibility="auto" padding="horizontal-small" >
+                <lightning-card variant="narrow" icon-name="standard:maintenance_asset">
+                    <h1 slot="title">{headerTxtLb1}</h1>
+                </lightning-card>
+            </lightning-layout-item>
+
+            <lightning-layout-item size="4" small-device-size="4" medium-device-size="4" flexibility="auto" padding="horizontal-small" ></lightning-layout-item>
+
+            <lightning-layout-item size="3" small-device-size="3" medium-device-size="3" flexibility="auto" padding="horizontal-small" class="slds-border_left" >
+                <lightning-card variant="narrow" >
+                    <div slot="actions">
+                        <lightning-button label={Add} title={Add} icon-name="utility:add" variant="brand" 
+                            data-name="add" onclick={handleBtnClick} class="slds-m-around_xxx-small">
+                        </lightning-button>
+
+                        <lightning-button label={Clear} title={Clear} icon-name="utility:undo" variant="neutral" 
+                            data-name="clear" onclick={handleBtnClick} class="slds-m-around_xxx-small">
+                        </lightning-button>
+                    </div>
+                </lightning-card>
+            </lightning-layout-item>
+
+            <lightning-layout-item size="3" small-device-size="3" medium-device-size="3" flexibility="auto" padding="horizontal-small" >
+                    <lightning-card variant="narrow">
+                        &nbsp;&nbsp; <b><label class="slds-form-element__label">{pleaseNoteThatLb1} </label></b> <label class="slds-form-element__label">{noteLabel}</label>
+                    </lightning-card>
+            </lightning-layout-item>
+            <lightning-layout-item size="6" small-device-size="6" medium-device-size="6" flexibility="auto" padding="horizontal-small" >
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-col slds-size_4-of-12">
+                    </div>
+                    <div class="slds-col slds-size_6-of-12">
+                        <template if:true={showDHA}>
+                            <c-lookup-Lwc selection={nomuraPerSelection}  onsearch={searchNomuraPerson} onselectionchange={handleNPSelectionChange}
+                            label={dhAppAccountLb1} placeholder="Search User..." data-field="nomuraPersonLookup" >
+                            </c-lookup-Lwc>
+                        </template>    
+                    </div>
+                    <div class="slds-col slds-size_2-of-12">
+
+                        <div class="slds-text-align_center" style="padding-top: 1.3rem; float: right;">
+                            <lightning-button label={Remove} title={Remove}  variant="neutral" 
+                            data-name="remove" onclick={handleBtnClick} class="slds-m-around_xxx-small" disabled={disableRemoveBtn}>
+                            </lightning-button>
+                        </div>
+
+                    </div>
+                </div>
+                
+                
+                
+            </lightning-layout-item>
+            <lightning-layout-item size="3" small-device-size="3" medium-device-size="3" flexibility="auto" padding="horizontal-small" class="slds-border_left" >
+                <p class="slds-p-horizontal_small">
+                    <c-lookup-Lwc selection={rgAccountSelection} errors={rgAccountError} onsearch={handleAccountSearch} label={rgAccountLb1} placeholder={searchAccPlaceholder}
+                        data-field="rgAccount" onselectionchange={handleAccountSelection} >
+                    </c-lookup-Lwc>
+                </p>
+            </lightning-layout-item>
+
+            
+                <lightning-layout-item size="9" small-device-size="9" medium-device-size="9" flexibility="auto" padding="horizontal-small" >
+                    <lightning-datatable
+                        key-field="uniqueKey"
+                        data={tableData}
+                        columns={columns}
+                        draft-values={draftValues}
+                        oncellchange={handleCellChange}
+                        onrowselection={handleRowSelection}
+                        onsave={handleSaveConditions}
+                        oncancel={handleCancel}
+                        errors={dataTableError}
+                        resize-column-disabled
+                    >
+                    </lightning-datatable>
+                </lightning-layout-item>
+          
+        
+
+            <lightning-layout-item size="3" small-device-size="3" medium-device-size="3" flexibility="auto" padding="horizontal-small" class="slds-border_left" >
+                <p class="slds-p-horizontal_small">
+                    <c-lookup-Lwc selection={rmAccountSelection} errors={rmAccountError} onsearch={handleAccountSearch} label={rmAccountLb1} placeholder={searchAccPlaceholder}
+                        data-field="rmAccount" onselectionchange={handleAccountSelection} >
+                    </c-lookup-Lwc>
+                </p>
+                <p class="slds-p-horizontal_small">
+                    <label class="slds-form-element__label" >{podAccountLb1}</label>
+                    <lightning-helptext content={podNameHelptext} class="customIcon"></lightning-helptext>
+                    <lightning-textarea padding="horizontal-small" name="podAccounts" label={podAccountLb1} variant="label-hidden"></lightning-textarea> 
+                </p>
+               
+                
+            </lightning-layout-item> 
+        </lightning-layout>
+    </lightning-card>
+</template>

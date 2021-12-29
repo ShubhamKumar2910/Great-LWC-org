@@ -1,0 +1,122 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId,force:hasSObjectName" controller="EventAttendeeList">
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="recordId" type="Id" />
+    <!--<aura:attribute name="lineitems" type="EventRelation[]"/> --> 
+    <aura:attribute name="lineitems" type="EventDataWrapper[]" access="global"/> 
+    
+
+    <article class="slds-card">
+      <div class="slds-border_top slds-border_right slds-border_bottom slds-border_left">
+        <div class="slds-card__header slds-grid" style="margin-top:5px;">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+              <div class="slds-media__figure slds-p-left_medium">
+                <span class="slds-icon slds-icon_small">
+             		<lightning:icon iconName="custom:custom19" size="small"/>
+       		      </span>
+              </div>
+              <div class="slds-media__body">
+                <h2>
+                  <span class="slds-text-heading_small"><b>Invitees</b></span>
+                </h2>
+              </div>
+            </header>
+           
+        </div> 
+        <div class="slds-card__body">   
+            <table class="slds-table slds-table_bordered slds-table_cell-buffer" >
+                <thead>
+                    <tr class="slds-text-title_caps">
+                        <th scope="col">
+                            <div class="slds-truncate" title="Name">Name</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Type">Type</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Account (G)">Account (G)</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Phone">Phone</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Role">Role</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Functional Title">Functional Title</div>
+                        </th>                       
+                    </tr>
+                </thead>
+                <tbody>
+                  <!--<aura:iteration items="{!v.lineitems}" var="fieldName">
+                        <tr class="slds-hint-parent  ">
+                            <th scope="row" data-label="Name">
+                                <div class="slds-truncate slds-p-top_x-small slds-p-bottom_x-small" >
+                                <a onclick="{!c.navigateToRecord}" data-recordId="{!fieldName.Relation.Id}" >
+                                    {!fieldName.Relation.Name}
+                                </a>
+                                </div>
+                            </th>
+                            <th scope="row" data-label="Type">
+                                <div class="slds-truncate slds-p-top_x-small slds-p-bottom_x-small" >
+                                    <aura:if isTrue="{!fieldName.IsParent}">
+                                        External Attendee
+                                        <aura:set attribute="else">
+                                            Internal Invitee
+                                        </aura:set>
+                                    </aura:if>                                     
+                                </div>                            
+                            </th>
+	                    </tr>             
+                    </aura:iteration>-->  
+                    <aura:iteration items="{!v.lineitems}" var="fieldName">
+                        <tr class="slds-hint-parent  ">
+                            <th scope="row" data-label="Name">
+                                <div class="slds-truncate slds-p-top_x-small slds-p-bottom_x-small" >
+                                <a onclick="{!c.navigateToRecord}" data-recordId="{!fieldName.RecordId}" >
+                                    {!fieldName.RecordName}
+                                </a>
+                                </div>
+                            </th>
+                            <th scope="row" data-label="Type">
+                                <div class="slds-truncate slds-p-top_x-small slds-p-bottom_x-small" >
+                                    <aura:if isTrue="{!fieldName.IsParent}">
+                                        External Attendee
+                                        <aura:set attribute="else">
+                                            Internal Invitee
+                                        </aura:set>
+                                    </aura:if>                                     
+                                </div>                            
+                            </th>
+                            <!--Added for JIRA SALES-3624 -->
+                            <th scope="row" data-label="Account (G)">
+                                <div class="slds-truncate slds-p-top_x-small slds-p-bottom_x-small" >
+                                <a onclick="{!c.navigateToRecord}" data-recordId="{!fieldName.AccountId}" >
+                                    {!fieldName.AccountName}
+                                </a>
+                            </div>
+                            </th>
+                            <th scope="row" data-label="Phone">
+                                <div class="slds-truncate slds-p-top_x-small slds-p-bottom_x-small" >
+                                    {!fieldName.Phone}
+                                </div>
+                            </th>
+                            <th scope="row" data-label="Role">
+                                <div class="slds-truncate slds-p-top_x-small slds-p-bottom_x-small" >
+                                    {!fieldName.Position}
+                                </div>
+                            </th>
+                            <th scope="row" data-label="Functional Title">
+                                <div class="slds-truncate slds-p-top_x-small slds-p-bottom_x-small" >
+                                    {!fieldName.Title}
+                                </div>
+                            </th>
+	                    </tr>           
+                    </aura:iteration>                    
+                </tbody>
+            </table>
+       	 </div>
+       </div>
+    </article>
+  
+</aura:component>

@@ -1,0 +1,21 @@
+<apex:page standardController="Account_Service_Model__c" extensions="AccountServiceModelCloneController" sidebar="false" tabStyle="Account_Service_Model__c" title="Account Service Model Edit: New Account Service Model">
+    <apex:sectionHeader title="Account Service Model Edit" subtitle="New Account Service Model" />
+    <apex:form >
+        <apex:pageBlock title="Account Service Model Edit">
+            <apex:pageMessages />
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!cloneAccountServiceModel}" value="Save" />
+                <apex:commandButton action="{!cancel}" value="Cancel" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection title="Information" columns="1" collapsible="false">
+                <apex:outputField value="{!Account_Service_Model__c.name}"/>
+                <apex:inputField value="{!Account_Service_Model__c.Item_Name__c}"/>
+                <apex:inputField value="{!Account_Service_Model__c.Call_Report_Type__c}"/>
+                <apex:inputField value="{!Account_Service_Model__c.DealAxis_Type__c}"/>
+                <apex:inputField value="{!Account_Service_Model__c.Is_Contact_Count__c}"/>
+                <apex:inputField value="{!Account_Service_Model__c.Weight__c}"/>
+                <apex:inputField value="{!Account_Service_Model__c.Order__c}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

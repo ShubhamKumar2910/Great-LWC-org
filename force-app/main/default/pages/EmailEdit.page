@@ -1,0 +1,119 @@
+<apex:page standardController="Campaign" extensions="EmailPreviewController"  action="{!initEmailEdit}">
+    <!-- For Service Console -->
+    <apex:includeScript value="/support/console/20.0/integration.js"/>
+    <script type="text/javascript">
+        function setTabTitle() {
+            //Set the current tabs title
+            sforce.console.setTabTitle('{!Campaign.Name}');
+        }
+        var pageLoad = window.onload;
+        window.onload = function() {
+            if (pageLoad) {
+                pageLoad();
+            }
+            setTabTitle();
+        }
+    
+    </script>
+    <style type="text/css">
+        td {
+            vertical-align:top;
+        }
+    </style>
+ 
+    <apex:form >
+        <apex:pageBlock title="{!$Label.EmailEdit}" >
+            <apex:pageMessages />
+            <!--<apex:pageBlockButtons >-->
+                <!-- <apex:commandButton action="/apex/EmailPreview?id={!campaign.id}" value="{!$Label.Preview}"/> -->
+                <div align="center" draggable="false" >
+                    <apex:commandButton action="{!goToEmailPreview}" value="{!$Label.Preview}" />
+                    <apex:commandButton action="{!saveOnly}" value="{!$Label.SaveOnly}" rendered="{!CanBeChanged}"/>
+                    <!-- <apex:commandButton action="{!previewToSelf}" value="{!$Label.PreviewToSelf}"/> -->
+                    <apex:commandButton action="{!goBackToCampaign}" value="{!$Label.Cancel}"/>
+                </div>
+            <!--</apex:pageBlockButtons>-->
+            
+            <apex:outputPanel style="float:right;" >
+                <apex:commandLink action="{!goToEmailSettings}" value="{!$Label.EditEmailSignature}" target="_blank"/>
+				<!-- Sam Ye  , 3/2/2018 , SALES-2311 -->
+                &nbsp;&nbsp;&nbsp;
+                <apex:commandLink action="{!goToTemplateSettings}" value="{!$Label.Manage_Email_Template}" target="_blank"/>
+                
+                
+            </apex:outputPanel>
+
+            <br/>
+            <br/>
+            <apex:panelGrid columns="3">
+
+                <apex:outputPanel >
+                    <apex:commandButton action="{!goToEditSalutationForEmailEdit}" value="{!$Label.EditSalutation}" reRender="HTMLBody" />
+                    <apex:commandButton action="{!editCampaignMembers}" value="{!$Label.EditRecipientsAfterSaving}" />
+                    <br />
+                    <br />
+
+                    <apex:panelGrid columns="2" width="100%">
+                        <apex:outputPanel >
+                            <div style="width:100px">
+                                <apex:outputLabel value="{!firstMemberIndex}-{!lastMemberIndex} / {!numberOfMembers}" />
+                            </div>
+                        </apex:outputPanel>
+                        <apex:outputPanel style="float:right;" >
+                            <apex:repeat value="{!memberPageNumberList}" var="num">
+                                <apex:commandLink value="{!num}" rendered="{!num != memberCurrentPageNumber}" action="{!updateCurrentMembers}" >
+                                    <apex:param value="{!num}" name="clickedPageNumber" assignTo="{!memberCurrentPageNumber}" />
+                                </apex:commandLink>
+                                <apex:outputLabel value="{!num}" rendered="{!num == memberCurrentPageNumber}" />
+                                <apex:outputLabel value=" | " rendered="{!num != memberLastPageNumber}" />
+                            </apex:repeat>
+                        </apex:outputPanel>
+                    </apex:panelGrid>
+                    <apex:pageBlockTable value="{!currentMembers}" var="item">
+                        <apex:column value="{!item.Name}" headerValue="{!$Label.TO}" width="120"/>
+                        <apex:column value="{!item.Email_Salutation__c}" headerValue="" width="100" style="font-size: 8pt;color:#A0A0A0;"/>
+                    </apex:pageBlockTable>
+                </apex:outputPanel>
+                
+                <apex:pageBlockSection columns="1">
+                    <apex:pageBlockSectionItem >
+
+                         <apex:outputText style="font-weight:800" >{!$Label.EmailTemplate}</apex:outputText>
+                        <apex:selectList value="{!EmailTemplateDeveloperName}" size="1">
+                            <apex:selectOptions value="{!TemplateSelectOptions}"/>
+                        </apex:selectList>
+  
+                    </apex:pageBlockSectionItem>
+                                       
+                     <apex:pageBlockSectionItem >
+                        <apex:panelGrid columns="2" width="250">
+                            <apex:commandButton action="{!loadTemplate}" value="{!$Label.LoadTemplate}" />
+                         </apex:panelGrid>
+                    </apex:pageBlockSectionItem>
+                    
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText style="font-weight:800" >{!$Label.Sender}</apex:outputText>
+                        <apex:selectList value="{!campaign.Email_Sender__c}" size="1">
+                            <apex:selectOptions value="{!SenderOptions}"/>
+                        </apex:selectList>
+                    </apex:pageBlockSectionItem>
+
+                    <!--
+                    <apex:outputText label="CC" value="{!CCName}" />
+                    <apex:outputText label="BCC" value="{!BCCName}" />
+                    -->
+                    <apex:inputText value="{!campaign.Subject__c}" style="width:750px" label="{!$Label.Subject}"/>
+                    <apex:inputField label="{!$Label.EmailBody}" value="{!campaign.Email_HTMLBodyForEdit__c}" />
+                    <!--<apex:pageBlockTable value="{!EmailAttachments}" var="item" >
+                        <apex:column value="{!item.name}" headerValue="{!$Label.Attachments}"/>
+                    </apex:pageBlockTable>-->
+                    
+                     <apex:pageBlockTable value="{!strAllFiles}" var="item" >
+                        <apex:column value="{!item}" headerValue="{!$Label.Attachments}"/>
+                    </apex:pageBlockTable>
+
+                </apex:pageBlockSection>
+            </apex:panelGrid>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

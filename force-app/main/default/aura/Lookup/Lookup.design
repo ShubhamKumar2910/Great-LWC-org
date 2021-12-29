@@ -1,0 +1,11 @@
+<design:component >
+	<design:attribute name="sObjectAPIName" label="Object"  default="Account"/>
+    <design:attribute name="label" label="Label" default="Account"/>
+    <design:attribute name="pluralLabel" label="Plural Label" default="Accounts"/>
+    <design:attribute name="listIconSVGPath" label="SVG Icon Path" default="/resource/sldsicons/standard-sprite/svg/symbols.svg#account"/>
+    <design:attribute name="listIconClass" label="SVG Icon Class" default="slds-icon-custom-11"/>
+	<design:attribute name="charLimit" />
+    <design:attribute name="showNomuraEmployee"  label="Show Nomura Employee"/>
+    <design:attribute name="allRecords" label="All Records"/>
+
+</design:component>

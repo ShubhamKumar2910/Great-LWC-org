@@ -1,0 +1,137 @@
+<aura:component controller="AccountMiFIDIIPanelController" 
+				implements="force:appHostable,flexipage:availableForRecordHome,force:hasRecordId" 
+                access="global">
+	<aura:attribute name="productSubscriptions" type="String" />
+    <aura:attribute name="URIEncodedAccountName" type="String" />
+    <aura:attribute name="contactsWithSubsReportId" type="String" />
+    <aura:attribute name="contactsWithoutSubsReportId" type="String" />
+    <aura:attribute name="nonMiFIDIIContactsWithRestrProdENT" type="String" />
+    <aura:attribute name="nonMiFIDIIContactsWithGRPAndProdENT" type="String" />
+    <aura:attribute name="showBulkUpdateButton" type="Boolean" />
+    <aura:attribute name="recordTypeAPIName" type="String" />
+    <aura:attribute name="recordId" type="String" default=""/>
+    <aura:attribute name="hasErrors" type="Boolean" default="false" />
+    <aura:attribute name="errorMessages" type="String[]" />
+    <aura:attribute name="rollupMiFIDIIInScope" type="String" default="" />
+    <aura:attribute name="NFPEAccountChampion" type="String" />
+    <aura:attribute name="isNFPE" type="Boolean" default="false" />
+    <!--changes for SALES-3698-->
+    <aura:attribute name="NFPEChampionReportId" type="String" />
+    
+    <aura:attribute name="isCautionClient" type="Boolean" default="false" />
+    <aura:attribute name="CautionClientInfo" type="String" default="false" />
+    <aura:attribute name="ShowCautionClientInfo" type="Boolean" default="false" />
+
+    
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:handler event="force:refreshView" action="{!c.init}"/>
+
+	<lightning:card class="slds-card_boundary">        
+        <aura:set attribute="footer">
+        </aura:set>
+        
+        <p class="slds-p-horizontal_small">
+            <!-- Error Messages -->
+            <aura:if isTrue="{!v.hasErrors}">
+                <lightning:layoutItem padding="around-small" size="12">
+                    <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" role="alert" style="height:50px;">
+                        <lightning:icon iconName="utility:warning" variant="warning" class="slds-icon slds-icon_x-small inlineTable errorMessagePadding"/>
+                        <div id="errors" style="">
+                        <aura:iteration items="{!v.errorMessages}" var="item">
+                            <ui:outputText value="{!item.message}" class="blockDisplay"/>
+                        </aura:iteration>
+                        </div>
+                        <lightning:buttonIcon iconName="utility:close" variant="bare" onclick="{!c.closeErrorMessages}"/>
+                    </div>
+                </lightning:layoutItem>
+                <aura:set attribute="else">
+                    <div></div>
+                </aura:set>
+            </aura:if> 
+            <!-- <lightning:recordViewForm recordId="{!v.recordId}" objectApiName="Account"> -->
+                <lightning:layout>
+                    <aura:if isTrue="{!v.isNFPE == true}">
+                        <lightning:layoutItem size="3">
+                            <div >
+                               <span class="slds-form-element__label"><b>{!$Label.c.NFPE}</b></span> 
+                                <!--changes for SALES-3698-->
+                                <lightning:button variant="neutral" iconName="utility:open" 
+                                    label="{!$Label.c.NFPE_Champion_Full_List}" 
+                                    title="{!$Label.c.NFPE_Champion_Full_List}"
+                                    class="actionButton1" 
+                                    onclick="{!c.openNFPEChampionReport}">
+                                </lightning:button>
+                                <p>
+                                    <span class="slds-form-element__label">{!$Label.c.EMEA_Primary_Relationship}</span>
+                                </p>
+                                <p>
+                                    <lightning:formattedText linkify="false" value="{!v.NFPEAccountChampion}" />
+                                </p>
+                            </div>
+                        </lightning:layoutItem>
+                    </aura:if>
+                
+                    <lightning:layoutItem size="3">
+                        <div >
+                            <span class="slds-form-element__label">{!$Label.c.MiFID_II_Product_Subscriptions}</span>
+                            <p>
+                                <lightning:formattedText linkify="false" value="{!v.productSubscriptions}" />
+                            </p>
+                        </div>
+                    </lightning:layoutItem>
+                
+                    <lightning:layoutItem size="2">
+                        <aura:if isTrue="{!v.recordTypeAPIName == 'RM_Account'}">
+                            <div >
+                                <span class="slds-form-element__label">{!$Label.c.Contacts_in_Scope_of_MiFID_II} </span>
+                                <p> 
+                                    <lightning:formattedText linkify="false" value="{!v.rollupMiFIDIIInScope}" />
+                                </p>
+                            </div>
+                        </aura:if>
+                    </lightning:layoutItem>
+                             <lightning:layoutItem size="3">
+                        <div>
+                            <lightning:buttonGroup>
+                                    <lightning:button label="{!$Label.c.Account_Entitlement_Options}" />
+                                    <lightning:buttonMenu alternativeText="Show Menu" menuAlignment="right"  onselect="{!c.handleMenuSelect}">
+                                        <aura:if isTrue="{!v.recordTypeAPIName == 'RG_Account'}">
+                                            <lightning:menuItem label="{!$Label.c.Entity_Entitlement}" title="{!$Label.c.Entity_Entitlement}" value="EntityDetail" />
+                                        </aura:if>
+                                        <lightning:menuItem label="{!$Label.c.Account_MiFID_Panel_Contact_Subs}" title="{!$Label.c.Account_MiFID_Panel_Contact_Subs}" value="MiFIDIIContactsWithSubs" />
+                                        <lightning:menuItem label="{!$Label.c.Account_MiFID_Panel_Contact_Without_Sub}" title="{!$Label.c.Account_MiFID_Panel_Contact_Without_Sub}" value="MiFIDIIContactsWithoutSubs" />
+                                        <lightning:menuItem label="{!$Label.c.Account_Non_MiFID_Panel_Contact_with_Restricted_Entitlement}" title="{!$Label.c.Account_Non_MiFID_Panel_Contact_with_Restricted_Entitlement}" value="NonMiFIDIIContactsWithRestrProdENT" />
+                                        <lightning:menuItem label="{!$Label.c.Account_Non_MiFID_Panel_Contact_with_Full_Entitlement}" title="{!$Label.c.Account_Non_MiFID_Panel_Contact_with_Full_Entitlement}" value="NonMiFIDIIContactsWithGRPAndProdENT" />
+                                        <aura:if isTrue="{!and(v.showBulkUpdateButton == true, v.recordTypeAPIName == 'RG_Account')}">
+                                            <lightning:menuItem label="{!$Label.c.Account_MiFID_Panel_Bulk_Update}" title="{!$Label.c.Account_MiFID_Panel_Bulk_Update}" value="MiFIDIIBulkUpdate" />
+                                        </aura:if>
+                                </lightning:buttonMenu>
+                            </lightning:buttonGroup>
+                        </div>
+                    </lightning:layoutItem>
+
+                   
+                    <aura:if isTrue="{!v.isCautionClient}">
+                        <lightning:layoutItem size="{!v.isNFPE?1:4}">
+                            <div style="padding-top:2px; vertical-align: middle;" class="slds-float_right">
+                                    <lightning:badge label="CAUTION CLIENT" style="background-color:rgb(255, 183, 93);"/>
+                                    <aura:if isTrue="{!and(v.CautionClientInfo != null, v.ShowCautionClientInfo)}">
+                                        <lightning:helptext iconVariant="warning" content="{!v.CautionClientInfo}"/>
+                                    </aura:if>
+                            </div>
+                        </lightning:layoutItem>
+                    </aura:if>
+                
+             </lightning:layout>
+            <!-- </lightning:recordViewForm> -->
+        </p>
+    </lightning:card>
+     
+    <aura:html tag="style">
+        .slds-popover_tooltip{ 
+            white-space : pre-line !important; 
+        }
+    </aura:html> 
+     
+
+</aura:component>

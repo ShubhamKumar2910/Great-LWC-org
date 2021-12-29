@@ -1,0 +1,131 @@
+<template>
+    <div data-id="filterContainer" class="slds-panel slds-size_large slds-panel_docked slds-panel_docked-right slds-is-open" aria-hidden="false" style="height: 515px;position:absolute;top:51px;right:0px;overflow:visible;">
+        <div class="slds-panel__body">
+
+            <div class="slds-border_bottom">
+                <div class="slds-align_absolute-center slds-m-top_x-small slds-m-bottom_small">
+                    <lightning-button variant="brand" label={searchLabel} title={searchLabel} onclick={handleSearch}></lightning-button>
+                    <lightning-button label={clearLabel} title={clearLabel} onclick={handleClear} class="slds-m-left_x-small"></lightning-button>
+                </div>
+            </div>
+
+            <div class="slds-grid slds-wrap slds-gutters_xx-small slds-m-top_small">
+                <div class="slds-col slds-size_1-of-1">
+                    <label class="slds-form-element__label">{viewLabel}</label>
+                    <lightning-radio-group name="cvgViewRadioGroup"
+                                           label="View"
+                                           class="slds-m-bottom_small"
+                                           options={cvgViewOptions}
+                                           value={cvgViewValue}
+                                           type="button"
+                                           variant="label-hidden"
+                                           data-field="cvgViewRadioGroup"
+                                           onchange={handleChange}>
+                    </lightning-radio-group>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <label class="slds-form-element__label">{groupByLabel}</label>
+                    <lightning-radio-group name="cvgLevelRadioGroup"
+                                           label="Level"
+                                           class="slds-m-bottom_small"
+                                           options={cvgGroupByOptions}
+                                           value={cvgLevelValue}
+                                           type="button"
+                                           variant="label-hidden"
+                                           data-field="cvgLevelRadioGroup"
+                                           onchange={handleChange}>
+                    </lightning-radio-group>
+                </div>
+
+                <div class="slds-col slds-size_1-of-2">
+                    <label class="slds-form-element__label">{showProductsLabel}</label>
+                    <lightning-input type="toggle" label="Product" name="productCB" variant="label-hidden" message-toggle-active="" message-toggle-inactive="" data-field="productCB" onchange={handleChange} class="">
+                    </lightning-input>
+                </div>
+
+                <div class="slds-col slds-size_3-of-3">
+                    <c-lookup-Lwc selection={initialAccountSelection} onsearch={handleEntitySearch} onselectionchange={handleChange}
+                                  label={accountLabel} placeholder={searchAccPlaceholder} data-field="account" is-multi-entry="true">
+                    </c-lookup-Lwc>
+                </div>
+
+                <div class="slds-col slds-size_3-of-3">
+                    <c-lookup-Lwc id="salesperson_lookup"  onsearch={handleEntitySearch} label={salespersonLabel} placeholder={searchSalesPersonPlaceholder} onselectionchange={handleChange}
+                                  data-field="salesperson" is-multi-entry="true">
+                    </c-lookup-Lwc>
+                </div>
+
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning-combobox
+                            name="cvgActivationStatus"
+                            label={includeLabel}
+                            value={cvgActivationStatusValue}
+                            placeholder={pleaseSelectPlaceholder}
+                            options={cvgActivationStatusValues}
+                            data-field="cvgActivationStatus"
+                            onchange={handleChange}
+                            class="slds-m-bottom_small">
+                    </lightning-combobox>
+                </div>
+
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning-combobox
+                            name="cvgRole"
+                            label={roleLabel}
+                            value={cvgRoleValue}
+                            placeholder={pleaseSelectPlaceholder}
+                            options={cvgRoleValues}
+                            data-field="cvgRole"
+                            onchange={handleChange}
+                            class="slds-m-bottom_small">
+                    </lightning-combobox>
+                </div>
+
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning-combobox
+                            name="cvgAccountType"
+                            label={accountTypeLabel}
+                            dropdown-alignment="right"
+                            value={cvgAccountTypeValue}
+                            placeholder={pleaseSelectPlaceholder}
+                            options={cvgAccountTypeValues}
+                            data-field="cvgAccountType"
+                            onchange={handleChange}
+                            class="slds-m-bottom_small">
+                    </lightning-combobox>
+                </div>
+
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning-combobox
+                            name="cvgProductGroup"
+                            label={productGroupLabel}
+                            value={productGroupValue}
+                            placeholder={pleaseSelectPlaceholder}
+                            options={productGroupValues}
+                            class={productFieldsVisibility}
+                            data-field="cvgProductGroup"
+                            onchange={handleChange}>
+                    </lightning-combobox>
+                </div>
+
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning-combobox
+                            name="cvgProductRegion"
+                            label={productRegionLabel}
+                            value={productRegionValue}
+                            placeholder={pleaseSelectPlaceholder}
+                            options={productRegionValues}
+                            data-field="cvgProductRegion"
+                            onchange={handleChange}
+                            disabled={disableProductRegionList}
+                            class={productFieldsVisibility}>
+                    </lightning-combobox>
+                </div>
+
+                <div class="slds-col slds-size_1-of-3">
+                    <c-multi-select-picklist disabled={disableProductList} displaypicklist={showAllProductFields} picklistlabel={productLabel} values={productValues} class="slds-m-bottom_xx-large"></c-multi-select-picklist>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

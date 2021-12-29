@@ -1,0 +1,19 @@
+<aura:event type="COMPONENT" description="Event for adding Sales Code and Products"> 
+    <aura:attribute name="salesCodes" type="String[]"/>
+    <aura:attribute name="products" type="String[]"/>
+    <aura:attribute name="cashRDM" type="String"/>
+    <aura:attribute name="cashRDMEntity" type="String"/>
+    <aura:attribute name="irsRDM" type="String"/>
+    <aura:attribute name="irsRDMEntity" type="String"/>
+    <aura:attribute name="repoRDM" type="String"/>
+    <aura:attribute name="repoRDMEntity" type="String"/>
+    <aura:attribute name="clearingBilateral" type="Boolean"/>
+    <aura:attribute name="clearing" type="Boolean"/>
+    <aura:attribute name="bilateral" type="Boolean"/>
+    <aura:attribute name="clearingHouses" type="String[]"/>
+    <aura:attribute name="globalMarginRequirement" type="String"/>
+    <aura:attribute name="collateralCurrencies" type="String[]"/>
+    <aura:attribute name="collateralType" type="String"/>
+    <aura:attribute name="tenorRestriction" type="String"/>
+    <aura:attribute name="breakClause" type="String"/>
+</aura:event>

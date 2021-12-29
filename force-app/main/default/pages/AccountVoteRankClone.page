@@ -1,0 +1,93 @@
+<apex:page standardController="Account_Vote_Ranks__c" extensions="AccountVoteRankCloneController" sidebar="false" tabStyle="Account_Vote_Ranks__c" title="Account Vote Rank Edit: New Account Vote Rank" standardStylesheets="false">
+    <apex:sectionHeader title="Account Vote Rank Edit" subtitle="New Account Vote Rank" />
+    <apex:includeScript value="/support/console/30.0/integration.js"/>
+  <script type="text/javascript">  
+    var accid;
+	var rankname;
+    
+    	function testOpenSubtab(accountid, name) {
+            //First find the ID of the primary tab to put the new subtab in
+            console.log(accid);
+           
+            accid = accountid;
+            rankname = name;
+            sforce.console.getEnclosingPrimaryTabId(openSubtab);
+       }
+       var openSubtab = function openSubtab(result) {
+            //Now that we have the primary tab ID, we can open a new subtab in it
+            var primaryTabId = result.id;
+        	console.log(accid);
+            sforce.console.openPrimaryTab(null,'/'+accid, true, rankname, null, openSuccess, '');
+        };
+        var openSuccess = function openSuccess(result) {};
+        
+    </script>
+ <apex:form >
+        <apex:pageBlock title="Account Vote Rank Edit" >
+            <apex:pageMessages />
+            
+            <apex:pageBlockSection rendered="{!hasDuplicateResult}" collapsible="false" columns="1">
+                <apex:pageBlockTable value="{!voteRecordQueried}" var="item" >
+                    <apex:column >
+                        <apex:facet name="header"> Period-Year</apex:facet>
+                        <apex:outputField value="{!item['Period__c']}" />
+                        <apex:outputLabel value="-"> </apex:outputLabel>
+                        <apex:outputField value="{!item['Year__c']}" /> 
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header"> Account Note</apex:facet>
+                        <apex:outputField value="{!item['Account_Note__c']}" />
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header"> Latest Vote</apex:facet>
+                        <apex:outputField value="{!item['Latest_Vote__c']}" /> 
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header"> Product-Service</apex:facet>
+                        <apex:outputField value="{!item['Product__c']}" /> 
+                        <apex:outputLabel value="-"> </apex:outputLabel>
+                        <apex:outputField value="{!item['Service__c']}" /> 
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header"> Rank</apex:facet>
+                        <apex:outputField value="{!item['Rank__c']}" /> 
+                    </apex:column>
+                     <apex:column >
+                        <apex:facet name="header"> Regions</apex:facet>
+                        <apex:outputField value="{!item['Regions__c']}" /> 
+                     </apex:column>
+                    <apex:column >
+                        <apex:facet name="header"> Vote Note</apex:facet>
+                        <apex:outputField value="{!item['Vote_Note__c']}" /> 
+                     </apex:column>	
+                    <apex:column >
+                        <apex:facet name="header"> Id</apex:facet>
+                        <apex:commandLink value="{!item.Name}" reRender="none" onclick="testOpenSubtab('{!item.Id}', '{!item.Name}')" />
+                    </apex:column>
+                   </apex:pageBlockTable>
+            </apex:pageBlockSection>   
+          
+           <apex:pageBlockButtons >
+                <apex:commandButton action="{!cloneAccountVoteRank}" value="Save" />
+                <apex:commandButton action="{!cancel}" value="Cancel" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection title="Account Vote Frequency"  columns="2" collapsible="false">
+                <apex:outputField value="{!Account_Vote_Ranks__c.Account__c}"/>
+                <apex:outputField value="{!Account_Vote_Ranks__c.Account_Note__c}"/>
+                <apex:outputField value="{!Account_Vote_Ranks__c.Period__c}"/>
+                <apex:outputField value="{!Account_Vote_Ranks__c.Year__c}"/>
+                <apex:outputField value="{!Account_Vote_Ranks__c.Received__c}"/>               
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="Account Vote Rank" columns="2" collapsible="false">
+                <apex:inputField value="{!Account_Vote_Ranks__c.Product__c}"/>
+                <apex:inputField value="{!Account_Vote_Ranks__c.Country__c}"/>
+                <apex:inputField value="{!Account_Vote_Ranks__c.Service__c}"/>
+                <apex:inputField value="{!Account_Vote_Ranks__c.Latest_Vote__c}"/>
+                <apex:inputField value="{!Account_Vote_Ranks__c.Rank__c}"/>
+                <apex:inputField value="{!Account_Vote_Ranks__c.Score__c}"/>
+                <apex:inputField value="{!Account_Vote_Ranks__c.Regions__c}"/>                
+                <apex:inputField value="{!Account_Vote_Ranks__c.Vote_Note__c}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

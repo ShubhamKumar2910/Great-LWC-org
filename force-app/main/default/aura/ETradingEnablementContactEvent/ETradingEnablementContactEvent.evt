@@ -1,0 +1,4 @@
+<aura:event type="COMPONENT" description="Event for adding a new Contact">
+    <aura:attribute name="contactId" type="String"/>
+    <aura:attribute name="contactName" type="String" />
+</aura:event>

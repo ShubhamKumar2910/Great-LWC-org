@@ -1,0 +1,15 @@
+.potentialDuplicateLabel{
+    background-color: rgb(206, 110, 1);
+}
+
+.existingLabel{
+    background-color: rgb(25, 85, 148);
+}
+
+.newLabel{
+    background-color: rgb(194, 57, 52);
+}
+
+.externalSourceLabel{
+    background-color: rgb(4, 132, 75);
+}

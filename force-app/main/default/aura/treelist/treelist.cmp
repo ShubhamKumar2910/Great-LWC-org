@@ -1,0 +1,47 @@
+<aura:component controller="TreeListController" access="global">
+    <!--<ltng:require styles="{! $Resource.select2 + '/select2-3.5.2/select2.css'}" 
+      scripts="{!join(',', 
+               $Resource.select2 + '/select2-3.5.2/jquery-2.2.4.min.js',
+               $Resource.select2 + '/select2-3.5.2/select2.min.js' )
+      }" afterScriptsLoaded="{!c.scriptsLoaded}"/>-->
+    <ltng:require styles="{! $Resource.select2 + '/select2-3.5.2/select2.css'}" 
+                  scripts="{!join(',', 
+                           $Resource.CVGBulkJQueryMinJS,
+                           $Resource.select2 + '/select2-3.5.2/select2.js' )
+                           }" afterScriptsLoaded="{!c.scriptsLoaded}"/>
+    
+  <!--init handler event call "doInit" function on component load and fetch picklist values-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+    <!--Declare Attributes--> 
+    <aura:attribute name="sourceEntity" type="String" />
+    <aura:attribute name="idField" type="Object" />
+    <aura:attribute name="textField" type="String" />
+ 	<aura:attribute name="placeHolder" type="String" />   
+    <aura:attribute name="label" type="String" />
+    <aura:attribute name="highlightError" type="String" default="false" />
+    <aura:attribute name="highlightErrorMessage" type="String" default="false" />
+    <aura:attribute name="parentIdsField" type="String" />
+    <aura:attribute name="selectedValues" type="String[]" />
+    <aura:attribute name="selectedObjects" type="List" />
+
+    <!--	Declare events -->
+	<aura:registerEvent name="treeListValueChanged" type="c:treeListValueChangedEvent"/>    
+    
+    <!--Declare Methods--> 
+    <aura:method name="highlightErrorMethod" action="{!c.highlightErrorMethod}">
+        <aura:attribute name="highlightErrorParam" type="String" default="false"/>
+        <aura:attribute name="highlightErrorMessageParam" type="String" />
+    </aura:method>
+
+   <!--for multi-select picklist [select2] -->    
+    <label class="slds-form-element__label" for="treePickList">{!v.label} </label>
+    <div class="slds-form-element__control " id="{!v.sourceEntity + '_treePickList_span'}">
+        <input aura:id ="{!v.sourceEntity + '_treePickList'}" id="{!v.sourceEntity + '_treePickList'}" type="text" />
+    </div>    
+    <aura:if isTrue="{!v.highlightError}">
+        <ul class="has-error uiInputDefaultError uiInput uiInputText uiInput--default uiInput--input" >
+            <li class="form-element__help" >{!v.highlightErrorMessage}</li>
+        </ul>    
+    </aura:if> 
+</aura:component>

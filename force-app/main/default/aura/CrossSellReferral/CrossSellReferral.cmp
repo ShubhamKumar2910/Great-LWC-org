@@ -1,0 +1,10 @@
+<aura:component controller="CrossSellReferralController" implements="lightning:isUrlAddressable,force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+
+    <aura:attribute name="entityApiName" type="String"/>
+    <aura:attribute name="recordTypeName" type="String"/>
+    <aura:attribute name="defaultValueStr" type="String"/>
+    <lightning:navigation aura:id="navService" />
+    
+    <aura:handler name="render" value="{!this}" action="{!c.doInit}"/>
+    
+</aura:component>

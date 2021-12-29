@@ -1,0 +1,334 @@
+<!--c:BulkUpdateDeskCommentaryProhibited-->
+<aura:component controller="BulkUpdateDeskCommentaryProhController" 
+	implements="lightning:isUrlAddressable,force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome" access="global">
+
+	<!-- ATTRIBUTES -->	
+    <aura:attribute name="accept" type="List" default="['.csv','.xls']"/>
+    <aura:attribute name="multiple" type="Boolean" default="false"/>
+    <aura:attribute name="disabled" type="Boolean" default="false"/>
+	<aura:attribute name="recId" type="String"/>
+	<aura:attribute name="runningJobId" type="String"/>
+	<aura:attribute name="isUpldJobRunning" type="Boolean" default="false"/>
+	<aura:attribute name="runningJobPercent" type="Integer" default="0"/>
+	<aura:attribute name="currentJobInfo" type="Object"/>
+	<aura:attribute name="uploadedDocId" type="String"/>
+	<aura:attribute name="fileBodyTxt" type="String"/>
+	<aura:attribute name="templDocId" type="String"/>
+	<aura:attribute name="showDownLoadTempl" type="Boolean" default="false"/>
+	
+	<aura:attribute name="runJobStatus" type="String"/>
+    <aura:attribute name="runJobTotalNoOfRecsToProc" type="String"/>
+    <aura:attribute name="runJobTotalNoOfRecsProc" type="String"/>
+    <aura:attribute name="runJobEmailSent" type="String"/>
+	
+	<aura:attribute name="fileValidationErrs" type="Boolean" default="true" />
+	<aura:attribute name="uploadStatus" type="String" default=""/>
+	<aura:attribute name="uploadBy" type="String" />
+	<!-- DEFAULT Private CONSTANTS  -->
+	<aura:attribute name="upLoadByRGAcc" type="String" default="UPLOAD_BY_RG_ACC" access="private" />
+	<aura:attribute name="upLoadByRMAcc" type="String" default="UPLOAD_BY_RM_ACC" access="private" />
+	<aura:attribute name="upLoadByContEmail" type="String" default="UPLOAD_BY_CONT_EMAIL" access="private" />
+	<aura:attribute name="refreshStatusUpdPeriod" type="Integer" default="15000" access="private" />
+	
+	<!-- DATA-TABLE ATRIBUTE -->
+	<aura:attribute name="uplodJobColumns" type="List"/>
+   	<aura:attribute name="uploadJobData" type="Object"/>
+   	<aura:attribute name="uploadJobErrors" type="Object"/>
+	
+	
+	<!--EVENTS HANDLED-->
+	<aura:handler name="init" value="{!this}" action="{!c.init}"/>
+	<aura:handler name="change" value="{!v.isUpldJobRunning}" action="{!c.handleIsUpldJobRunningChange}"/>
+	<aura:handler name="change" value="{!v.runningJobId}" action="{!c.handleRunningJobIdChange}"/>
+	
+	<!-- 1. SPINNER -->
+	<div>
+		<lightning:spinner aura:id="pageSpinnerId" />
+	</div>
+	
+	<article class="slds-card">
+	 <div class="slds-card__header slds-grid">
+	   <header class="slds-media slds-media_center slds-has-flexi-truncate">
+	     <div class="slds-media__figure">
+	       <span class="slds-icon_container slds-icon-standard-opportunity slds-icon-action-description" title="Bulk Upload">
+	         <lightning:icon iconName="action:upload" alternativeText="Upload" size="xx-small"/>
+	       </span>
+	     </div>
+	     <div class="slds-media__body">
+	       <h2 class="slds-card__header-title">
+	         <a href="javascript:void(0);" class="slds-card__header-link slds-truncate" title="{#'Bulk Upload : Contact : '+$Label.c.Desk_Commentary_Label}">
+	           <span class="slds-text-heading_small">{#'Bulk Upload : Contact : '+$Label.c.Desk_Commentary_Label}</span>
+	         </a>
+	       </h2>
+	       <p style="color: rgb(194, 57, 52);">{!v.uploadStatus}</p>
+	     </div>
+	   </header>
+	 </div>
+	</article>
+	
+	<!-- UPLOAD SECTIN HEADER -->
+	<div class="slds-m-top_xx-small slds-m-bottom_xx-small" style="cursor: pointer;
+                                      background-color: rgb(91, 100, 138);padding:6px;
+                                      color: #FFF;" onclick="{!c.toggleFilterSec}">
+       <section class="slds-clearfix">
+           <div class="slds-float--left ">
+               <lightning:icon class="slds-hide" aura:id="uploadSecIcon" iconName="utility:upload" size="x-small" 
+               					variant="inverse" alternativeText="Indicates add"/>
+               <lightning:icon class="slds-show" aura:id="uploadSecIcon" iconName="utility:chevronup" size="x-small" 
+               					variant="inverse" alternativeText="Indicates dash"/>
+           </div>
+           <div class="slds-m-left--large">Upload</div>
+       </section>
+   </div>
+	<!-- UPLOAD SECTIN BODY -->
+	<div class="slds-show" aura:id="uploadDetailSecId" id="uploadDetailSecRef">
+       <article class="{! if(empty(v.runningJobId), 'slds-show', 'slds-hide')+' slds-card' }" style="background-color: #fbfbfb;">
+           <div style="height:16px;"></div>
+           <div class="slds-card__body slds-card__body_inner">
+           
+				<lightning:layout horizontalAlign="spread">
+					<lightning:layoutItem flexibility="auto" size="6">
+						<label class="slds-form-element__label">Upload by:</label>
+						<div class="slds-form-element__control"> 
+						<lightning:buttonGroup >
+				        	<lightning:button aura:id="upldByRGAccBtnId" label="RG Account" name="{#v.upLoadByRGAcc}" onclick="{!c.handleTypeClick}"
+				            				iconName="{! if(v.uploadBy eq v.upLoadByRGAcc, 'utility:check', 'utility:add')}" 
+				                            variant="{! if(v.uploadBy eq v.upLoadByRGAcc, 'success', 'neutral')}" />
+							<lightning:button aura:id="upldByRMAccBtnId" label="RM Account" name="{#v.upLoadByRMAcc}" onclick="{!c.handleTypeClick}"
+				    						iconName="{! if(v.uploadBy eq v.upLoadByRMAcc, 'utility:check', 'utility:add')}" 
+				                            variant="{! if(v.uploadBy eq v.upLoadByRMAcc, 'success', 'neutral')}" />
+							<lightning:button aura:id="upldByContEmailBtnId" label="Contact Email" name="{#v.upLoadByContEmail}" onclick="{!c.handleTypeClick}"
+				    				iconName="{! if(v.uploadBy eq v.upLoadByContEmail, 'utility:check', 'utility:add')}" 
+				                    variant="{! if(v.uploadBy eq v.upLoadByContEmail, 'success', 'neutral')}" />	                                                      
+						</lightning:buttonGroup>
+						</div>
+	       			</lightning:layoutItem>
+	       			<lightning:layoutItem flexibility="auto" size="4">
+			        	<div class="slds-form-element slds-text-align_right">
+							<span class="slds-form-element__labelslds-text-align_left" id="file-selector-primary-label"></span>
+							<div class="slds-form-element__control">
+								<div class="slds-file-selector slds-file-selector_files">
+									<div class="slds-file-selector__dropzone">
+										<lightning:fileUpload class="slds-text-align_left" name="fileUploader" aura:id="fileUploadId"
+												label= "Please select a .csv file to upload"
+												multiple="{!v.multiple}"
+												accept="{!v.accept}"
+												disabled="{! empty(v.uploadBy)}"
+												recordId="{!v.recId}"
+												onuploadfinished="{!c.handleUploadFinished }">
+										</lightning:fileUpload>
+									</div>
+								</div>
+							</div>
+						</div>
+			       	</lightning:layoutItem>
+				</lightning:layout>
+	
+				<lightning:layout class="slds-m-top_xx-small" horizontalAlign="spread" verticalAlign="end">
+					
+			       	
+			       	<lightning:layoutItem flexibility="auto" size="4">
+			       		<lightning:button aura:id="DwnLdFileTempId" label="Download Example CSV Template" 
+				    				name="DwnLdFileTemp" onclick="{!c.handleDwnLdFileTemp}"
+				    				disabled="{! empty(v.uploadBy)}"
+				                    iconName="utility:download" variant="brand"/>
+		       		</lightning:layoutItem>
+			       	
+			       	<lightning:layoutItem flexibility="auto" size="4">
+			       		<div class="slds-text-align_right">
+			                
+		                    <lightning:button aura:id="UpdateBtnId" label="Start Upload" name="Update" 
+				            		onclick="{!c.handleUpdateClick}" 
+				            		disabled="{! or(empty(v.fileBodyTxt) , v.fileValidationErrs)}"
+				                    iconName="utility:upload" 
+				                    variant="{! if(not(or(empty(v.fileBodyTxt) , v.fileValidationErrs)), 'success', 'neutral')}" />
+						</div>
+			       	</lightning:layoutItem>
+				</lightning:layout>
+			</div>
+		</article>
+		
+		<article class="{! if(empty(v.runningJobId), 'slds-hide', 'slds-show')+' slds-card' }" style="background-color: #fbfbfb;">
+           	<div style="height:16px;"></div>
+           	<div class="slds-card__body slds-card__body_inner">
+           		<lightning:layout horizontalAlign="spread end">
+					<lightning:layoutItem flexibility="auto" size="12">
+						<lightning:progressBar variant="circular" value="{!v.runningJobPercent}" size="large" />
+					</lightning:layoutItem>
+				</lightning:layout>
+				<lightning:layout horizontalAlign="spread end">
+					<lightning:layoutItem flexibility="auto" size="6">
+						<p>{!v.runJobStatus+' : '+v.runningJobPercent+'%'}</p>
+					</lightning:layoutItem>
+					<lightning:layoutItem flexibility="auto" size="6">
+						<!-- <p>Total No. of entries in file to Process : {!v.runJobTotalNoOfRecsToProc}</p>
+						<p>Total No. of Contacts Processed : {!v.runJobTotalNoOfRecsProc}</p>
+						<p>Email sent out : {!v.runJobEmailSent}</p> -->
+					</lightning:layoutItem>
+				</lightning:layout>
+			</div>
+		</article>
+		
+	</div>
+
+   <!-- JOB RUN STATUSES -->
+   <div class="slds-m-top_xx-small slds-m-bottom_xx-small" style="cursor: pointer;
+                                      background-color: rgb(91, 100, 138);padding:6px;
+                                      color: #FFF;">
+       <section class="slds-clearfix">
+           <div class="slds-float--left ">
+               <lightning:icon class="slds-hide" aura:id="uploadSecIcon" iconName="utility:table" size="x-small" 
+               					variant="inverse" alternativeText="Job Runs"/>
+           </div>
+           <div class="slds-m-left--large">Upload Job Status</div>
+       </section>
+   </div>
+   
+	<div aura:id="uploadJobRunSecId">
+		<div class="slds-table_bordered tableStyle" style="{!'height:' + v.maxHeight +'px'}" aura:id="dataTableDiv">
+           <lightning:datatable aura:id="uploadJobTableId"
+                                columns="{!v.uplodJobColumns }" 
+                                data="{!v.uploadJobData}" 
+                                errors="{!v.uploadJobErrors}"
+                                keyField="apexJobId"                                   
+                                maxColumnWidth="600"
+                                sortedBy="jobRubDate"
+                                sortedDirection="asc"
+                                onsort="{!c.updateColumnSorting}" 
+                                showRowNumberColumn="false"
+                                hideCheckboxColumn="true">
+           </lightning:datatable>
+       </div>	
+	</div>
+	
+	<!-- FILE TEMPLATE MODAL -->
+	<aura:if isTrue="{!v.showDownLoadTempl}">
+		<div aura:id="downLoadTemplId"  style="height: 300px; width: 250px;">
+			<section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+			<div class="slds-modal__container">
+		      <header class="slds-modal__header">
+		        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+		          <lightning:icon class="slds-hide" aura:id="filter" iconName="utility:close" size="x-small" alternativeText="Indicates add"/>
+		          <span class="slds-assistive-text">Close</span>
+		        </button>
+		        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Download File Upload Template</h2>
+		        <!-- <p class="slds-m-top_x-small">Select the User to assign the records</p>  -->
+		      </header>
+		      <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+		        <div style="clear:both;">
+   					<lightning:fileCard fileId="{!v.templDocId}"/>
+                </div>
+		      </div>
+		      <footer class="slds-modal__footer">
+		      	<lightning:button variant="brand" title="Cancel" label="Cancel" iconName="utility:close" onclick="{!c.handleAssignCancel }"></lightning:button>
+		      </footer>
+		    </div>
+			</section>
+		</div>
+	</aura:if>    
+	
+</aura:component>
+
+<!-- div class="slds-form-element">
+	  <span class="slds-form-element__label" id="file-selector-primary-label"></span>
+	  <div class="slds-form-element__control">
+	    <div class="slds-file-selector slds-file-selector_files">
+	      <div class="slds-file-selector__dropzone">
+				<lightning:fileUpload  name="fileUploader" aura:id="fileUploadId"
+	                           label= "Accepted file .csv/.xls"
+	                           multiple="{!v.multiple}"
+	                           accept="{!v.accept}"
+	                           disabled="{!v.disabled}"
+	                           recordId="{!v.recId}"
+	                           onuploadfinished="{!c.handleUploadFinished }">
+				</lightning:fileUpload>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	
+	<lightning:button aura:id="UpdateBtnId" label="Update" name="Update" onclick="{!c.handleUpdateClick}"
+                                                             iconName="utility:upload"
+                                                             disabled="{!empty(v.uploadedDocId)}"/>
+                                                             
+	<lightning:button aura:id="UpdateBtnByContId" label="Update By Contact" name="Update By Contact" onclick="{!c.handleUpdateByContClick}"
+                                                             iconName="utility:upload"
+                                                             disabled="{!empty(v.uploadedDocId)}"/>
+	 -->
+
+
+
+<!-- 
+
+<div class="slds-show" aura:id="uploadDetailSec" id="uploadDetailSecRef">
+       <article class="slds-card" style="background-color: #fbfbfb;">
+           <div style="height:16px;"></div>
+           <div class="slds-card__body slds-card__body_inner">
+               <div class="slds-form slds-form_compound">
+                   <fieldset class="slds-form-element">
+                       <div class="slds-form-element__group">
+                           <div class="slds-form-element__row">
+                               <div class="slds-form-element slds-size_12-of-12">
+                                   <label class="slds-form-element__label">Upload By</label>
+                                   <div class="slds-form-element__control">
+                                       <lightning:buttonGroup >
+                                           <lightning:button aura:id="upldByRGAccBtnId" label="RG Account" name="{#v.upLoadByRGAcc}" onclick="{!c.handleTypeClick}"
+                                                             iconName="{! if(v.uploadBy eq v.upLoadByRGAcc, 'utility:check', 'utility:add')}" 
+                                                             variant="{! if(v.uploadBy eq v.upLoadByRGAcc, 'success', 'neutral')}" />
+                                           <lightning:button aura:id="upldByRMAccBtnId" label="RM Account" name="{#v.upLoadByRMAcc}" onclick="{!c.handleTypeClick}"
+                                                             iconName="{! if(v.uploadBy eq v.upLoadByRMAcc, 'utility:check', 'utility:add')}" 
+                                                             variant="{! if(v.uploadBy eq v.upLoadByRMAcc, 'success', 'neutral')}" />
+											<lightning:button aura:id="upldByContEmailBtnId" label="Contact Email" name="{#v.upLoadByContEmail}" onclick="{!c.handleTypeClick}"
+                                                             iconName="{! if(v.uploadBy eq v.upLoadByContEmail, 'utility:check', 'utility:add')}" 
+                                                             variant="{! if(v.uploadBy eq v.upLoadByContEmail, 'success', 'neutral')}" />	                                                      
+                                       </lightning:buttonGroup>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                   </fieldset>
+                   <fieldset class="slds-form-element">
+                       <div class="slds-form-element__group">
+                           <div class="slds-form-element__row">
+								<div class="slds-form-element slds-size_6-of-12">
+									<div class="slds-form-element">
+									  <span class="slds-form-element__label" id="file-selector-primary-label"></span>
+									  <div class="slds-form-element__control">
+									    <div class="slds-file-selector slds-file-selector_files">
+									      <div class="slds-file-selector__dropzone">
+												<lightning:fileUpload  name="fileUploader" aura:id="fileUploadId"
+									                           label= "Accepted file .csv/.xls"
+									                           multiple="{!v.multiple}"
+									                           accept="{!v.accept}"
+									                           disabled="{!v.disabled}"
+									                           recordId="{!v.recId}"
+									                           onuploadfinished="{!c.handleUploadFinished }">
+												</lightning:fileUpload>
+									      </div>
+									    </div>
+									  </div>
+									</div>
+								</div> 
+                           		
+                           		<div class="slds-form-element slds-size_6-of-12">
+	                           		
+	                           		<lightning:button aura:id="DwnLdFileTempId" label="Download File Template" 
+	                           						  name="DwnLdFileTemp" onclick="{!c.handleDwnLdFileTemp}"
+	                                                  iconName="utility:download" variant="brand"/>
+	                                <lightning:button aura:id="UpdateBtnId" label="Start Upload" name="Update" 
+	                                				  onclick="{!c.handleUpdateClick}" disabled="{!empty(v.uploadedDocId)}"
+	                                				  iconName="utility:upload" variant="brand" />
+                           		</div>
+                           		
+                           
+                           
+                           </div>
+                       </div>
+                   </fieldset>
+               </div>
+           </div>
+       </article>
+   </div>
+
+ -->

@@ -1,0 +1,38 @@
+<aura:component controller="CoverageToolController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+    <ltng:require styles="{! $Resource.select2 + '/select2-3.5.2/select2.css'}" 
+                  scripts="{!join(',', 
+                           $Resource.CVGBulkJQueryMinJS,
+                           $Resource.select2 + '/select2-3.5.2/select2.js' )
+                           }" afterScriptsLoaded="{!c.scriptsLoaded}"/>
+    
+     
+    <aura:registerEvent name="picklistValueChanged" type="c:PicklistEvent"/>    
+    <aura:method name="reinit"  action="{!c.scriptsLoaded}"/>
+    <aura:method name="reset"  action="{!c.reset}"/>
+    <aura:method name="reloadScripts"  action="{!c.scriptsLoaded}"/>
+    <aura:attribute name="isHelperPicklistLoaded"  type="Boolean" description="Flag to indicate jquery is loaded"/>
+    <aura:attribute name="nTRPicklistHelperLogic"  type="Boolean" description="Flag to indicate need to process the logic rerender since it is called many times during the component's lifecycle"/>
+    <aura:attribute name="JSONData" type="string"  description="store object Info." />
+    <aura:attribute name="parentID" type="string"  description="store object Info." />
+    <aura:attribute name="IDT" type="string"  description="store object Info." />
+    <aura:attribute name="objName" type="string"  description="store object Info." />
+    <aura:attribute name="picklistfieldName" type="string" description="store picklistfieldName Info." />
+    <aura:attribute name="multiselect" type="boolean" default="false" />
+    <aura:attribute name="disabled" type="boolean" default="false" />
+    <aura:attribute name="isCustom" type="boolean" default="false" />
+    <aura:attribute name="customMethod" type="String" />
+    <aura:attribute name="values" type="string[]"  />
+    <aura:attribute name="minimumLength" type="Integer"  default="0"/>
+     <aura:method name="showToast" action="{!c.showToast}"> 
+        <aura:attribute name="title" type="String"/> 
+        <aura:attribute name="type" type="String" default="success"/> 
+        <aura:attribute name="message" type="String"  default="This is test message."/>
+        <aura:attribute name="mode" type="String"  default="dismissible"/>
+        <aura:attribute name="key" type="String"/>
+    </aura:method>
+     <aura:dependency resource="markup://force:showToast" type="EVENT" /> 
+   
+    <aura:method name="clear" action="{!c.clear}" access="PUBLIC" />
+    
+    <input aura:id="{!v.parentID+'_'+v.IDT}" id="{!v.parentID+'_'+v.IDT}" disabled="{!v.disabled}" onclick="{!c.onChangeCall}"   type="text"/>
+</aura:component>

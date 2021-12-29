@@ -1,0 +1,95 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId"
+    controller="ResearchDetailsController">
+
+    <style>
+        .flexipageComponent:not(:first-child) {
+            margin-top: 0rem;
+            /* overrided from 1 to 0 */
+        }
+    </style>
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <!-- Attributes -->
+    <aura:attribute name="researchDetails" type="ResearchDetailsController.ResearchDetails" />
+    <aura:attribute name="recordId" type="Id" access="global" />
+
+    <!-- Labels -->
+    <aura:attribute name="grpAccessLabel" type="String" />
+    <aura:attribute name="preferredLanguageLabel" type="String" />
+    <aura:attribute name="regionLabel" type="String" />
+    <aura:attribute name="investorTypeLabel" type="String" />
+    <aura:attribute name="salesSponsorLabel" type="String" />
+    <aura:attribute name="sponsorEmailTextLabel" type="String" />
+    <aura:attribute name="miFIDIIInScopeLabel" type="String" />
+    <aura:attribute name="miFIDIISalesCommentaryAllowedLabel" type="String" />
+
+    <!-- Methods -->
+    <aura:method name="openLink" action="{!c.openLink}">
+        <aura:attribute name="strURL" type="String" />
+    </aura:method>
+    <!-- <aura:method name="closeModal" action="{!c.closeModal}" /> -->
+
+    <div class="slds-grid slds-wrap slds-p-horizontal--small slds-p-vertical--xx-small">
+        <div class="slds-size--1-of-1 slds-large-size--1-of-12 slds-p-bottom_x-small">
+            <lightning:icon iconName="utility:info" size="small" class="slds-align-middle"
+                title="{!$Label.c.Label_Research_Details_Info}" />
+        </div>
+        <aura:if isTrue="{!v.researchDetails.contact.GRP_Access__c}">
+            <div class="slds-size--1-of-1 slds-large-size--1-of-8 slds-p-bottom_x-small">
+                <!-- GRP_Access__c Field -->
+                <label class="slds-form-element__label" for="grpAccess">
+                    <ui:outputText value="{!v.grpAccessLabel}" />
+                </label>
+                <div>
+                    <ui:outputCheckbox aura:id="grpAccess" value="{!v.researchDetails.contact.GRP_Access__c}" />
+                </div>
+            </div>
+            <div class="slds-size--1-of-1 slds-large-size--2-of-8 slds-p-bottom_x-small">
+                <!-- Preferred_Language__c Field -->
+                <label class="slds-form-element__label" for="preferredLanguage">
+                    <ui:outputText value="{!v.preferredLanguageLabel}" />
+                </label>
+                <div>
+                    <ui:outputText aura:id="preferredLanguage"
+                        value="{!v.researchDetails.contact.Preferred_Language__c}" />
+                </div>
+            </div>
+            <div class="slds-size--1-of-1 slds-large-size--1-of-8 slds-p-bottom_x-small">
+                <!-- Region__c Field -->
+                <label class="slds-form-element__label" for="region">
+                    <ui:outputText value="{!v.regionLabel}" />
+                </label>
+                <div>
+                    <ui:outputText aura:id="region" value="{!v.researchDetails.contact.Region__c}" />
+                </div>
+            </div>
+            <div class="slds-size--1-of-1 slds-large-size--3-of-8 slds-p-bottom_x-small">
+                <!-- Investor_Type__c Field -->
+                <label class="slds-form-element__label" for="investorType">
+                    <ui:outputText value="{!v.investorTypeLabel}" />
+                </label>
+                <div>
+                    <ui:outputText aura:id="investorType" value="{!v.researchDetails.contact.Investor_Type__c}" />
+                </div>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!v.researchDetails.contact.GRP_Access__c}">
+            <div class="slds-size--1-of-1 slds-large-size--1-of-4 slds-p-bottom_x-small">
+                <lightning:button variant="brand" label="{!$Label.c.Research_Readership}" onclick="{!c.openRschReadership}" />
+            </div>
+            <div class="slds-size--1-of-1 slds-large-size--1-of-4 slds-p-bottom_x-small">
+                <lightning:button variant="brand" label="{!$Label.c.Research_Subscription}" onclick="{!c.openRschSubscription}" />
+            </div>
+            <div class="slds-size--1-of-1 slds-large-size--1-of-4 slds-p-bottom_x-small">
+                <lightning:button variant="brand" label="{!$Label.c.Resend_GRP_ID_and_Password}"
+                    onclick="{!c.openResendGRPIdAndPassword}" />
+            </div>
+        </aura:if>
+    </div>
+
+    <hr style="margin: 0.1rem ;" width="100%" />
+
+    <!-- GRP Section and MiFIDII : End -->
+
+</aura:component>

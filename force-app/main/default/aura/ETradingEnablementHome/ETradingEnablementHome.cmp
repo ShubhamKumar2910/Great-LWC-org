@@ -1,0 +1,609 @@
+<aura:component controller="ETradingEnablementHomeController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:isUrlAddressable" access="global">
+    <!--ATTRIBUTES-->
+    <aura:attribute name="istoggleScriptLoaded" type="Boolean" description="Flag to indicate jquery is loaded"/>
+    <aura:attribute name="needToRenderToggleLogic" type="Boolean" description="Flag to indicate need to process the logic rerender since it is called many times during the component's lifecycle"/>
+    <aura:attribute name="isHelperScriptLoaded" type="Boolean" description="Flag to indicate jquery is loaded"/>
+    <aura:attribute name="needToRenderHelperLogic" type="Boolean" description="Flag to indicate need to process the logic rerender since it is called many times during the component's lifecycle"/>
+    
+    <aura:attribute name="isLoadInit" type="Boolean" default="false" />
+    <aura:attribute name="accountIDs" type="string[]" />
+    <aura:attribute name="contactIDs" type="string[]" />
+    <aura:attribute name="salesPersonIDs" type="string[]" />
+    <aura:attribute name="selectedData" type="Object" />
+    <aura:attribute name="selectedDataList" type="List" />
+    
+    <aura:attribute name="salesTeamForCoverageIDs" type="string[]" default="[]"/>
+    
+    <aura:attribute name="level" type="string" default="Coverage"
+                    description="rename this attribute to eTradingEnablementRecType"/>
+    
+    <aura:attribute name="include" type="string" default="Active" />
+    <aura:attribute name="recType" type="string" default="Request" />
+
+    <aura:attribute name="fileUploadId" type="String"/>
+    
+    <!-- ATTRIBUTE - TABLE -->
+    <aura:attribute name="coverageColumns" type="List"/>
+    <aura:attribute name="coverageData" type="Object"/>
+    <aura:attribute name="converageErrors" type="Object"/>
+    <aura:attribute name="allcoverageData" type="Object"/>
+    <aura:attribute name="maxHeight" type="Integer" default="390"/>
+    
+    <aura:attribute name="totalRecords" type="Integer" default="0" />
+    <aura:attribute name="showYTDBudgetStats" type="Boolean" default="false" />
+    <aura:attribute name="doNotShowRevenueColumns" type="Boolean" default="false" />
+    <aura:attribute name="withoutSharing" type="Boolean" default="false" />
+    <aura:attribute name="showDeleteUpdateAction" type="Boolean" default="true" />
+    <aura:attribute name="buttonDisabled" type="Boolean" default="true" />
+    
+    <aura:attribute name="requestStatusOptions" type="Object[]" 
+                    default="[{'label':'Pending Approval', 'value':'Pending Approval'},
+                             {'label':'To Be Processed','value':'To Be Processed'},
+                             {'label':'Being Processed','value':'Being Processed'},
+                             {'label':'Complete','value':'Complete'},
+                             {'label':'Canceled','value':'Canceled'},
+                             {'label':'On Hold','value':'On Hold'},
+                             {'label':'Rejected', 'value':'Rejected'}]"/>
+    <aura:attribute name="selectedRequestStatus" type="String[]" 
+                    default="['Pending Approval', 'To Be Processed', 'Being Processed', 'Rejected']"/>
+    
+    <aura:attribute name="platformsOptions" type="Object[]" />
+    <aura:attribute name="selectedPlatforms" type="String[]" />
+    <aura:attribute name="productsOptions" type="Object[]" />
+    <aura:attribute name="selectedProducts" type="String[]" />
+    <aura:attribute name="currentUserId" type="String" />
+    <aura:attribute name="currentUserName" type="String" />
+    <aura:attribute name="isETradingAdmin" type="Boolean" />
+    <aura:attribute name="reportId" type="String" />
+    <aura:attribute name="attachFilePrimaryRecId" type="String"/>
+    
+    <aura:attribute name="coverageStatus" type="string" default="Active" />
+    
+    <!-- CUSTOM LABELS -->
+    <aura:attribute name="account_label" type="String" default="{!$Label.c.CVGTOOL_ACCOUNT_NAME}"/>
+    <aura:attribute name="team_label" type="String" default="{!$Label.c.CVGTOOL_TEAM}"/>
+    <aura:attribute name="salesperson_label" type="String" default="{!$Label.c.CVGTOOL_SALESPERSON}"/>
+    <aura:attribute name="ytd_label" type="String" default="{!$Label.c.CVGTOOL_YTD}"/>
+    <aura:attribute name="budget_label" type="String" default="{!$Label.c.CVGTOOL_BUDGET}"/>
+    <aura:attribute name="mtd_label" type="String" default="{!$Label.c.CVGTOOL_MTD}"/>
+    <aura:attribute name="wtd_label" type="String" default="{!$Label.c.CVGTOOL_WTD}"/>
+    <aura:attribute name="ytd_usd_label" type="String" default="{!$Label.c.CVGTOOL_YTD_USD}"/>
+    <aura:attribute name="budget_usd_label" type="String" default="{!$Label.c.CVGTOOL_BUDGET_USD}"/>
+    <aura:attribute name="mtd_usd_label" type="String" default="{!$Label.c.CVGTOOL_MTD_USD}"/>
+    <aura:attribute name="wtd_usd_label" type="String" default="{!$Label.c.CVGTOOL_WTD_USD}"/>
+    <aura:attribute name="ytd_yen_label" type="String" default="{!$Label.c.CVGTOOL_YTD_YEN}"/>
+    <aura:attribute name="budget_yen_label" type="String" default="{!$Label.c.CVGTOOL_BUDGET_YEN}"/>
+    <aura:attribute name="mtd_yen_label" type="String" default="{!$Label.c.CVGTOOL_MTD_YEN}"/>
+    <aura:attribute name="wtd_yen_label" type="String" default="{!$Label.c.CVGTOOL_WTD_YEN}"/>
+    <aura:attribute name="startdate_label" type="String" default="{!$Label.c.CVGTOOL_START_DATE}"/>
+    <aura:attribute name="product_label" type="String" default="{!$Label.c.CVGTOOL_PRODUCT}"/>
+    <aura:attribute name="productRegion_label" type="String" default="{!$Label.c.CVGTOOL_PRODUCT_REGION}"/>
+    <aura:attribute name="productrole_label" type="String" default="{!$Label.c.CVGTOOL_ROLE}"/>
+    <aura:attribute name="status_label" type="String" default="{!$Label.c.CVGTOOL_STATUS}"/>
+    <aura:attribute name="region_label" type="String" default="{!$Label.c.CVGTOOL_REGION}"/>
+    <aura:attribute name="desk_label" type="String" default="{!$Label.c.CVGTOOL_DESK}"/>
+    <aura:attribute name="enddate_label" type="String" default="{!$Label.c.CVGTOOL_END_DATE}"/>
+    <aura:attribute name="comment_label" type="String" default="{!$Label.c.CVGTOOL_Comment}"/>
+    <aura:attribute name="assignClicked" type="Boolean" default="false"/>
+    <aura:attribute name="assignedUserId" type="String[]"/>
+    <aura:attribute name="assignedSalesCodeIds" type="String[]" />
+    <aura:attribute name="assignedSalesCodeLabel" type="String" />
+    <aura:attribute name="displayAssignSalesCode" type="Boolean" default="false"/>
+    <aura:attribute name="revokeClicked" type="Boolean" default="false"/>
+    <aura:attribute name="commentClicked" type="Boolean" default="false"/>
+    <aura:attribute name="comment" type="String"/>
+    <aura:attribute name="commentDialogBoxTitle" type="String" default=""/>
+    <aura:attribute name="onHoldClicked" type="Boolean" default="false"/>
+    <aura:attribute name="attachFileClicked" type="Boolean" default="false"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.init}" />
+
+    <lightning:navigation aura:id="navigationService"/>
+    
+    <!--<aura:method name="hideDataTable" action="{!c.hideTable}" />
+   <aura:method name="refreshData" action="{!c.doToggleSearch}" />-->
+    
+    <!-- 1. SPINNER -->
+    <div aura:id="spinnerblock" class="slds-spinner_container slds-hide">
+        <div class="slds-spinner_brand slds-spinner slds-spinner_large" aria-hidden="false" role="alert">
+            <div class="slds-spinner__dot-a"></div>
+            <div class="slds-spinner__dot-b"></div>
+        </div>
+    </div>
+    
+    <!-- 2. FILTER SECTION --> 
+    <div class="verticalHeader" style="cursor: pointer;
+                                       background-color: rgb(91, 100, 138);padding:6px;
+                                       color: #FFF;" onclick="{!c.toggleFilters}">
+        <section class="slds-clearfix">
+            <div class="slds-float_left ">
+                <lightning:icon class="slds-hide" aura:id="filter" iconName="utility:search" size="x-small" alternativeText="Indicates add"/>
+                <lightning:icon class="slds-show" aura:id="filter" iconName="utility:chevronup" size="x-small" alternativeText="Indicates dash"/>
+            </div>
+            <div class="slds-m-left_large">Filters</div>
+        </section>
+    </div>
+    
+    <div class="slds-show" aura:id="filter" id="filterRef">
+        <article class="slds-card" style="background-color: #fbfbfb;">
+            <div style="height:16px;"></div>
+            <div class="slds-card__body slds-card__body_inner">
+                <div class="slds-form slds-form_compound">
+                    <fieldset class="slds-form-element">
+                        <div class="slds-form-element__group">
+                            <div class="slds-form-element__row">
+                                <div class="slds-form-element slds-size_3-of-12">
+                                    <label class="slds-form-element__label">Type</label>
+                                    <div class="slds-form-element__control">
+                                        <lightning:buttonGroup >
+                                            <lightning:button aura:id="Request" label="Request" name="Request" onclick="{!c.handleTypeClick}"
+                                                              iconName="{! if(v.recType eq 'Request', 'utility:check', 'utility:add')}" 
+                                                              variant="{! if(v.recType eq 'Request', 'success', 'neutral')}" />
+                                            <lightning:button aura:id="Coverage" label="Coverage" name="Coverage" onclick="{!c.handleTypeClick}"
+                                                              iconName="{! if(v.recType eq 'Coverage', 'utility:check', 'utility:add')}" 
+                                                              variant="{! if(v.recType eq 'Coverage', 'success', 'neutral')}" />
+                                        </lightning:buttonGroup>
+                                    </div>
+                                </div>
+                                <div class="slds-form-element slds-size_3-of-12" >
+                                    <div class="{! if(v.recType eq 'Request', 'slds-show', 'slds-hide')+' slds-form-element'}">
+                                        <!--<label class="slds-form-element__label" for="my-multi-select">{!$Label.c.eTE_CVG_Status}</label>-->
+                                        <div class="slds-form-element__control">
+                                            <c:SelectMultiple aura:id="requestStatusId" setLabelName="{!$Label.c.eTE_CVG_Status}" options="{!v.requestStatusOptions}" 
+                                                              selectChange="{!c.handleSelectChangeEvent}" selectedItems="{!v.selectedRequestStatus}"/>    
+                                        </div>
+                                    </div>
+                                    
+                                    <lightning:select aura:id="coverageStatusId" name="coverageRequest" label="{!$Label.c.eTE_CVG_Status}" value="{!v.coverageStatus}"
+                                                      class="{! if(v.recType eq 'Coverage', 'slds-show', 'slds-hide')}" >
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </lightning:select>
+                                </div>
+                                
+                                <div class="slds-form-element slds-size_3-of-12" >
+                                    <div class="slds-form-element">
+                                        <!-- <label class="slds-form-element__label" for="my-multi-select">{!$Label.c.eTE_CVG_Platforms}</label>-->
+                                        <div class="slds-form-element__control">
+                                            <c:SelectMultiple aura:id="platformsId" options="{!v.platformsOptions}" setLabelName="{!$Label.c.eTE_CVG_Platforms}"
+                                                              selectChange="{!c.handlePlatformsChangeEvent}" selectedItems="{!v.selectedPlatforms}"/>    
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="slds-form-element slds-size_3-of-12" >
+                                    <div class="slds-form-element">
+                                        <!-- <label class="slds-form-element__label" for="my-multi-select">{!$Label.c.eTE_CVG_Products}</label>-->
+                                        <div class="slds-form-element__control">
+                                            <c:SelectMultiple aura:id="productsId" options="{!v.productsOptions}" setLabelName="{!$Label.c.eTE_CVG_Products}"
+                                                              selectChange="{!c.handleProductsChangeEvent}" selectedItems="{!v.selectedProducts}"/>    
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="slds-form-element">
+                        <div class="slds-form-element__group">
+                            <div class="slds-form-element__row">
+                                <div class="slds-form-element slds-size_4-of-12">
+                                    <c:Lookup aura:id="salesCodeAddId"  
+                                              sObjectAPIName="Sales_Team_for_Coverage__c" 
+                                              charLimit="2" 
+                                              label="{!$Label.c.eTE_CVG_SalesCode}" 
+                                              pluralLabel="{!$Label.c.eTE_CVG_SalesCode}"
+                                              listIconSVGPath="standard:avatar" 
+                                              listIconClass="slds-icon-standard-avatar"
+                                              allRecords="false" 
+                                              uniqueCoverages="false"
+                                              splitSalesCode="true"
+                                              withSharing="false"
+                                              itemChange="{!c.salesCodeChanged}"
+                                              preSelectedIds="{!v.salesTeamForCoverageIDs}">
+                                    </c:Lookup>
+                                    
+                                </div>
+                                <div class="slds-form-element slds-size_4-of-12">
+                                    <c:Lookup aura:id="lookup-account"   
+                                              allRecords="true" 
+                                              sObjectAPIName="Account" 
+                                              charLimit="2" 
+                                              label="Account" 
+                                              pluralLabel="{!$Label.c.CVGTOOL_LABEL_PLURAL_ACCOUNT}"
+                                              listIconSVGPath="standard:account" 
+                                              listIconClass="slds-icon-standard-account" 
+                                              itemChange="{!c.accountsChanged}"
+                                              accountType="RG_Account">
+                                    </c:Lookup>
+                                </div>
+                                <div class="slds-form-element slds-size_4-of-12">
+                                    <c:Lookup aura:id="lookup-external-contact"   
+                                              allRecords="false" 
+                                              sObjectAPIName="Contact" 
+                                              showNomuraEmployee="false" 
+                                              charLimit="2" 
+                                              label="Contacts" pluralLabel="Contacts" 
+                                              listIconSVGPath="standard:contact"
+                                              listIconClass="slds-icon-standard-contact" 
+                                              itemChange="{!c.contactChange}"
+                                              preSelectedIds="{!v.contactIDs}"
+                                              showMetadata="true">
+                                    </c:Lookup>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div>
+                        <lightning:button variant="brand" iconName="utility:search"  title="{!$Label.c.CVGTOOL_SEARCH}" label="{!$Label.c.CVGTOOL_SEARCH}" onclick="{! c.doSearch }"></lightning:button>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+    
+    <!-- CLEAR SPACE -->
+    <div style="clear:both; height:5px;"></div>
+    
+    <!--2.1.2 RESULTS -->
+    <div class="verticalHeader" style="background-color:rgb(91, 100, 138);color: #FFF;padding:6px;">
+        <section class="slds-clearfix">
+            <div class="slds-float_left ">
+                <lightning:icon aura:id="articleOne" iconName="utility:table" size="x-small" alternativeText="Indicates dash"/>
+            </div>
+            
+            <div class="slds-m-left_large">
+                eTrading Enablement {!v.recType} Results
+            </div>   
+            
+        </section>
+    </div>
+    
+    <div aura:id="results">
+        <div style="clear:both; height:3px;"></div>
+        <div aura:id="actionButtons">
+            <lightning:layout >
+                <aura:renderIf isTrue="{!!v.withoutSharing}">
+                    
+                    <aura:renderIf isTrue="{!v.recType == 'Request'}">
+                        <lightning:layoutItem class="actionButtons">
+                            <div><lightning:button variant="brand"  iconName="utility:add"  title="New Request" 
+                                                   label="New Request" onclick="{!c.handleAdd }">
+                                </lightning:button>
+                            </div>
+                        </lightning:layoutItem>
+
+                    </aura:renderIf>
+                    
+                    <aura:renderIf isTrue="{!v.recType == 'Coverage'}">
+                        <lightning:layoutItem class="actionButtons">
+                            <div><lightning:button variant="destructive" iconName="utility:close" title="Revoke" 
+                                                   label="Revoke" onclick="{!c.handleRevoke }"
+                                                   disabled="{!empty(v.selectedData)}">
+                                </lightning:button>
+                            </div>
+                        </lightning:layoutItem>
+                    </aura:renderIf>
+                    
+                    <span>&nbsp;</span>
+             
+                    <aura:renderIf isTrue="{!v.recType == 'Request'}">
+                        <lightning:buttonGroup>
+                            <lightning:button variant="neutral" label="Status Update" iconName="utility:edit_form" disabled="{!empty(v.selectedData)}"  />
+                            <lightning:buttonMenu aura:id="statusBtns" alternativeText="Status Update" class="slds-button_last" disabled="{!empty(v.selectedData)}" onselect="{!c.handleStatusUpdate}" >
+                                <aura:renderIf isTrue="{!v.isETradingAdmin}">
+                                    <lightning:menuItem label="Process" value="Process" iconName="utility:process"  />
+                                </aura:renderIf>
+                                <lightning:menuItem label="On Hold" value="On Hold" iconName="utility:pause" />
+                                <lightning:menuItem label="Cancel" value="Cancel" iconName="utility:clear" />
+                                <aura:renderIf isTrue="{!v.isETradingAdmin}">
+                                    <lightning:menuItem label="Complete" value="Complete" iconName="utility:check" />
+                                </aura:renderIf>
+                            </lightning:buttonMenu> 
+                        </lightning:buttonGroup> 
+
+                        <lightning:buttonGroup>
+                            <lightning:button variant="neutral" label="Assign" iconName="utility:change_owner" />
+                            <lightning:buttonMenu aura:id="assignBtns" alternativeText="Assign" class="slds-button_last" onselect="{!c.handleAssign}" >
+                                <lightning:menuItem label="Contact Assignment" value="Contact Assignment" iconName="utility:adduser" />
+                                <lightning:menuItem label="Update Sales Code" value="Update Sales Code" iconName="utility:people" disabled="{!empty(v.selectedData)}" />
+                                <lightning:menuItem label="Assign Responsility" value="Assign Responsility" iconName="utility:change_owner" disabled="{!empty(v.selectedData)}" />
+                            </lightning:buttonMenu> 
+                        </lightning:buttonGroup> 
+
+                        <lightning:buttonGroup>
+                            <lightning:button variant="neutral" label="Actions" iconName="utility:thunder" />
+                            <lightning:buttonMenu aura:id="actionsBtns" alternativeText="Assign" class="slds-button_last" onselect="{!c.handleActions}" >
+                                <lightning:menuItem label="Comment" value="Comment" iconName="utility:comments" disabled="{!empty(v.selectedData)}" />
+                                <lightning:menuItem label="Attach File" value="Attach File" iconName="utility:attach" disabled="{!empty(v.selectedData)}" />
+                                <aura:renderIf isTrue="{!v.isETradingAdmin}">
+                                    <lightning:menuItem label="Export" value="Export" iconName="utility:download" />
+                                </aura:renderIf>
+                            </lightning:buttonMenu> 
+                        </lightning:buttonGroup> 
+                    </aura:renderIf>
+
+                </aura:renderIf> 
+                
+            </lightning:layout>
+        </div>
+        
+        <div style="clear:both; height:3px;"></div>
+        <div class="slds-hide slds-table_bordered tableStyle" style="{!'height:' + v.maxHeight +'px'}" aura:id="dataTableDiv">
+            <lightning:datatable aura:id="coverageTable"
+                                 columns="{!v.coverageColumns }" 
+                                 data="{!v.coverageData}" 
+                                 errors="{!v.converageErrors}"
+                                 keyField="eTEnablementId"                                   
+                                 maxColumnWidth="600"
+                                 sortedBy="clientRG"
+                                 sortedDirection="asc"
+                                 onsort="{!c.updateColumnSorting}" 
+                                 onrowselection="{! c.getSelectedData }"
+                                 showRowNumberColumn="false">
+            </lightning:datatable>
+        </div>
+        
+        
+        <!-- FOOTER SUMMARY-->
+        <aura:If isTrue="{!and(greaterthan(v.totalRecords,0),equals(v.showYTDBudgetStats,false),equals(v.doNotShowRevenueColumns,true))}">
+            <aura:If isTrue="{!equals(v.withoutSharing,false)}">
+                <div>
+                    <table class="slds-table slds-table_bordered slds-table_resizable-cols slds-table_fixed-layout slds-table_striped slds-table_header-fixed">
+                        <tr style="background-color: #efefef;">
+                            <th class="slds-cell-wrap" role="gridcell" style="width:0px;"></th>
+                            <th class="slds-cell-wrap" role="gridcell" style="width:150px;"><strong>Coverage: {!v.totalRecords}</strong></th>
+                            <th class="slds-cell-wrap" role="gridcell" style="width:128px;"></th>
+                            <th class="slds-cell-wrap" role="gridcell" style="width:180px;"></th>
+                            <td class="slds-cell-wrap" role="gridcell" style="width:100px;"></td>
+                            <td class="slds-cell-wrap" role="gridcell" style="width:80px;"></td>
+                            <td class="slds-cell-wrap" role="gridcell" style="width:100px;"></td>
+                            <td class="slds-cell-wrap" role="gridcell" style="width:100px;"></td>
+                        </tr>
+                    </table> 
+                </div>
+                <aura:set attribute="else">
+                    <div>
+                        <table class="slds-table slds-table_bordered slds-table_resizable-cols slds-table_fixed-layout slds-table_striped slds-table_header-fixed">
+                            <tr style="background-color: #efefef;">
+                                <th class="slds-cell-wrap" role="gridcell" style="width:150px;"><strong>Coverage: {!v.totalRecords}</strong></th>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </table> 
+                    </div>
+                </aura:set>
+            </aura:If>
+            
+            <aura:set attribute="else">
+                <aura:If isTrue="{!and(greaterthan(v.totalRecords,0),equals(v.showYTDBudgetStats,true),equals(v.doNotShowRevenueColumns,false))}">
+                    <table class="slds-table slds-table_bordered slds-table_resizable-cols slds-table_fixed-layout slds-table_striped slds-table_header-fixed">
+                        <tr style="background-color: #efefef;">
+                            <aura:If isTrue="{!equals(v.withoutSharing,false)}">
+                                <th class="slds-cell-wrap" role="gridcell" style="width:0px;"></th>
+                                <th class="slds-cell-wrap" role="gridcell" style="width:150px;"><strong>Coverage: {!v.totalRecords}</strong></th>
+                                <th class="slds-cell-wrap" role="gridcell" style="width:261px;"></th>
+                                <th class="slds-cell-wrap" role="gridcell" style="width:101px;"></th>
+                                <th class="slds-cell-wrap" role="gridcell" style="width:108px;">
+                                    <div class="slds-truncate" >
+                                        <strong>
+                                            <!--<lightning:formattedNumber value="{!v.ytdamount}" currencyDisplayAs="symbol" maximumFractionDigits="0" minimumFractionDigits="0"   title="{!v.ytdamount}" style="currency" currencyCode="{!v.currencyCode}" />-->
+                                            <lightning:formattedNumber value="{!v.ytdamount}" maximumFractionDigits="0" minimumFractionDigits="0"   title="{!v.ytdamount}" style="decimal"/>
+                                        </strong>
+                                    </div>
+                                </th>
+                                <th class="slds-cell-wrap" role="gridcell" style="width:120px;">
+                                    <div class="slds-truncate" >
+                                        <strong>
+                                            <!--<lightning:formattedNumber value="{!v.budgetamount}"  currencyDisplayAs="symbol" maximumFractionDigits="0" minimumFractionDigits="0" title="{!v.budgetamount}"  style="currency" currencyCode="{!v.currencyCode}" />-->
+                                            <lightning:formattedNumber value="{!v.budgetamount}"   maximumFractionDigits="0" minimumFractionDigits="0" title="{!v.budgetamount}"   style="decimal"/>
+                                        </strong>
+                                    </div>
+                                </th>
+                                <th class="slds-cell-wrap" role="gridcell" style="width:101px;">
+                                    <div class="slds-truncate" >
+                                        <strong>
+                                            <!--<lightning:formattedNumber value="{!v.mtdamount}" currencyDisplayAs="symbol" maximumFractionDigits="0" minimumFractionDigits="0" title="{!v.mtdamount}" style="currency" currencyCode="{!v.currencyCode}" />-->
+                                            <lightning:formattedNumber value="{!v.mtdamount}"  maximumFractionDigits="0" minimumFractionDigits="0" title="{!v.mtdamount}" style="decimal"/>
+                                        </strong>
+                                    </div>
+                                </th>
+                                <th class="slds-cell-wrap" role="gridcell" style="width:118px;">
+                                    <div class="slds-truncate" title="{!v.wtdamount}">
+                                        <strong>
+                                            <!--<lightning:formattedNumber value="{!v.wtdamount}" currencyDisplayAs="symbol" maximumFractionDigits="0" minimumFractionDigits="0"  title="{!v.wtdamount}" style="currency" currencyCode="{!v.currencyCode}" />-->
+                                            <lightning:formattedNumber value="{!v.wtdamount}" maximumFractionDigits="0" minimumFractionDigits="0"  title="{!v.wtdamount}" style="decimal" />
+                                        </strong>
+                                    </div>
+                                </th>
+                                <td class="slds-cell-wrap" role="gridcell" style="width:107px;"></td>
+                                <td class="slds-cell-wrap" role="gridcell" style="width:100px;"></td>
+                                
+                                <aura:set attribute="else">
+                                    <th class="slds-cell-wrap" role="gridcell" style="width:150px;"><strong>Coverage: {!v.totalRecords}</strong></th>
+                                    <td></td>
+                                    <td></td>
+                                </aura:set>
+                            </aura:If>
+                        </tr>
+                    </table>
+                </aura:If>
+            </aura:set>
+        </aura:If>
+    </div> 
+    
+    
+    <aura:if isTrue="{!v.assignClicked}">    
+        <div class="assignModalId" style="height: 640px;">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                            <lightning:icon class="slds-hide" aura:id="filter" iconName="utility:close" size="x-small" alternativeText="Indicates add"/>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Set Responsible</h2>
+                        <p class="slds-m-top_x-small">Select the User responisble for the selected records</p>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <div style="clear:both; height:300px;">
+                            <span class="slds-col listClass">
+                                <c:SingleLookup aura:id="lookup-users"  
+                                                sObjectAPIName="User" 
+                                                charLimit="2" 
+                                                label="{!$Label.c.eTE_CVG_AssignTo}" 
+                                                pluralLabel="{!$Label.c.Users}"
+                                                listIconSVGPath="/resource/sldsicons/standard-sprite/svg/symbols.svg#User"
+                                                listIconClass="slds-icon-standard-user" 
+                                                showNomuraEmployee="false" 
+                                                allRecords="false"
+                                                itemChange="{!c.userChanged}">
+                                </c:SingleLookup>                   
+                            </span>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="brand" title="Cancel" label="Cancel" iconName="utility:close" onclick="{!c.handleAssignCancel }"></lightning:button>
+                        <lightning:button variant="brand" title="Save" label="Save" iconName="utility:save" onclick="{!c.handleAssignSave }"></lightning:button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:if>
+
+    <aura:if isTrue="{!v.displayAssignSalesCode}">
+        <div class="assignModalId" style="height: 640px;">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1"
+                class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                            <lightning:icon class="slds-hide" aura:id="filter" iconName="utility:close" size="x-small"
+                                alternativeText="Indicates add" />
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Assign
+                            Sales Code</h2>
+                        <p class="slds-m-top_x-small">Select the Sales Code to assign the records</p>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <div style="clear:both; height:300px;">
+                            <span class="slds-col listClass">
+                                <c:SingleLookup aura:id="salesCodeAdd" allRecords="true" sObjectAPIName="Sales_Team_for_Coverage__c" charLimit="2"
+                                    label="* Sales Code " listIconSVGPath="custom:custom52" listIconClass="slds-icon-custom-custom52" itemChange="{!c.handleAssignSalesCodeChanged}"
+                                    placeholder="Search Sales Codes" preSelectedIds="{!v.assignedSalesCodeIds}" withSharing="false">
+                                </c:SingleLookup>
+                            </span>
+                            <span class="slds-col listClass">
+                                <lightning:textarea aura:id="comment" name="Comment" label="Comment" value="{!v.comment}" maxlength="32000" required="true"/>
+                            </span>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="brand" title="Cancel" label="Cancel" iconName="utility:close" onclick="{!c.handleAssignSalesCodeCancel }"></lightning:button>
+                        <lightning:button variant="brand" title="Save" label="Save" iconName="utility:save" onclick="{!c.handleAssignSalesCodeSave }" disabled="{!or(empty(v.comment), empty(v.assignedSalesCodeIds)) }"></lightning:button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:if>
+
+    <aura:if isTrue="{!v.revokeClicked}">    
+        <div class="commentModalId" style="height: 640px;">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                            <lightning:icon class="slds-hide" aura:id="filter" iconName="utility:close" size="x-small" alternativeText="Indicates add"/>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Revoke</h2>
+                        
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <div style="clear:both; height:300px;">
+                            <span class="slds-col listClass">
+                                <lightning:textarea aura:id="comment" name="Comment" label="Comment" value="{!v.comment}" maxlength="32000" required="true"/>            
+                            </span>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="brand" title="Cancel" label="Cancel" iconName="utility:close" onclick="{!c.handleRevokeCancel}"></lightning:button>
+                        <lightning:button variant="brand" title="Save" label="Raise Revoke Request" iconName="utility:save" onclick="{!c.handleRevokeSave}" disabled="{!empty(v.comment)}"></lightning:button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>  
+    </aura:if>
+    
+    <aura:if isTrue="{!or(v.commentClicked, v.onHoldClicked)}">
+        <div class="commentModalId" style="height: 640px;">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                            <lightning:icon class="slds-hide" aura:id="filter" iconName="utility:close" size="x-small" alternativeText="Indicates add"/>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{!v.commentDialogBoxTitle}</h2>
+                        
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <div style="clear:both; height:300px;">
+                            <span class="slds-col listClass">
+                                <lightning:textarea aura:id="comment" name="Comment" label="Comment" value="{!v.comment}" maxlength="32000"/>            
+                            </span>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="brand" title="Cancel" label="Cancel" iconName="utility:close" onclick="{!c.handleCommentCancel}"></lightning:button>
+                        <lightning:button variant="brand" title="Save" label="Save" iconName="utility:save" onclick="{!c.handleCommentSave}" disabled="{!empty(v.comment)}" ></lightning:button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>  
+    </aura:if>
+
+    <aura:if isTrue="{!v.attachFileClicked}">
+        <div class="commentModalId" style="height: 640px;">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">    
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                            <lightning:icon class="slds-hide" aura:id="filter" iconName="utility:close" size="x-small" alternativeText="Indicates add"/>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Attache File on Request(s)</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <div style="clear:both; height:300px;">
+                            <span class="slds-col listClass">
+                                <lightning:fileUpload class="slds-text-align_left" name="fileUploader" aura:id="fileUpload_1"
+                                        label= "Please select a file to upload (accepts excel, docs, pdf and images) " 
+                                        recordId="{!v.attachFilePrimaryRecId}" multiple="false"
+                                        accept=".xls, .xlsx, .pdf, .docx, .doc, .pdf, .png, .jpg, .pptx, .ppt"
+                                        onuploadfinished="{!c.handleUploadFinished}">
+                                </lightning:fileUpload>
+                                <lightning:textarea aura:id="comment" name="Comment" label="Comment" value="{!v.comment}" maxlength="32000" required="true"/>
+                            </span>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                            <lightning:button variant="brand" title="Cancel" label="Cancel" iconName="utility:close" onclick="{!c.handleAttachFileCancel}"></lightning:button>
+                            <lightning:button variant="brand" title="Save" label="Save" iconName="utility:save" onclick="{!c.handleAttachFileSave}" disabled="{!or(empty(v.comment),empty(v.fileUploadId))}"></lightning:button>
+                    </footer>
+                </div>
+            </section>
+        </div>
+    </aura:if>
+    
+</aura:component>

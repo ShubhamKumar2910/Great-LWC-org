@@ -1,0 +1,53 @@
+<apex:page standardcontroller="Account"   extensions="CoverageFulViewCtrl" tabStyle="Coverage_Team_Member__c">   
+   <apex:sectionHeader title="Coverage" subtitle="My Coverage (G)" />
+   <apex:includeScript value="/support/console/30.0/integration.js"/>
+    
+    <script type="text/javascript">
+      window.onload = function onloadJS()
+        {
+            sforce.console.getEnclosingPrimaryTabId(setTabIcon);
+            function setTabIcon(result)
+            {               
+               var imgUrl = '{!$Resource.VFCoverageIcon}'; 
+                sforce.console.setTabIcon(imgUrl, result.id, null);
+                force.console.setTabTitle('My Coverage (G)');                
+            }
+        } 
+    </script>
+    
+    <apex:pageBlock mode="maindetail" >    
+        <apex:form >
+            <apex:pageBlockTable styleClass=".extended.css"  value="{!cvgList}" var="index" >
+                 <apex:column headerValue="{!$Label.Label_Coverage_RG_Name}" styleClass=".extended.css" style="width:50%;"> 
+                     <a href="#" onClick="javascript:srcUp('/{!index.accountId}');">{!index.AccountName}</a>
+                   </apex:column> 
+                   <apex:column headerValue="{!$Label.RG_Key}" value="{!index.RGKey}">                     
+                   </apex:column> 
+                 <apex:column headerValue="{!$Label.Label_Coverage_User_YTDRevenue}" rendered="{!(flag && !(columnFlagJapan))}" style="width:7%;text-align: right;">
+                    <apex:outputText value="{0,number, #,###,###}">
+                        <apex:param value="{!index.YTDRevenue}"/>
+                    </apex:outputText> 
+                </apex:column>
+                <apex:column headerValue="{!$Label.Label_Coverage_User_YTDRevenue_Japan}" rendered="{!(flag && columnFlagJapan)}" style="width:12%;text-align: right;">
+                    <apex:outputText value="{0,number, #,###,###}">
+                        <apex:param value="{!index.YTDRevenue}"/>
+                    </apex:outputText> 
+                </apex:column>
+                <apex:column headerValue="{!$Label.Label_Coverage_RG_ClientType}" value="{!index.clientType}">
+                   </apex:column>       	 
+            </apex:pageBlockTable>    
+            <apex:panelGrid styleClass=".extended.css"   columns="8">
+                <apex:commandLink action="{!previous}" rendered="{!(HasPrevious)}">Previous</apex:commandlink>
+                <apex:outputText rendered="{!(HasPrevious)}">|</apex:outputText>
+                <apex:commandLink action="{!next}" rendered="{!(HasNext)}">Next</apex:commandlink>
+                <apex:outputText rendered="{!(HasNext)}">|</apex:outputText>
+                <apex:outputText styleClass=".extended.css"   >                     
+                      {!IF((pageNumber * pageSize) > resultSize, resultSize,(pageNumber * pageSize))} 
+                 / {!resultSize} records 
+                </apex:outputText>
+            </apex:panelGrid>             
+        </apex:form>
+    </apex:pageBlock>
+    
+       
+</apex:page>

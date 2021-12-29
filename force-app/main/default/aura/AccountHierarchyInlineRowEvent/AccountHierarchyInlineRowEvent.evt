@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION">
+    <aura:attribute name="toggledNodeId" type="String"/>
+    <aura:attribute name="endState" type="String"/>
+</aura:event>

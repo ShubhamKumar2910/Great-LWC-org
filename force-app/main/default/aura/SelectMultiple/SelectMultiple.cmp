@@ -1,0 +1,78 @@
+<aura:component >
+    
+    <aura:attribute name="options" type="Object[]" />
+    <aura:attribute name="options_" type="Object[]" />
+    <aura:attribute name="selectedItems" type="String[]" />
+    <aura:attribute name="defaultItem" type="String" default="" />
+    <aura:attribute name="defaultItemMultiselectDisabled" type="String" default="false" />
+    <aura:attribute name="defaultItemUncheckedDisable" type="String" default="false" />
+    <aura:attribute name="infoText" type="String" default="-- None --" />
+    <aura:attribute name="width" type="String" default="240px;" />
+    <aura:attribute name="dropdownLength" type="Integer" default="5" />
+    <aura:attribute name="disabled" type="Boolean" default="false" />
+    <aura:attribute name="extraFieldsToShow" type="Boolean" default="false" description="shows the extra fields related to show the account address i.e. Account name." />
+    <aura:attribute name="dropdownSize" type="String" default="small" description="pass the dropdown size for the width" />
+    <aura:attribute name="setLabelName" type="string" default="" />
+    
+    <!--Labels-->
+    <aura:attribute name="multiSelectInfoLabel" type="String" default="{!$Label.c.Multiselect_Info}" />
+    
+    <aura:registerEvent name="selectChange" type="c:SelectChange" />
+    
+    <aura:method name="reInit" action="{!c.init}"
+                 description="Allows the lookup to be reinitalized">
+    </aura:method>
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:attribute name="dropdownOver" type="Boolean" default="false" />
+    
+    <aura:if isTrue="{!not(empty(v.setLabelName))}">
+        <div style="width:100%" >
+            <span>
+                <label class="slds-form-element__label">{!v.setLabelName}</label>
+                <lightning:helptext iconName="utility:info" style="fill:black !important;bottom: .18em;" content="{!v.multiSelectInfoLabel}" size="x-small" class="slds-icon-text-default" />
+            </span>
+        </div>
+    </aura:if>
+    
+    <div aura:id="main-div"  class="slds-picklist slds-dropdown-trigger slds-dropdown-trigger--click " style="width:100%;">
+        
+        <span >
+            
+            
+            <button class="slds-button slds-button--neutral slds-picklist__label" style="width:100%"
+                    aria-haspopup="true" onclick="{!c.handleClick}" onmouseleave="{!c.handleMouseOutButton}" disabled="{!v.disabled}">
+                <span class="slds-truncate" title="{!v.infoText}">{!v.infoText}</span>
+                <lightning:icon iconName="utility:down" size="small" class="slds-icon" />
+            </button>
+            
+        </span>
+        
+        
+        <div class="{!'slds-dropdown slds-dropdown--left slds-dropdown_'+v.dropdownSize }" onmouseenter="{!c.handleMouseEnter}" onmouseleave="{!c.handleMouseLeave}" style="min-width:100%">
+            <ul class="{!'slds-dropdown__list slds-dropdown--length-' + v.dropdownLength}" role="menu" style="width:100%" >   
+                <aura:iteration items="{!v.options_}" var="option">
+                    <li class="{!'slds-dropdown__item ' + (option.selected ? 'slds-is-selected' : '')}" 
+                        role="presentation" onclick="{!c.handleSelection}" data-value="{!option.value}" data-selected="{!option.selected}" style="min-width:100%" >
+                        <a href="javascript:void(0);" role="menuitemcheckbox" aria-checked="true" tabindex="0" >                           
+                            <span class="slds-media__figure">    
+                                <lightning:icon iconName="utility:check"  size="x-small" class="slds-icon slds-icon--selected slds-icon--x-small slds-icon-text-default slds-m-right--x-small iconCustom" />
+                                <aura:if isTrue="{!v.extraFieldsToShow}" >
+                                    <lightning:icon iconName="{!option.icon}" size="small"/>
+                                </aura:if>
+                            </span>
+                            <span class="slds-media__body" >
+                                <span class="slds-listbox__option-text slds-listbox__option-text_entity">{!option.label}</span>
+                                <aura:if isTrue="{!v.extraFieldsToShow}" >
+                                    <span class="slds-listbox__option-text slds-listbox__option-text_entity">{!option.metalabel}</span>
+                                </aura:if> 
+                            </span>
+                        </a>
+                    </li>
+                </aura:iteration>                
+            </ul>
+        </div>
+        
+    </div>
+    
+    
+</aura:component>

@@ -1,0 +1,16 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,lightning:isUrlAddressable,force:hasRecordId" access="global" >
+
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="record" type="Object" />
+    <aura:attribute name="simpleRecord" type="Object" />
+
+    <force:recordData recordId="{!v.recordId}"
+        targetRecord ="{!v.record}"
+        targetFields ="{!v.simpleRecord}"
+        fields="Id, RG_Account__c"
+        recordUpdated="{!c.fetchAccId}"                
+        />    
+
+    {!v.body}
+
+</aura:component>

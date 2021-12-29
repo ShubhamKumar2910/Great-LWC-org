@@ -1,0 +1,237 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" controller="SendEventController" >
+    <ltng:require scripts="{!join(',',
+                           $Resource.JQuery,
+                           $Resource.SelectizeJS)}"
+                  styles="/resource/SelectizeCSS"
+                  afterScriptsLoaded="{!c.init}" />
+    <!-- Attributes -->
+    <!-- Events -->
+    <aura:attribute name="EventId" type="String"/>
+    <aura:attribute name="Sender" type="String" default=""/>
+    <aura:attribute name="Subject" type="String" default=""/>
+    <aura:attribute name="UserList" type="Object[]" />
+    <aura:attribute name="isSuccess" type="boolean"/>
+    <aura:attribute name="SuccessMessage" type="String"/>
+    <aura:attribute name="isError" type="boolean"/>
+    <aura:attribute name="ErrorMessage" type="String"/>
+    <aura:attribute name="SelectedUsers" type="Object[]"/>
+    <aura:attribute name="InviteeUsers" type="Object[]"/>
+    <aura:attribute name="SenderUser" type="Object[]"/>
+    <aura:attribute name="AddContactCoverage" type="boolean" default="false"/>
+    <aura:attribute name="isOpen" type="boolean" default="false"/>
+    <aura:handler event="c:LookupUpdateEvent" action="{!c.getUserDetailsFromLookup}"/>
+
+    <aura:method name="showSpinner" action="{!c.showSpinner}" />
+    <aura:method name="hideSpinner" action="{!c.hideSpinner}" />
+
+    <div class="slds-region_narrow slds-is-relative">
+        <aura:if isTrue="{!v.isSuccess}">
+            <div class="slds-notify slds-notify_toast slds-theme_success" role="status">
+                <span class="slds-assistive-text">success</span>
+                <div class="slds-notify__content">
+                    <h2 class="slds-text-heading_small ">{!v.SuccessMessage}</h2>
+                </div>
+                <div class="slds-notify__close">
+                    <lightning:buttonIcon iconName="utility:close"  size="xx-small" variant="border-filled" onclick="{! c.handleToastClose }" title="Close" alternativeText="Close window"/>
+                </div>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!v.isError}">
+            <div class="slds-notify slds-notify_toast slds-theme_error" role="status">
+                <span class="slds-assistive-text">error</span>
+                <div class="slds-notify__content">
+                    <h2 class="slds-text-heading_small ">{!v.ErrorMessage}</h2>
+                </div>
+                <div class="slds-notify__close">
+                    <lightning:buttonIcon iconName="utility:close"  size="xx-small" variant="border-filled" onclick="{! c.handleToastClose }" title="Close" alternativeText="Close window"/>
+                </div>
+            </div>
+        </aura:if>
+    </div>
+
+    <article class="slds-card">
+        <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__body slds-border_bottom slds-theme_shade">
+                    <h2 class="slds-card__header-title">
+                        <span class="slds-text-title_bold">{!$Label.c.Send_Event_Notification}</span>
+                    </h2>
+                </div>
+            </header>
+        </div>
+
+        <div class="slds-card__body slds-card__body_inner">
+            <div>
+                <!-- Column 1 Start -->
+                <div class="slds-col">
+                    <div class="slds-p-top_x-small">
+                        <div class="slds-grid slds-wrap slds-gutters">
+                            <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3 slds-p-top_xx-small slds-p-bottom_small" >
+                                <div class="slds-grid">
+                                    <div class="slds-size_3-of-10"> <b><label for="Subject :">{!$Label.c.Subject}</label></b></div>
+                                    <div class="slds-col"> <lightning:formattedText value="{!v.Subject}" /> </div>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3  slds-p-top_xx-small slds-p-bottom_small" >
+                                <div class="slds-grid">
+                                    <div class="slds-size_3-of-10"> <b><label for="Sender ">{!$Label.c.Sender}</label></b></div>
+                                    <div class="slds-col">
+                                        <lightning:formattedText value="{!v.Sender}" /> </div>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3  slds-p-top_xx-small slds-p-bottom_small" >
+                                <div class="slds-grid">
+                                    <div class="slds-size_3-of-10"> <b><label for="Sender ">{!$Label.c.Add_Contact_Coverage}</label></b></div>
+                                    <div class="slds-col">
+                                        <lightning:input type="checkbox" aura:id="checkbox" variant="label-hidden" name="checkbox" onchange="{!c.OnCheck}"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3 slds-p-top_xx-small slds-p-bottom_small" >
+                                <label for="EQSales">{!$Label.c.Email_EQ_Sales_Coverage_Team}</label>
+                                <select id="EQSalesMembers"  multiselect="true" >
+                                </select>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3 slds-p-top_xx-small slds-p-bottom_small" >
+                                <label for="FIDSales">{!$Label.c.Email_Sales_Coverage_Team}</label>
+                                <select id="FIDSalesMembers" multiselect="true">
+                                </select>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3 slds-p-top_xx-small slds-p-bottom_small" >
+                                <label for="IBDCoverage">{!$Label.c.Notify_IBD_CVG_LBL}</label>
+                                <select id="IBDCoverageMembers" multiselect="true">
+                                </select>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3 slds-p-top_xx-small slds-p-bottom_small">
+                                <label for="InstinetCoverage">{!$Label.c.Email_Instinet_Coverage_Team} </label>
+                                <select id="InstinetCoverageMembers" multiselect="true" />
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-3 slds-p-top_xx-small">
+                                <c:Lookup aura:id="lookup-users"
+                                          sObjectAPIName="User"
+                                          charLimit="2"
+                                          label="{!$Label.c.Users}"
+                                          pluralLabel="{!$Label.c.Users}"
+                                          listIconSVGPath="/resource/sldsicons/standard-sprite/svg/symbols.svg#User"
+                                          listIconClass="slds-icon-standard-user"
+                                          showNomuraEmployee="true"
+                                          allRecords="false"
+                                          includeInstinetContact="true" /><br/>
+                            </div>
+                        </div>
+
+                        <lightning:button variant="brand" class="slds-m-right_x-small" label="{!$Label.c.Apply_Selection}" iconName="utility:search"  onclick="{!c.FetchRecipientsBasedOnSelection}"/>
+
+                        <lightning:button variant="destructive" label="{!$Label.c.Event_Custom_Remove}" iconName="utility:delete" onclick="{!c.RemoveSelectedRecipients}"/><br/>
+
+                        <div class="slds-m-top_medium">
+                            <div class="slds-theme_shade">
+                                <h2 class="slds-card__header-title">
+                                    <span>{!$Label.c.Recipients}</span>
+                                </h2>
+                            </div>
+
+                            <table class="slds-table slds-table_bordered slds-m-top_small slds-m-bottom_medium">
+                                <thead>
+                                <tr class="slds-text-title_caps">
+                                    <th scope="col">
+                                        <div class="slds-truncate"></div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="{!$Label.c.Name}"><b>{!$Label.c.Name}</b></div>
+                                    </th>
+                                    <th scope="col" class="slds-show_large">
+                                        <div class="slds-truncate slds-line-clamp" title="{!$Label.c.Email}"><b>{!$Label.c.Email}</b></div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="{!$Label.c.UserType}"><b>{!$Label.c.UserType}</b></div>
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <aura:iteration items="{!v.UserList}" var="item">
+                                    <tr class="slds-hint-parent">
+                                        <td>
+                                            <lightning:input type="checkbox" aura:id="selectedrecipients" variant="label-hidden" name="{!item.Id}" value=""/>
+                                        </td>
+                                        <td class="slds-cell-wrap">
+                                            <div class="slds-truncate slds-line-clamp" title="{!item.Name}">{!item.Name}</div>
+                                        </td>
+                                        <td class=" slds-cell-wrap slds-show_large">
+                                            <div class="slds-truncate slds-line-clamp" title="{!item.Email}">{!item.Email}</div>
+                                        </td>
+                                        <td class="slds-cell-wrap">
+                                            <div class="slds-truncate slds-line-clamp" title="{!item.UserType}">{!item.UserType}</div>
+                                        </td>
+                                    </tr>
+                                </aura:iteration>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="display:flex; align-items:center; justify-content:center">
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-col  slds-p-right_x-small slds-p-bottom_x-small">
+                                    <lightning:button aura:id="SendEmailSelf" variant="brand" label="{!$Label.c.Send_Email_To_Self}" iconName="utility:email" onclick="{!c.sendEmailToSelf}"/>
+                                </div>
+                                <div class="slds-col slds-p-right_x-small slds-p-bottom_x-small">
+                                    <lightning:button variant="destructive" label="{!$Label.c.Send_Email_Notification}" iconName="utility:email" onclick="{!c.checkContacts}"/>
+                                </div>
+                                <div class="slds-col slds-p-right_x-small slds-p-bottom_x-small slds-show_large">
+                                    <lightning:button variant="neutral"  label="{!$Label.c.Event_Custom_Cancel}" iconName="utility:close" onclick="{!c.cancel}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div aura:id="spinnerblock" class="slds-spinner_container slds-hide">
+                <div class="slds-spinner--brand slds-spinner slds-spinner--large" aria-hidden="false" role="alert">
+                    <div class="slds-spinner__dot-a"></div>
+                    <div class="slds-spinner__dot-b"></div>
+                </div>
+            </div>
+        </div>
+    </article>
+
+
+    <aura:if isTrue="{!v.isOpen}">
+        <!--  MODAL BOX Start -->
+        <section role="dialog" aria-modal="true"  class="slds-modal slds-fade-in-open" >
+            <div class="slds-modal__container" >
+                <!--   MODAL BOX HEADER Start  -->
+                <header class="slds-modal__header">
+                    <lightning:buttonIcon iconName="utility:close"
+                                          onclick="{! c.closeModel }"
+                                          alternativeText="close"
+                                          variant="bare-inverse"
+                                          class="slds-modal__close"/>
+                    <h2 class="slds-text-heading_medium slds-hyphenate">{!$Label.c.Email_Confirmation_for_instinet_header}</h2>
+                </header>
+                <!-- MODAL BOX BODY Part Start -->
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <p> {!$Label.c.Email_Confirmation_for_instinet}  </p>
+                </div>
+                <!-- MODAL BOX FOOTER Part Start -->
+                <footer class="slds-modal__footer">
+                    <lightning:button variant="neutral"
+                                      label="No"
+                                      onclick="{! c.closeModel }"
+                    />
+                    <lightning:button variant="brand"
+                                      label="Yes"
+                                      onclick="{! c.sendEmailNotification }"/>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+        <!--MODAL BOX Part END Here -->
+
+    </aura:if>
+
+</aura:component>

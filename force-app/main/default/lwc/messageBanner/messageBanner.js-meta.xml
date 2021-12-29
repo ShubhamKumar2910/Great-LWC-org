@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>49.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="message" type="String" role="inputOnly" description="Message To Display"/>
+            <property name="bannerColour" type="String" role="inputOnly" description="Background colour of banner"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

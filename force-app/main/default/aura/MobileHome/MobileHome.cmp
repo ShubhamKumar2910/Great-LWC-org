@@ -1,0 +1,54 @@
+<!--c:MobileHome-->
+<aura:component controller="MobileHomeController" implements="force:appHostable,flexipage:availableForAllPageTypes,lightning:isUrlAddressable">
+    <!--ATTRIBUTES-->
+    <aura:attribute name="metadataList" type="List" default="[]" 
+                    description="Holds the list of Metadata Types - Mobile_Home_Page_Component__mdt"/>
+    
+    <!--EVENTS HANDLED-->
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    
+    <!--LIGHTNING NAVIGATION-->
+    <lightning:navigation aura:id="navigationService" /> 
+    
+    <!-- 1. SPINNER -->
+    <div aura:id="spinnerblock" class="slds-spinner_container slds-hide">
+        <div class="slds-spinner--brand slds-spinner slds-spinner--large" aria-hidden="false" role="alert">
+            <div class="slds-spinner__dot-a"></div>
+            <div class="slds-spinner__dot-b"></div>
+        </div>
+    </div>
+    
+    <div class="whiteBackground">
+    
+    <img src="{!$Resource.NomuraLogo}" />
+    
+    <div class="slds-text-heading_small slds-align_absolute-center whiteBackground">HOME</div>
+    
+    <ui:scrollerWrapper class="scrollerSize whiteBackground">
+        <aura:iteration items="{!v.metadataList}" var="item" indexVar="indx">
+            <ul class="slds-has-inline-block-links_space">
+                        <li>
+                            <div class="marginTop">
+                                <!--<lightning:button name="{!indx+'::::'+item.DeveloperName+'::::'+item.PageReference_Type__c+'::::'+item.Attributes__c+'::::'+item.State__c}" 
+                                                  variant="brand" class="btn slds-m-left_x-small slds-m-right_small slds-m-bottom_xx-small" label="{!item.Label__c}" iconName="{!item.Icon_Name__c}" onclick="{!c.performAction}"></lightning:button>-->
+                                <lightning:button name="{!indx+'::::'+item.developerName+'::::'+item.pageReferenceType+'::::'+item.attributes+'::::'+item.state}" 
+                                                  variant="brand" class="btn slds-m-left_x-small slds-m-right_small slds-m-bottom_xx-small" label="{!item.label}" iconName="{!item.iconName}" onclick="{!c.performAction}"></lightning:button>
+                            </div>
+                        </li>
+                <!--<lightning:card class="marginTop">
+                    <aura:set attribute="title" >
+                        <li>
+                            <div class="slds-m-around_x-small">
+                                <lightning:button name="1" variant="brand" class="btn" label="Acc" onclick="{!c.performAction}">
+                                    <lightning:icon class="slds-m-right_xx-small" tooltip="Accounts" iconName="standard:account" size="small" alternativeText="Indicates approval"/>  
+                                    Accounts
+                                </lightning:button>
+                            </div>
+                        </li>
+                    </aura:set>
+                </lightning:card>-->
+            </ul>
+        </aura:iteration>
+    </ui:scrollerWrapper>
+    </div>
+</aura:component>

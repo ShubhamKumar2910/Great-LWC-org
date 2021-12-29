@@ -1,0 +1,3 @@
+<aura:event type="COMPONENT" description="Event template" >
+   <aura:attribute name="itemdata" type="Object[]" description="Items to approve" access="global"/>
+</aura:event>

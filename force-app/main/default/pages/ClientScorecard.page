@@ -1,0 +1,8 @@
+<apex:page lightningStylesheets="true" showHeader="false" sidebar="true" standardController="Account" extensions="AnalyticsAccountControllerExtension">
+    <wave:dashboard developerName="{!clientScorecard}" 
+                    filter="{'datasets':{'ClientRevenue':[{'fields':['RG_Id__c'],'filter':{'operator':'matches','values':['{!rdmOrgId}']}}],'ClientRevenueTrending':[{'fields':['RG_Id__c'],'filter':{'operator':'matches','values':['{!rdmOrgId}']}}],'AccountGroupRevenue':[{'fields':['RDM_Org_ID__c'],'filter':{'operator':'matches','values':['{!rdmOrgId}']}}]}}"
+                    height="760" 
+                    hideOnError="true" 
+                    openLinksInNewWindow="false" 
+                    showSharing="false" showHeader="false" rendered="true" width="100%" showTitle="false"/>
+</apex:page>

@@ -1,0 +1,71 @@
+<!--  Copyright (c) 2016, Bradley Herman; Solution Engineering, Salesforce.com Inc.  All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
+  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+  Neither the name of the salesforce.com nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission. 
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+  ToDo Wishlist: 
+    (1) implement fieldsets to set which account fields to display alongside Name
+    (2) implement treegrid element of the Salesforce Lightning Design System when it is dev-ready
+-->
+
+<aura:component controller="AccountHierarchyStructure" implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global">
+	<aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="objectStructureMaps" type="ObjectStructureMap[]"/>
+    <aura:attribute name="orphanRecord" type="boolean" default="false" />
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+
+    <article class="slds-card">
+
+        <!-- Start Card Header -->
+      <div class="slds-card__header slds-grid">
+        <header class="slds-media slds-media--center slds-has-flexi-truncate">
+          <div class="slds-media__figure">
+              
+		  <div class="extraSmall forceEntityIcon" style="background-color: #7F8DE1" data-aura-class="forceEntityIcon">
+              <span class="uiImage" data-aura-class="uiImage">
+                  <img src="/img/icon/t4v35/standard/account_120.png" class="icon " alt="" title="" />
+              </span>
+          </div>              
+          </div>
+          <div class="slds-media__body slds-truncate">
+            <h2>
+              <a href="javascript:void(0);" class="slds-text-link--reset">
+                <span class="slds-text-heading--small">{!$Label.c.Account_Hierarchy}</span>
+              </a>
+            </h2>
+          </div>
+        </header>
+      </div>
+      <!-- End Card Header -->
+        
+      <!-- Start Card Body -->
+      <div class="slds-card__body slds-card__body--inner">
+      <aura:if isTrue="{!v.orphanRecord}">
+          {!$Label.c.Orphan_Record_Message}
+      <aura:set attribute="else">
+              <ul class="slds-tree" role="tree" aria-labelledby="Account Hierarchy" aria-activedescendant="tree0-node1">
+                  <aura:iteration items="{!v.objectStructureMaps}" var="pos">
+                      <c:AccountHierarchyInlineRow pos="{!pos}" />
+                  </aura:iteration>
+              </ul>
+      </aura:set>
+      </aura:if>          
+      </div>
+      <!-- End Card Body -->
+        
+      <!-- Start Card Footer -->
+      <div class="slds-card__footer"></div>
+      <!-- End Card Footer -->
+    </article>
+    
+    
+</aura:component>

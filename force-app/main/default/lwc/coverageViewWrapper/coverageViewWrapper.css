@@ -1,0 +1,29 @@
+.disableRow{
+    background: #e2dfdf;
+}
+
+.newRecordRow{
+    background: #FFD859;
+}
+
+.bg-text {
+    background-color:rgb(250 250 249 / 1);
+    /*padding: 50% 50% 0% 0%;*/
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    height: 515px;
+}
+.bg-text::after {
+    color: #000;
+    content: attr(data-bg-text);
+    display: block;
+    font-size: 35px;
+    line-height: 1;
+    position: absolute;
+    bottom: 50%;
+    right: 30%;
+}
+.colStyle{
+    z-index: 0;
+}

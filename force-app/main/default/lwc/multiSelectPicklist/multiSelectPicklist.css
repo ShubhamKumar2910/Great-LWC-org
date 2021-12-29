@@ -1,0 +1,4 @@
+.disablePicklist{
+    pointer-events:none;
+    background-color:#e2dfdf !important;
+}

@@ -1,0 +1,82 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,force:hasRecordId" access="global" controller="ActivityController">
+	<style>
+    	.slds-spinners {
+            position: fixed !important;            
+        }
+        .tableStyle{
+        	height: 38rem;
+        }
+    </style>
+           
+    <!-- Labels -->
+	<!-- <aura:attribute name="RowId" type="String" default="Row"/> -->
+    <aura:attribute name="ContactName" type="String" default="{!$Label.c.ContactName}"/>
+    <aura:attribute name="Email" type="String"  default="{!$Label.c.Email}"/>
+    <aura:attribute name="AccountName" type="String"  default="{!$Label.c.AccountName}"/>
+    <aura:attribute name="LegalEntity" type="String"  default="{!$Label.c.LegalEntity}"/>
+	<aura:attribute name="Active" type="String"  default="{!$Label.c.Active}"/>
+    
+    <!-- Attribute decleration -->
+    <aura:attribute name="campaignMemberData" type="Object" />
+    <aura:attribute name="campaignMemberColumn" type="List" />
+    <aura:attribute name="totalClientAttendees" type="String" />
+    <aura:attribute name="selectedIdToRemove" type="Map" />
+    <aura:attribute name="space" type="String" default="&nbsp;"/>
+    <aura:attribute name="newActivity" type="Boolean" default="true" />
+    
+    <!-- Data to be recieved from ContactList -->
+    <aura:attribute name="campaignId" type="Id" />   
+    <aura:attribute name="selectedContactData" type="Object" />
+    <aura:attribute name="selectedContactCount" type="String" />
+    <aura:attribute name="myContactListSelect" type="String" default="1"/>
+    <aura:attribute name="selectAllCheckboxValue" type="Boolean" default="false" />
+    <aura:attribute name="filters" type="String" />
+    
+    <!-- Methods -->
+    <aura:method name="updateColumnSorting" action="{!c.updateColumnSorting}" />
+    <aura:method name="showSpinner" action="{!c.showSpinner}" />
+    <aura:method name="hideSpinner" action="{!c.hideSpinner}" />
+    <aura:method name="showToast" action="{!c.showToast}" />    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" /> 
+    <aura:dependency resource="markup://force:showToast" type="EVENT" />
+    
+    <aura:if isTrue="{!v.newActivity}" >
+        <lightning:layout horizontalAlign="space" verticalAlign="start">
+            <lightning:layoutItem size="12">          
+               <ui:message severity="info" closable="false">
+                    <lightning:icon iconName="utility:info" variant="info" size="small"/>
+                    <label class="slds-form-element__label"> &nbsp;{!$Label.c.Activity_Information} </label>
+                </ui:message>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </aura:if>    
+    <lightning:layout horizontalAlign="space" verticalAlign="start" multipleRows="true">
+    	<lightning:layoutItem size="6" padding="around-small">  
+            <lightning:button label="{!$Label.c.Remove}" variant="neutral" onclick="{!c.removeSelected}" />
+        </lightning:layoutItem>
+        <lightning:layoutItem size="6" padding="around-small">  
+            <label class="slds-form-element__label" for="totalClientAttendees" style="float:right" >
+            	 {!$Label.c.Client_Attendees} &nbsp;{!v.totalClientAttendees} 
+            </label> 
+        </lightning:layoutItem>
+        <lightning:layoutItem size="12">
+            <div id="table" class="slds-table_bordered slds-hide tableStyle" aura:id="dataTableDiv" >
+                <lightning:datatable aura:id="activityTable"
+                                     data="{!v.campaignMemberData}"
+                                     columns="{!v.campaignMemberColumn}"   
+                                     keyField="contactId"
+                                     maxColumnWidth="600px"
+                                     sortedBy="Name"
+                                     sortedDirection="asc"
+                                     onsort="{!c.updateColumnSorting}"
+                                     />          
+            </div>
+        </lightning:layoutItem>
+    </lightning:layout>
+    
+    <!-- Spinner -->
+    <div class="slds-docked_container">       
+        <lightning:spinner aura:id="spinnerComponentDiv" class="slds-spinners" variant="brand" size="large"/>       
+    </div>
+    
+</aura:component>

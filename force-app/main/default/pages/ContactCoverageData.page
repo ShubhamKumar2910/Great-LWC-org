@@ -1,0 +1,121 @@
+<apex:page >
+</apex:page>
+<!--
+<apex:page id="contactCoveragePage" lightningStylesheets="true" standardController="Account" extensions="ContactCoverageController" tabStyle="Contact">
+    <apex:includeScript value="/support/console/30.0/integration.js"/>
+    
+    <script type="text/javascript">
+/*
+      window.onload = function onloadJS(){   
+          var imgUrl = '{!URLFOR($Resource.VFContactIcon)}';   
+          sforce.console.setTabIcon(imgUrl, null, null);  
+      }
+      
+      function onenter(e){  
+          if(window.event){                    
+              key = window.event.keyCode;     //IE               
+          } 
+          else{                    
+             key = e.which;     //firefox               
+          }               
+          if(key == 13) {                    
+              var searchButtonElement = document.getElementById('contactCoveragePage:contactCoveragePageBlock:contactCoverageForm:contactCoveragePageBlockSection:contactCoverageSearch'); 
+              searchButtonElement.click();                     
+              return false;               
+          } 
+          else{                    
+              return true;               
+          }          
+      } 
+
+      function openContactSubTab(contactId) {
+            sforce.console.getEnclosingPrimaryTabId( function(primaryTabResult){  
+                sforce.console.openSubtab(primaryTabResult.id, '/' + contactId, true, '', null);
+            });
+      }
+*/        
+    </script>
+    
+    <style type="text/css">
+        .columnsStyle {
+            text-align:center;
+            font-family: Arial,Helvetica,sans-serif;
+            font-size: 95%;
+            color: #000;
+            vertical-align: middle !important;
+        }
+    </style>
+    
+    <apex:sectionHeader title="{!accountRGName}" subtitle="Contact Coverage" />
+    <apex:pageBlock mode="maindetail" id="contactCoveragePageBlock">
+        <apex:form id="contactCoverageForm">
+            
+           <apex:pageBlockSection columns="1" collapsible="false" id="contactCoveragePageBlockSection">
+                <apex:panelGrid columns="5" frame="none" width="35%" columnClasses="columnsStyle">
+                    <apex:outputLabel value="Contact Name" for="contactNameSearchField"></apex:outputLabel>
+                    <apex:inputText id="contactNameSearchField" value="{!contactName}" html-placeholder="[First Name] [Last Name] / [Email]" onkeypress="return onenter(event)" size="30"></apex:inputText>
+                    <apex:commandButton id="contactCoverageSearch" value="{!$Label.Contact_Coverage_Search}" action="{!searchContactCoverage}" rerender="contactCoverageForm" status="pageStatus" /> 
+                    <apex:commandButton value="{!$Label.Contact_Coverage_Reset}" action="{!resetContactCoverage}" rerender="contactCoverageForm" status="pageStatus" /> 
+                    <apex:actionStatus id="pageStatus">
+                        <apex:facet name="start">
+                            <apex:outputPanel >
+                                <div>
+                                    &nbsp;&nbsp;<img src="/img/loading.gif"/> 
+                                </div>
+                            </apex:outputPanel>            
+                        </apex:facet>
+                    </apex:actionStatus>
+                </apex:panelGrid>    
+                <apex:pageBlockTable styleClass=".DesktopFrameCommon.css"   value="{!contactCoverageList}" var="index"> 
+                    
+                    <apex:column headerValue="{!$Label.Contact_Coverage_Contact_Name}">
+                    	<a href="#" onClick="javascript:srcUp('/{!index.contactIdField}');"> {!index.contactNameField} </a>
+           			</apex:column>
+
+                    <apex:column value="{!index.campaignMemberObj.Campaign.OwnerId}">
+                        <apex:facet name="header">
+                            <apex:commandLink action="{!searchContactCoverage}" value="{!$Label.Contact_Coverage_User_Name} {!IF(sortExpression == 'Campaign.Owner.Name', IF(sortDirection='ASC','▼','▲'),'')}">
+                                <apex:param value="Campaign.Owner.Name" assignTo="{!sortExpression}" />
+                            </apex:commandLink>    
+                        </apex:facet>
+                    </apex:column>  
+                    
+                    <apex:column value="{!index.team}">
+                        <apex:facet name="header">
+                            <apex:commandLink action="{!searchContactCoverage}" value="{!$Label.Contact_Coverage_User_Team_Name} {!IF(sortExpression == 'Campaign.Owner.Team', IF(sortDirection='ASC','▼','▲'),'')}">
+                                <apex:param value="Campaign.Owner.Team" assignTo="{!sortExpression}" />
+                            </apex:commandLink>    
+                        </apex:facet>
+                    </apex:column>  
+                    
+                    <apex:column value="{!index.campaignMemberObj.Campaign.Owner.IsActive}">
+                        <apex:facet name="header">
+                            <apex:commandLink action="{!searchContactCoverage}" value="{!$Label.Contact_Coverage_User_Active} {!IF(sortExpression == 'Campaign.Owner.IsActive', IF(sortDirection='ASC','▼','▲'),'')}">
+                                <apex:param value="Campaign.Owner.IsActive" assignTo="{!sortExpression}" />
+                            </apex:commandLink>    
+                        </apex:facet>
+                    </apex:column> 
+                    
+                </apex:pageBlockTable>     
+                
+                <apex:panelGrid columns="5" styleClass=".DesktopFrameCommon.css">
+                    <apex:outputText rendered="{!hasPrevious}">
+                        <apex:commandLink action="{!previous}">Previous</apex:commandLink>
+                        | 
+                    </apex:outputText>
+                    
+                     <apex:outputText rendered="{!hasNext}">
+                        <apex:commandLink action="{!next}">Next</apex:commandLink>
+                        | 
+                    </apex:outputText>
+    
+                    <apex:outputText >
+                        {!IF((pageNumber * limitSize)>totalSize, totalSize,(pageNumber * limitSize))} 
+                        / {!totalSize} Records
+                    </apex:outputText> 
+                </apex:panelGrid>
+            </apex:pageBlockSection>
+        </apex:form> 
+    </apex:pageBlock>    
+</apex:page>
+-->

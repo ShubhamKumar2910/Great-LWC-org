@@ -1,0 +1,101 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,lightning:isUrlAddressable" controller="ETradingAssignContactController">
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:handler name="newContact" event="c:ETradingEnablementContactEvent" action="{!c.handleETradingEnablementContact}"/>	
+
+    <aura:attribute name="eTradingData" type="Object[]"/>
+    <aura:attribute name="eTradingColumns" type="Object[]"/>
+    <aura:attribute name="eTradingSelectedPlatformId" type="String"/>
+    <aura:attribute name="eTradingPlatformIdContactId" type="Map"/>
+    <aura:attribute name="sortETradingEnablementSortBy" type="String" default="platformId"/>
+    <aura:attribute name="eTradingEnablementSortDirection" type="Boolean" default="true"/>
+    <aura:attribute name="enableSave" type="Boolean" default="false"/>
+    <aura:attribute name="displaySearchContact" type="Boolean" default="false"/>
+    
+    <aura:attribute name="account" type="String[]"/>
+    <aura:attribute name="contacts" type="String[]" />
+    <aura:attribute name="contactId" type="String"/>
+
+    <aura:handler name="EventCallReportUpdateContactsEvent" event="c:EventCallReportUpdateContactsEvent" action="{!c.selectContact}"/>
+    <aura:handler name="newContact" event="c:ETradingEnablementContactEvent" action="{!c.handleETradingEnablementContact}"/>
+    
+    <lightning:navigation aura:id="navigationService"/>
+
+    <lightning:spinner aura:id="spinner" variant="brand" size="large" class="slds-hide"/>
+
+    <lightning:layout aura:id="Select" multipleRows="true">
+        <lightning:layoutItem aura:id="filter" size="12">
+            <lightning:card title="eTrading Enablement Assign Contact" iconName="utility:adduser">
+                <aura:set attribute="footer">
+                    <lightning:button label="{!$Label.c.CVGTOOL_CANCEL}" onclick="{!c.cancel}" class="slds-button slds-button_neutral"/>
+                    <lightning:button label="{!$Label.c.Save}" onclick="{!c.save}" class="slds-button slds-button_brand" disabled="{! !v.enableSave}"/>
+                </aura:set>
+
+                <div class="verticalHeader" style="background-color:rgb(91, 100, 138);color: #FFF;padding:6px;">
+                    <section class="slds-clearfix">
+                        <div class="slds-float_left ">
+                            <lightning:icon aura:id="articleOne" iconName="utility:table" size="x-small" alternativeText="Indicates dash"/>
+                        </div>
+                        <div class="slds-m-left_large">
+                            
+                        </div>   
+                    </section>
+                </div>
+                <div id="table" aura:id="dataTable">
+                    <lightning:datatable aura:id="eTradingEnablementAssignContactTable" 
+                                         keyField="Id" 
+                                         data="{!v.eTradingData}" 
+                                         columns="{!v.eTradingColumns}"
+                                         maxColumnWidth="1100px"
+                                         sortedBy="{!v.sortETradingEnablementSortBy}"
+                                         sortedDirection="{!v.eTradingEnablementSortDirection}"
+                                         onsort="{!c.eTradingEnablementUpdateSorting}" 
+                                         onrowaction="{!c.eTradingEnablementRowAction}" 
+                                         hideCheckboxColumn="true">
+                    </lightning:datatable>
+                </div>
+            </lightning:card>
+        </lightning:layoutItem>
+        <lightning:layoutItem aura:id="filter" size="12">
+            <aura:if isTrue="{!v.displaySearchContact}">
+
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container" style="width: 90%;max-width: 80rem;min-width: 20rem;margin-top: 10%;height: 86%;">
+                        <header class="slds-docked-composer__header slds-grid slds-shrink-none" aria-live="assertive">
+                            <div class="slds-media slds-media_center slds-no-space">
+                                <div class="slds-media__figure slds-m-right_x-small">
+                                </div>
+                                <div class="slds-media__body">
+                                    <h2 class="slds-truncate" id="modal-heading-id-1" title="Header">Select Contact</h2>
+                                </div>
+                            </div>
+                            <div class="slds-col_bump-left slds-shrink-none">
+                                <lightning:buttonIcon aura:id="searchContactButtonIconClose" iconName="utility:close" variant="bare" onclick="{!c.close}"/>
+                            </div>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                            <div>
+                                <c:EventCallReportBrowseContacts aura:id="contactSearch" 
+                                                                 selectedAccount="{!v.account}" 
+                                                                 selectedRows="{!v.contacts}" 
+                                                                 selectedContacts="{!v.contacts}"
+                                                                 maxRowSelect="1" 
+                                                                 sendContactObjectsInEvent="true" 
+                                                                 showAddButton="false" 
+                                                                 displaySuccessToast="false"/>
+                            </div>
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <lightning:button aura:id="searchContactButtonClose" label="{!$Label.c.CVGTOOL_CANCEL}" onclick="{!c.close}" class="slds-button slds-button_neutral"/>
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+
+            </aura:if>
+        </lightning:layoutItem>
+        <lightning:layoutItem aura:id="filter" size="12">
+            <c:ETradingEnablementContact aura:id="newContact"/>
+        </lightning:layoutItem>
+    </lightning:layout>
+
+</aura:component>

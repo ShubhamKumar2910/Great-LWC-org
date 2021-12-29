@@ -1,0 +1,8 @@
+<aura:event type="APPLICATION" description="Event template" >
+ <aura:attribute name="selectedContacts" type="String[]" required="true" 
+ 	description="List of Contact IDs that were selected" />
+ <aura:attribute name="closeBrowseContacts" type="Boolean" required="true" 
+ 	description="A flag which indicates whether to close the Contact browse window or not" />
+ <aura:attribute name="contactList" type="Contact[]" required="false" 
+ 	description="List of the Contacts that were selected" />   
+</aura:event>

@@ -1,0 +1,407 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,lightning:isUrlAddressable" access="global"  controller="ContactLocatorController">
+    <lightning:navigation aura:id="navService" />
+    
+    <!-- Attributes -->
+    <aura:attribute name="hasErrors" type="Boolean" description="Indicate whether there were failures or not" />
+    <aura:attribute name="contactList" type="Contact[]"/>
+    <aura:attribute name="contactWrapper" type="ContactLocatorWrapper[]"/>
+    <aura:attribute name="contact" type="Contact" default="{ 'sobjectType': 'Contact' }" />
+    <aura:attribute name="searchInputString" type="String" />
+    <aura:attribute name="accountNameColumnHeader" type="String" />
+    <aura:attribute name="billingCountryColumnHeader" type="String" />
+    <aura:attribute name="billingCityColumnHeader" type="String" />
+    <aura:attribute name="contactEmailColumnHeader" type="String" />
+    <aura:attribute name="baseURL" type="String" />
+    <aura:attribute name="classicConsoleMode" type="Boolean" default="false"/>
+    <aura:attribute name="showNoResultsMessage" type="Boolean" default="false"/>
+    <aura:attribute name="showSpinner" type="Boolean" default="false"/>
+    <aura:attribute name="showExtendedSearchResultsMessage" type="Boolean" default="false"/>
+    <aura:attribute name="showCoverageStatusColumn" type="Boolean" default="true"/>
+    <aura:attribute name="showNoInputMessage" type="Boolean" default="false"/>
+    
+    <aura:attribute name="reset" type="Boolean" default="true"/>
+    
+    <!-- Events -->
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+    <!-- Methods -->
+    <aura:method name="navigateToAddCoverage" action="{!c.navigateToAddCoverage}" />
+    <aura:method name="resetPage" action="{!c.resetPage}" />
+    <aura:if isTrue="{!$Browser.formFactor == 'DESKTOP'}">
+        <!-- Beginning of Grid -->
+        <lightning:layout >         
+            <!-- Column 1 Start -->
+            <div class="slds-col slds-p-around_xx-small">
+                <lightning:layoutItem >
+                    <br/>
+                    <ui:message title="{!$Label.c.Information}" severity="info" closable="false">
+                        <ui:outputText value="{!$Label.c.Contact_Locator_Search_Info}" />
+                    </ui:message>
+                    <br/>   
+                    <aura:renderIf isTrue="{!v.showNoResultsMessage}">
+                        <ui:message title="Warning" severity="warning" closable="false">
+                            <ui:outputText value="{!$Label.c.Contact_Locator_No_Results_Found}" />
+                        </ui:message>
+                        <aura:set attribute="else">
+                            <div></div>
+                        </aura:set>
+                    </aura:renderIf> 
+                    <aura:renderIf isTrue="{!v.showExtendedSearchResultsMessage}">
+                        <ui:message title="Warning" severity="warning" closable="false">
+                            <ui:outputText value="{!$Label.c.Event_Custom_Client_Message_Text}" />
+                        </ui:message>
+                        <aura:set attribute="else">
+                            <div></div>
+                        </aura:set>
+                    </aura:renderIf> 
+                    <aura:renderIf isTrue="{!v.showNoInputMessage}">
+                        <ui:message title="Error" severity="error" closable="false">
+                            <ui:outputText value="{!$Label.c.Event_Custom_No_Input_Message}" />
+                        </ui:message>
+                        <aura:set attribute="else">
+                            <div></div>
+                        </aura:set>
+                    </aura:renderIf> 
+                    <!-- Search -->
+                    <ui:inputText aura:id="seachBox" label="{!$Label.c.Event_Custom_Search}" value="{!v.contact.Description}" required="true" class="slds-input" keyup="{!c.onSearchStringChange}"  updateOn="keyup"/>
+                    <br/>
+                </lightning:layoutItem>
+                
+                
+                <lightning:layoutItem >
+                    <lightning:button aura:id="seachButton" variant="brand" label="{!$Label.c.Event_Custom_Search}" onclick="{!c.search}" />
+                    <br/> 
+                    <br/>   
+                </lightning:layoutItem>
+                
+                
+                <div>
+                    
+                    <aura:if isTrue="{!v.hasErrors}">
+                        <!-- Load error -->
+                        <div class="userCreateError">
+                            <ui:message title="Error" severity="error" closable="true">
+                                
+                            </ui:message>
+                        </div>
+                    </aura:if>
+                    
+                    <lightning:layoutItem aura:id="spinnerComponent">
+                        <aura:renderIf isTrue="{!v.showSpinner}">
+                            <div class="" style="height: 6rem;">
+                                <div role="status" class="slds-spinner slds-spinner_medium slds-spinner_brand">
+                                    <span class="slds-assistive-text">Loading</span>
+                                    <div class="slds-spinner__dot-a"></div>
+                                    <div class="slds-spinner__dot-b"></div>
+                                </div>
+                            </div>
+                            <aura:set attribute="else">
+                                <lightning:layoutItem aura:id="resultsTable" class="">
+                                    <table class="slds-table slds-table_bordered slds-table_striped slds-table_fixed-layout" aria-readonly="true">
+                                        <thead>
+                                            <tr class="slds-text-title_caps">
+                                                
+                                                <th scope="col">
+                                                    <div class="slds-grid">
+                                                        <div class="slds-truncate" title="Account Name">
+                                                            <ui:outputText value="{!v.accountNameColumnHeader}" />
+                                                        </div>
+                                                    </div>
+                                                </th>
+                                                
+                                                <th scope="col">
+                                                    <div class="slds-grid">
+                                                        <div class="slds-truncate" title="Legal Entity">
+                                                            <ui:outputText value="{!$Label.c.Contact_Locator_Legal_Entity}" />
+                                                        </div>
+                                                    </div>
+                                                </th>  
+                                                
+                                                <th class="slds-truncate" scope="col">
+                                                    <div class="slds-grid slds-grid_vertical-align-center">
+                                                        <div class="slds-truncate" title="Contact Name">
+                                                            <ui:outputText value="{!$Label.c.LABS_SF_ContactName}" />
+                                                        </div>
+                                                    </div>
+                                                </th>
+                                                
+                                                <th class="slds-truncate" scope="col">
+                                                    <div class="slds-grid slds-grid_vertical-align-center">
+                                                        <div class="slds-truncate" title="Contact Local Name">
+                                                            <ui:outputText value="{!$Label.c.Contact_Locator_Local_Name}" />
+                                                        </div>
+                                                    </div>
+                                                </th>
+                                                
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Contact Email">
+                                                        <ui:outputText value="{!v.contactEmailColumnHeader}" />
+                                                    </div>
+                                                </th>
+                                                
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Country">
+                                                        <ui:outputText value="{!$Label.c.Contact_Locator_Account_Country}" />
+                                                    </div>
+                                                </th>
+                                                
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Is Restricted">
+                                                        <ui:outputText value="{!$Label.c.Contact_Locator_Restricted_Account}" />
+                                                    </div>
+                                                </th>
+                                                
+                                                <aura:renderIf isTrue="{!v.showCoverageStatusColumn}">
+                                                    <th scope="col">
+                                                        <div class="slds-truncate" title="Coverage">
+                                                            <ui:outputText value="{!$Label.c.Contact_Locator_Coverage}" />
+                                                        </div>
+                                                    </th>
+                                                    <aura:set attribute="else">
+                                                    </aura:set>
+                                                </aura:renderIf>
+                                                
+                                                <aura:renderIf isTrue="{!and(v.showCoverageStatusColumn, v.classicConsoleMode == FALSE)}">
+                                                    <th scope="col">
+                                                        &nbsp;
+                                                    </th>
+                                                </aura:renderIf>
+                                                
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <aura:iteration items="{!v.contactWrapper}" var="con" indexVar="idx">
+                                                <tr class="slds-hint-parent">
+                                                    <th data-label="Account Name" scope="row">
+                                                        <div class="slds-truncate">
+                                                            <aura:if isTrue="{!v.classicConsoleMode}">
+                                                                <a href="" data-name="{!con.contact.RG_Account__r.Name}" data-url="{!v.baseURL + con.contact.RG_Account__r.Id + '|'}" onclick="{!c.redirectToDetail}" title="{!con.contact.RG_Account__r.Name}"> {!con.contact.RG_Account__r.Name} </a> 
+                                                                <aura:set attribute="else">
+                                                                    <c:RedirectToRecord recordId="{!con.contact.RG_Account__r.Id}" recordName="{!con.contact.RG_Account__r.Name}"></c:RedirectToRecord>
+                                                                </aura:set>
+                                                            </aura:if>
+                                                        </div>
+                                                    </th>
+                                                    
+                                                    <th data-label="Legal Entity" scope="row">
+                                                        <div class="slds-truncate">
+                                                            <aura:if isTrue="{!v.classicConsoleMode}">
+                                                                <a href="" data-name="{!con.contact.Account.Localized_Name__c}" data-url="{!v.baseURL + con.contact.Account.Id + '|'}" onclick="{!c.redirectToDetail}" title="{!con.contact.Account.Localized_Name__c}"> {!con.contact.Account.Localized_Name__c} </a> 
+                                                                <aura:set attribute="else">
+                                                                    <c:RedirectToRecord recordId="{!con.contact.Account.Id}" recordName="{!con.contact.Account.Localized_Name__c}"></c:RedirectToRecord>
+                                                                </aura:set>
+                                                            </aura:if>
+                                                        </div>
+                                                    </th>  
+                                                    
+                                                    <td data-label="Contact Name">
+                                                        <div class="slds-truncate">
+                                                            <aura:if isTrue="{!v.classicConsoleMode}">
+                                                                <a href="" data-name="{!con.contact.Name}" data-url="{!v.baseURL + con.contact.Id + '|'}" onclick="{!c.redirectToDetail}" title="{!con.contact.Name}"> {!con.contact.Name} </a>                         
+                                                                <aura:set attribute="else">
+                                                                    <c:RedirectToRecord recordId="{!con.contact.Id}" recordName="{!con.contact.Name}"></c:RedirectToRecord>
+                                                                </aura:set>
+                                                            </aura:if>
+                                                        </div>
+                                                    </td>
+                                                    
+                                                    <td data-label="Contact Local Name">
+                                                        <div class="slds-truncate" title="{!con.contact.Local_Language_Full_Name__c}" >{!con.contact.Local_Language_Full_Name__c}</div>
+                                                    </td>  
+                                                    
+                                                    <td data-label="Contact Email">
+                                                        <div class="slds-truncate" title="{!con.contact.Email}" >{!con.contact.Email}</div>
+                                                    </td>
+                                                    
+                                                    <td data-label="Country">
+                                                        <div class="slds-truncate" title="{!con.contact.Account.BillingCountry}" >{!con.contact.Account.BillingCountry}</div>
+                                                    </td>  
+                                                    
+                                                    <td data-label="Is Restricted">
+                                                        <aura:if isTrue="{!con.contact.Account.Restricted_Flag__c}">
+                                                            <div class="slds-truncate">
+                                                                <span class="slds-badge" style="background-color:#f2cf5b">
+                                                                    <ui:outputText value="{!$Label.c.Contact_Locator_Restricted}" />
+                                                                </span>
+                                                            </div>
+                                                            <aura:set attribute="else">    
+                                                                <div></div>                        
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </td>
+                                                    
+                                                    <aura:renderIf isTrue="{!v.showCoverageStatusColumn}">
+                                                        <td data-label="Coverage">
+                                                            <aura:if isTrue="{!con.rmLevelAccountCovered}">
+                                                                <span class="slds-badge" style="background-color:#88c651">
+                                                                    <ui:outputText value="{!$Label.c.Contact_Locator_Account_Covered}" />
+                                                                </span>
+                                                                <aura:set attribute="else">
+                                                                    <span class="slds-badge" style="background-color:#f88962">
+                                                                        <ui:outputText value="{!$Label.c.Contact_Locator_Account_Not_Covered}" />
+                                                                    </span> 
+                                                                </aura:set>
+                                                            </aura:if>
+                                                        </td>
+                                                        <aura:set attribute="else">
+                                                        </aura:set>
+                                                    </aura:renderIf>
+                                                    
+                                                    <aura:renderIf isTrue="{!and(v.showCoverageStatusColumn, v.classicConsoleMode == FALSE)}">
+                                                        <td>
+                                                            <aura:if isTrue="{!con.rmLevelAccountCovered}">
+                                                                &nbsp;
+                                                                <aura:set attribute="else">
+                                                                    <lightning:button variant="brand" label="{!$Label.c.Add_Coverage}" iconName="utility:add" value="{!con.contact.RG_Account__r.Id}" onclick="{!c.navigateToAddCoverage}" class="buttonClassStyle" />
+                                                                </aura:set>
+                                                            </aura:if>
+                                                        </td>
+                                                    </aura:renderIf>  
+                                                    
+                                                </tr>
+                                                
+                                            </aura:iteration>
+                                        </tbody>
+                                        <!-- Footer -->    
+                                        <tfoot>
+                                            <tr>
+                                                <td>&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td>&nbsp;</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </lightning:layoutItem>
+                            </aura:set>
+                        </aura:renderIf> 
+                        
+                    </lightning:layoutItem>
+                    
+                    
+                </div>
+            </div>
+        </lightning:layout>
+        <!--MOBILE-->        
+        <aura:set attribute="else">
+            <lightning:layout multipleRows="true">
+                <lightning:layoutItem padding="around-small" size="12">
+                    <ui:message title="Information" severity="info" closable="false">
+                        <ui:outputText value="{!$Label.c.Contact_Locator_Search_Info}" />
+                    </ui:message>
+                    <aura:if isTrue="{!v.showNoResultsMessage}">
+                        <ui:message title="Warning" severity="warning" closable="false">
+                            <ui:outputText value="{!$Label.c.Contact_Locator_No_Results_Found}" />
+                        </ui:message>
+                    </aura:if> 
+                    <aura:if isTrue="{!v.showExtendedSearchResultsMessage}">
+                        <ui:message title="Warning" severity="warning" closable="false">
+                            <ui:outputText value="{!$Label.c.Event_Custom_Client_Message_Text}" />
+                        </ui:message>
+                    </aura:if> 
+                </lightning:layoutItem>
+                <lightning:layoutItem padding="around-small" size="12">
+                    <!-- Search -->
+                    <ui:inputText aura:id="seachBox" label="{!$Label.c.Event_Custom_Search}" value="{!v.contact.Description}" required="true" class="slds-input" keyup="{!c.onSearchStringChange}"  updateOn="keyup"/>
+                    
+                </lightning:layoutItem>
+                <lightning:layoutItem padding="around-small" size="12">
+                    <lightning:button aura:id="seachButton" variant="brand" label="{!$Label.c.Event_Custom_Search}" onclick="{!c.search}" />
+                </lightning:layoutItem>
+                <lightning:layoutItem padding="around-small" size="12">
+                    <aura:if isTrue="{!v.hasErrors}">
+                        <!-- Load error -->
+                        <div class="userCreateError">
+                            <ui:message title="Error" severity="error" closable="true">
+                                
+                            </ui:message>
+                        </div>
+                    </aura:if>
+                </lightning:layoutItem>
+                <lightning:layoutItem aura:id="resultsTable" padding="around-small" size="12">
+                    
+                    <ul class="slds-has-dividers_bottom-space">
+                        <aura:iteration items="{!v.contactWrapper}" var="con" indexVar="idx">
+                            <li class="slds-item">
+                                <lightning:tile href="">
+                                    <div style="font-size:large;">
+                                        <c:RedirectToRecord recordId="{!con.contact.Id}" recordName="{!con.contact.Name}"></c:RedirectToRecord>
+                                    </div>
+                                    <aura:set attribute="media">
+                                        <lightning:avatar src="standard:contact" fallbackIconName="standard:contact" />
+                                    </aura:set>
+                                    <ul class="slds-list_horizontal slds-has-dividers_right">
+                                        <li class="slds-item" style="flex-wrap: wrap;overflow:auto">
+                                            <lightning:layoutItem size="12" padding="horizontal-small">
+                                                <ui:outputText value="{!v.accountNameColumnHeader}" />: 
+                                                <aura:if isTrue="{!v.classicConsoleMode}">
+                                                    <a href="" data-name="{!con.contact.RG_Account__r.Name}" data-url="{!v.baseURL + con.contact.RG_Account__r.Id + '|'}" onclick="{!c.redirectToDetail}" title="{!con.contact.RG_Account__r.Name}"> {!con.contact.RG_Account__r.Name} </a> 
+                                                    <aura:set attribute="else">
+                                                        <c:RedirectToRecord recordId="{!con.contact.RG_Account__r.Id}" recordName="{!con.contact.RG_Account__r.Name}"></c:RedirectToRecord>
+                                                    </aura:set>
+                                                </aura:if>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="12" padding="horizontal-small">
+                                                <ui:outputText value="{!$Label.c.Contact_Locator_Legal_Entity}" />: 
+                                                <aura:if isTrue="{!v.classicConsoleMode}">
+                                                    <a href="" data-name="{!con.contact.Account.Localized_Name__c}" data-url="{!v.baseURL + con.contact.Account.Id + '|'}" onclick="{!c.redirectToDetail}" title="{!con.contact.Account.Localized_Name__c}"> {!con.contact.Account.Localized_Name__c} </a> 
+                                                    <aura:set attribute="else">
+                                                        <c:RedirectToRecord recordId="{!con.contact.Account.Id}" recordName="{!con.contact.Account.Localized_Name__c}"></c:RedirectToRecord>
+                                                    </aura:set>
+                                                </aura:if>
+                                            </lightning:layoutItem>
+                                            <aura:if isTrue="{!con.contact.Local_Language_Full_Name__c != ''}">
+                                                <lightning:layoutItem size="12" padding="horizontal-small">
+                                                    <ui:outputText value="{!$Label.c.Contact_Locator_Local_Name}" />: {!con.contact.Local_Language_Full_Name__c}
+                                                </lightning:layoutItem>
+                                                <aura:set attribute="else">    
+                                                    <div></div>                        
+                                                </aura:set>
+                                            </aura:if>
+                                            
+                                            <lightning:layoutItem size="12" padding="horizontal-small">
+                                                <div class="slds-truncate" title="{!con.contact.Email}" ><ui:outputText value="{!v.contactEmailColumnHeader}" />: {!con.contact.Email}</div>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="12" padding="horizontal-small">
+                                                <ui:outputText value="{!$Label.c.Contact_Locator_Account_Country}" />: {!con.contact.Account.BillingCountry}
+                                            </lightning:layoutItem>
+                                            <aura:if isTrue="{!con.contact.Account.Restricted_Flag__c}">
+                                                <lightning:layoutItem size="12" padding="horizontal-small">
+                                                    <ui:outputText value="{!$Label.c.Contact_Locator_Restricted_Account}" />: 
+                                                    <div class="slds-truncate">
+                                                        <span class="slds-badge" style="background-color:#f2cf5b">
+                                                            <ui:outputText value="{!$Label.c.Contact_Locator_Restricted}" />
+                                                        </span>
+                                                    </div>
+                                                </lightning:layoutItem>
+                                                <aura:set attribute="else">    
+                                                    <div></div>                        
+                                                </aura:set>
+                                            </aura:if>
+                                            
+                                            <lightning:layoutItem size="12" padding="horizontal-small">
+                                                <ui:outputText value="{!$Label.c.Contact_Locator_Coverage}" />: <aura:if isTrue="{!con.rmLevelAccountCovered}">
+                                                <span class="slds-badge" style="background-color:#88c651">
+                                                    <ui:outputText value="{!$Label.c.Contact_Locator_Account_Covered}" />
+                                                </span>
+                                                <aura:set attribute="else">
+                                                    <span class="slds-badge" style="background-color:#f88962">
+                                                        <ui:outputText value="{!$Label.c.Contact_Locator_Account_Not_Covered}" />
+                                                    </span> 
+                                                </aura:set>
+                                                </aura:if>
+                                            </lightning:layoutItem>
+                                        </li>
+                                    </ul>
+                                </lightning:tile>
+                            </li>
+                        </aura:iteration>
+                        <!-- More list items here -->
+                    </ul>
+                    
+                </lightning:layoutItem>
+            </lightning:layout>
+            
+        </aura:set>
+    </aura:if>
+</aura:component>

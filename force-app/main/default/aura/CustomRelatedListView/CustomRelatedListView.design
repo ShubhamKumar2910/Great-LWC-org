@@ -1,0 +1,6 @@
+<design:component >
+	<design:attribute name="object" label="Object"  default="" description="SObject API name"/>
+	<design:attribute name="listName" label="List Name" />
+	<design:attribute name="customSettingsFieldName" label="Custom Settings Field Name"/>
+	<design:attribute name="customLabel" label="Custom Label"/>
+</design:component>

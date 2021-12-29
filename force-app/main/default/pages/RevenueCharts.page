@@ -1,0 +1,32 @@
+<apex:page >
+    <div style="width:175px;">
+   <table border="0" cellspacing="0" cellpadding="0" width="100%" id="table1">
+        
+    
+    <tr>
+        <td>
+              <analytics:reportChart reportId="00O17000000GJOS" size="medium" cacheResults="false" showRefreshButton="true"/>
+         </td>
+         <td>
+    			<analytics:reportChart reportId="00O17000000GJO3" size="medium" cacheResults="false" showRefreshButton="true"/>
+          </td>
+          <td>
+    			<analytics:reportChart reportId="00O17000000GMJ1" size="medium" cacheResults="false" showRefreshButton="true"/>
+          </td>
+    </tr>
+    <tr>
+        <td>
+              <analytics:reportChart reportId="00O17000000GMHo" size="medium" cacheResults="false" showRefreshButton="true"/>
+         </td>
+         <td>
+    			<analytics:reportChart reportId="00O17000000GMI3" size="medium" cacheResults="false" showRefreshButton="true"/>
+          </td>
+          <td>
+    			<analytics:reportChart reportId="00O17000000GMI8" size="medium" cacheResults="false" showRefreshButton="true"/>
+          </td>
+    </tr>
+    
+    </table>
+    </div>  
+      
+</apex:page>

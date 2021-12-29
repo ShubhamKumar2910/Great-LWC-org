@@ -1,0 +1,127 @@
+<!--
+**	Author 		: Pravin Kundal
+**	Company 	: Nomura
+**	Description : LWC component for showing and allowing the user to choose the RS->RG 
+**                existing RS->RG hierarchy
+-->
+
+<!--c-account-hierarchy-->
+<template>
+    <!--<lightning-button-icon icon-name="utility:add"  size="xx-small" alternative-text="View More"></lightning-button-icon>-->
+    <div class="slds-box slds-scrollable" style={sizeStyle}>
+    <div style={innerSizeStyle}>
+    <div class="slds-text-title_caps" style="text-decoration: underline;">Nomura Client Hierarchy</div>
+    <template if:false={loaded}>
+        <div class="slds-m-top_x-large inlineSpinner">
+            <lightning-spinner variant="brand" alternative-text="Loading"></lightning-spinner>
+        </div>
+    </template>
+    <template if:true={isDataEmpty}>
+        <div class="slds-p-top_xx-large slds-m-left_xx-large slds-text-title_caps ">
+                No matching records found
+        </div>
+    </template>
+    
+    <template if:true={loaded}>
+    <ul>
+        <!--LOOP FOR RS ENTITY-->
+        <template for:each={accData} for:item="rsAcc" for:index="rsindex">
+            <li key={rsAcc.rsAccId}>
+                <div>
+                    <fieldset class="slds-form-element slds-form-element_compound">
+                        <div class="slds-form-element__control">
+                            <div class="slds-form-element__row">
+                                <div class="slds-form-element">
+                                    <lightning-button-icon icon-name={rsAcc.expColpBtnIcon} size="xx-small" 
+                                        onclick={handleRSAccExpColp} data-rsacc-index={rsindex} 
+                                        alternative-text="Expand or Collapse RS Account">
+                                    </lightning-button-icon>
+                                </div>
+                                <div class="slds-form-element">
+                                    <lightning-button-icon icon-name={rsAcc.selectedBtnIcon} size="xx-small" icon-class="dark" 
+                                        onclick={handleSelectRSAccClick} data-rsacc-index={rsindex} 
+                                        alternative-text="Select RS Entity">
+                                    </lightning-button-icon>
+                                </div>
+                                <div class="slds-form-element">
+                                    <lightning-formatted-url value={rsAcc.rsAccURL} tooltip="Go to https://my/path" label={rsAcc.rsAccObj.Name} target="_blank"></lightning-formatted-url>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <!--LOOP FOR RG ENTITY-->
+                <template if:true={rsAcc.isExpanded}>
+                    <div class="slds-m-left_xx-large">
+                        <ul>
+                            <template for:each={rsAcc.childRGAccList} for:item="rgAcc" for:index="rgindex">
+                                <li key={rgAcc.rgAccId}>
+                                    <div>
+                                        <fieldset class="slds-form-element slds-form-element_compound">
+                                            <div class="slds-form-element__control">
+                                                <div class="slds-form-element__row">
+                                                    <img src={hierarchyNodeImg}>
+                                                    <template if:true={rgAcc.canRgAccExpand}>
+                                                        <div class="slds-form-element">
+                                                            <lightning-button-icon icon-name={rgAcc.expColpBtnIcon} size="xx-small"
+                                                                onclick={handleRGAccExpColp} data-rsacc-index={rsindex} data-rgacc-index={rgindex}
+                                                                alternative-text="Expand or Collapse RG Account">
+                                                            </lightning-button-icon>
+                                                        </div>
+                                                    </template>
+                                                    <div class="slds-form-element">
+                                                        <lightning-button-icon icon-name={rgAcc.selectedBtnIcon} size="xx-small" 
+                                                            onclick={handleSelectRGAccClick} data-rsacc-index={rsindex} data-rgacc-index={rgindex}
+                                                            alternative-text="Select RG Entity">
+                                                        </lightning-button-icon>
+                                                    </div>
+                                                    <div class="slds-form-element">
+                                                        <lightning-formatted-url value={rgAcc.rgAccURL} tooltip="Go to https://my/path" label={rgAcc.rgAccObj.Name} target="_blank" ></lightning-formatted-url>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                    <!--LOOP RM ACCOUNTS-->
+                                    <template if:true={rgAcc.canRgAccExpand}>
+                                    <template if:true={rgAcc.isExpanded}>
+                                        <div class="slds-m-left_xx-large">
+                                            <ul class="slds-is-nested">
+                                                <template for:each={rgAcc.childRMAccList} for:item="rmAcc">
+                                                    <li key={rmAcc.rmAccId}>
+                                                        <div class="slds-m-left_xx-small">
+                                                            <fieldset class="slds-form-element slds-form-element_compound">
+                                                                <div class="slds-form-element__control">
+                                                                    <div class="slds-form-element__row">
+                                                                        <img src={hierarchyNodeImg}>
+                                                                        <!--<div class="slds-form-element">
+                                                                            <lightning-button-icon icon-name={rsAcc.expColpBtnIcon} size="xx-small" alternative-text="View More"></lightning-button-icon>
+                                                                        </div>-->
+                                                                        <div class="slds-form-element">
+                                                                            <lightning-button-icon icon-name={rmAcc.selectedBtnIcon} size="xx-small" onclick={handleClick} alternative-text="Select Entity"></lightning-button-icon>
+                                                                        </div>
+                                                                        <div class="slds-form-element">
+                                                                            <lightning-formatted-url value="https://my/path" tooltip="Go to https://my/path" label={rmAcc.rmAccObj.Name} target="_blank" ></lightning-formatted-url>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </fieldset>
+                                                        </div>
+                                                    </li><!--RM ACCOUNT li item-->
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </template>
+                                    </template>
+                                </li> <!--RG ACCOUNT li item-->
+                            </template>
+                        </ul>
+                    </div>
+                </template> <!--END OF LOOP FOR RG ENTITY-->
+            </li>
+        </template><!--END OF CONDITION THETHER TO SHOW RG LIST-->
+    </ul>
+    </template>
+    </div>
+    </div>
+</template>

@@ -1,0 +1,433 @@
+<template>
+
+    <template if:true={hasError}>
+        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+            <span class="slds-assistive-text">error</span>
+            <span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small" title="Description of icon when needed">
+                <lightning-icon icon-name="utility:error" variant="inverse" size="xx-small"></lightning-icon>
+            </span>
+            <h2>
+                <!-- TODO : ShowErrors -->
+            </h2>
+        </div>
+    </template>
+
+    <!-- Account Hierarchy -->
+    <c-sch-account-hierarchy record-id={recordId} 
+        rs-account-id={selectedAccountRSId} rs-account-name={selectedAccountRSName} rs-account-label={selectedAccountRSLabel}
+        rg-account-id={selectedAccountRGId} rg-account-name={selectedAccountRGName} rg-account-label={selectedAccountRGLabel}
+        rm-account-id={selectedAccountRMId} rm-account-name={selectedAccountRMName} rm-account-label={selectedAccountRMLabel}
+        show-rg-hierarchy={showRgHierarchy} show-rm-hierarchy={showRmHierarchy}> 
+	</c-sch-account-hierarchy>
+
+
+    <div class="slds-m-bottom_xx-small"></div>
+
+	<template if:true={showSpinner}>
+		<lightning-spinner alternative-text={processingLabel}></lightning-spinner>
+	</template>
+
+
+    
+    <lightning-accordion onsectiontoggle={handleSectionToggle} active-section-name={activeSections}>
+            
+            <template if:true={showExistingExternalLegalEntityStep}>
+
+                <lightning-accordion-section name="existingSFLegalEntitySection" label={existingSFLegalEntityDetailsStep} ></lightning-accordion-section>
+
+                <lightning-accordion-section name="externalEntitySection" label={externalEntityDetailsStep} ></lightning-accordion-section>
+            </template>
+
+            <!--SECTION : STEP 3.1: LEGAL (RM) ENTITY DETAILS: START -->
+            <template if:true={showLegalRMEntityDetailsStep}>
+                <lightning-accordion-section name="legalRMEntitySection" label={legalRMEntityDetailsStep}>
+                    <lightning-record-edit-form object-api-name="SCH_Request__c">    
+                        <lightning-layout pull-to-boundary="medium" multiple-rows>
+                                <lightning-layout-item size="6" flexibility="auto" padding="around-small">
+                                    <div class="slds-float_left slds-required">*</div>
+                                    <lightning-input-field 
+                                        field-name='RM_Client_Location__c' 
+                                        variant=" label-stacked" 
+                                        value={selectedAccountRMLocation}
+                                        onchange={handleClientLocationForAccountRM}
+                                        disabled={isAccountRMLocationNotReqd}>
+                                    </lightning-input-field>
+                                </lightning-layout-item>
+
+                                <lightning-layout-item size="6" flexibility="auto" padding="around-small">
+                                    <div class="slds-float_left slds-required">*</div>
+                                    <lightning-input-field 
+                                        field-name='Sales_Client_Type__c' 
+                                        variant="label-stacked"
+                                        value={selectedAccountRMSalesClientType}
+                                        onchange={handleSalesClientTypeForAccountRM}
+                                        disabled={isAccountRMClientTypeNotReqd}>
+                                    </lightning-input-field>
+                                    </lightning-layout-item>
+
+                                <!--<lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                                    <div class="slds-float_left slds-required">*</div>
+                                    <lightning-input-field 
+                                        field-name='Client_Type__c' 
+                                        variant="label-stacked"
+                                        value={selectedAccountRMClientType}
+                                        onchange={handleClientTypeForAccountRM}
+                                        disabled={isAccountRMClientTypeNotReqd}>
+                                    </lightning-input-field>
+                                </lightning-layout-item>-->
+                                
+                                <template if:true={isLoggedInUserAdministratorOrSalesCAO}>
+                                <lightning-layout-item size="6" flexibility="auto" padding="around-small">
+                                    <label for="extType">{externalIdRequiredLabel}</label>
+                                    <lightning-input-field 
+                                        field-name='External_Mapping_Type__c' 
+                                        variant="label-hidden"
+                                        id="extType"
+                                        value={selectedAccountMappingType}
+                                        onchange={handleMappingTypeForAccountRM}
+                                        >
+                                    </lightning-input-field>
+                                </lightning-layout-item>
+                                
+
+                                <lightning-layout-item size="6" flexibility="auto" padding="around-small">
+                                    <lightning-input-field 
+                                        field-name='External_Mapping_Id__c' 
+                                        variant="label-stacked"
+                                        value={enteredAccountMappingId}
+                                        onchange={handleMappingIdForAccountRM}>
+                                    </lightning-input-field>
+                                </lightning-layout-item>
+                                </template>
+                                
+                                <lightning-layout-item size="12" flexibility="auto" padding="around-small">
+                                    <lightning-card variant="narrow">
+                                        <h1 slot="title">{additionalLegalEntityAttrsLabel}</h1>
+                                        
+                                        
+                                        <p class="slds-p-horizontal_small">
+                                            <lightning-layout pull-to-boundary="medium" multiple-rows>
+                                                <template if:true={isLoggedInUserJapanBasedAndSalesCAO}>
+                                                    <lightning-layout-item size="6" flexibility="auto" padding="around-small">
+                                                        <lightning-input-field 
+                                                            field-name='Large_Client__c' 
+                                                            variant="standard"
+                                                            value={largeClientTag}
+                                                            onchange={handleLargeClientTagForAccountRM}>
+                                                        </lightning-input-field>
+                                                    </lightning-layout-item>
+                                                    
+                                                    <lightning-layout-item size="6" flexibility="auto" padding="around-small">
+                                                        <lightning-input-field 
+                                                            field-name='Retail__c' 
+                                                            variant="standard"
+                                                            value={retailTag}
+                                                            onchange={handleRetailTagForAccountRM}>
+                                                        </lightning-input-field>
+                                                    </lightning-layout-item>
+                                                </template>
+                                                <lightning-layout-item size="6" flexibility="auto" padding="around-small">
+                                                    <lightning-input-field 
+                                                        field-name='Originator__c' 
+                                                        variant="standard"
+                                                        value={originatorTag}
+                                                        onchange={handleOriginatorTagForAccountRM}>
+                                                    </lightning-input-field>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="6" flexibility="auto" padding="around-small">
+                                                    <lightning-input-field 
+                                                        field-name='Research__c' 
+                                                        variant="standard"
+                                                        value={researchTag}
+                                                        onchange={handleResearchTagForAccountRM}>
+                                                    </lightning-input-field>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="6" flexibility="auto" padding="around-small">
+                                                    <lightning-input-field 
+                                                        field-name='Instinet__c' 
+                                                        variant="standard"
+                                                        value={instinetTag}
+                                                        onchange={handleInstinetTagForAccountRM}>
+                                                    </lightning-input-field>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="6" flexibility="auto" padding="around-small">
+                                                    <lightning-input-field 
+                                                        field-name='Government_Affiliated__c' 
+                                                        variant="standard"
+                                                        value={governmentAffiliatedTag}
+                                                        onchange={handleGovernmentAffiliatedTagForAccountRM}>
+                                                    </lightning-input-field>
+                                                </lightning-layout-item>
+                                                <template if:true={isLoggedInUserSalesCAO}>
+                                                    <lightning-layout-item size="6" flexibility="auto" padding="around-small">
+                                                        <lightning-input-field 
+                                                            field-name='Dummy__c' 
+                                                            variant="standard"
+                                                            value={dummyTag}
+                                                            onchange={handleDummyTagForAccountRM}>
+                                                        </lightning-input-field>
+                                                    </lightning-layout-item>
+                                                </template>
+                                                
+                                                
+                                                <!--<template if:true={showLifeInsuranceTag} >                                                
+                                                    <lightning-layout-item size="6" flexibility="auto" padding="around-small">
+                                                        <lightning-input-field 
+                                                            field-name='Life_Insurance__c' 
+                                                            variant="standard"
+                                                            value={lifeInsuranceTag}
+                                                            onchange={handleLifeInsuranceTagForAccountRM}>
+                                                        </lightning-input-field>
+                                                    </lightning-layout-item>                                                
+                                                </template> -->
+                                            </lightning-layout>
+                                        </p>
+    
+                                    </lightning-card>
+                                </lightning-layout-item>
+                            
+    
+                                
+                        </lightning-layout>
+                    </lightning-record-edit-form>
+        
+                    <!-- Buttons -->
+                    <div class="slds-text-align_right">
+                        <lightning-button label={previousLabel} title={previousLabel} onclick={handlePreviousClickForAccountRM} 
+                                class="slds-m-left_x-small">
+                        </lightning-button>
+                        <lightning-button variant="brand" label={nextLabel} title={nextLabel} onclick={handleNextClickForAccountRM} 
+                                class="slds-m-left_x-small" disabled={isAccountRMDataInComplete} >
+                        </lightning-button>
+                    </div>
+                </lightning-accordion-section>
+            </template>            
+            <!--SECTION : STEP 3.1: LEGAL (RM) ENTITY DETAILS: END --> 
+    
+            <!-- SECTION : STEP 3.2: ULTIMATE PARENT (RS) ENTITY DETAILS : START -->
+            <template if:true={showUltimateParentEntityDetailsStep}>
+                <lightning-accordion-section name="ultimateParentRSEntitySection" label={ultimateParentEntityDetailsStep}>
+                        
+                    <lightning-layout pull-to-boundary="medium" multiple-rows>
+
+                        <lightning-layout-item size="12" flexibility="auto" padding="around-small">
+                            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error accountSelectionInfo" role="alert" style="text-align: left !important;">
+                                <span class="slds-assistive-text">Info</span>
+                                <span class="slds-icon_container slds-icon-utility-info slds-m-right_x-small" title="Description of icon when needed">
+                                    <lightning-icon icon-name="utility:info" variant="inverse" size="xx-small"></lightning-icon>
+                                </span>
+                                <h2>
+                                    {ultimateParentRSEntitySelectionLabel}
+                                </h2>
+                                <br/>
+                            </div>
+                        </lightning-layout-item>
+                            
+                        
+                        <lightning-layout-item size="6" flexibility="auto" padding="around-small">
+                            <lightning-input
+                                type="search"
+                                label={ultimateParentRSEntityNameLabel}
+                                name="inputtedAccountRSName"
+                                value={inputtedAccountRSName}
+                                onchange={handleInputtedAccountRSName}
+                                is-loading={showAccountRSNameSearchingSpinner}>
+                            </lightning-input>
+                        </lightning-layout-item>
+
+                        <template if:true={isRgReparenting}>
+                            <lightning-layout-item size="4" small-device-size="4" medium-device-size="4" flexibility="auto" padding="horizontal-large">
+                                <div style="margin-left: 10px; margin-top: 12px;" >
+                                    <lightning-combobox
+                                        name="domicilePicklist"
+                                        label="Select Domicile"
+                                        value={domicileValue}
+                                        placeholder="Select domicile"
+                                        options={domicileOptions}
+                                        onchange={handleChangeDomicile} 
+                                        disabled={disableDomicile}
+                                        required></lightning-combobox>
+                                </div>
+                            </lightning-layout-item>
+                        </template>
+
+                        <lightning-layout-item size="6" flexibility="auto" padding="around-small">
+                            <br/>
+                            <template if:true={isCreateProspectRequest}>
+                                <lightning-button label={resetLabel} title={resetAccountRSDescriptionLabel} onclick={handleResetForAccountRS} 
+                                    class="slds-m-left_x-small">
+                                </lightning-button>
+                            </template>
+                        </lightning-layout-item>
+                            
+                        <lightning-layout-item size="12" flexibility="auto" padding="horizontal-small">
+                            
+                            <!-- Account RS Records -->
+                            <div style="height: 200px;">
+                                <lightning-datatable
+                                        column-widths-mode="auto"       
+                                        key-field="Id"
+                                        data={accountRSList}
+                                        columns={accountRSColumns}
+                                        max-row-selection="1"
+                                        selected-rows={selectedAccountRSRecords}
+                                        onrowselection={getSelectedAccountRSRecord}>
+                                </lightning-datatable>
+                            </div>
+
+                        </lightning-layout-item>
+
+                    </lightning-layout>
+
+                    <!-- Buttons -->
+                    <div class="slds-text-align_right ">
+                        <template if:true={isCreateProspectRequest}>
+                        
+                            <template if:true={showClearSelectionForAccountRS}>
+                                <lightning-button label={clearSelectionLabel} title={clearSelectionLabel} onclick={handleClearSelectionForAccountRS} 
+                                    class="slds-m-left_x-small">
+                                </lightning-button>
+                            </template>
+                            <lightning-button label={previousLabel} title={previousLabel} onclick={handlePreviousClickForAccountRS} 
+                                    class="slds-m-left_x-small">
+                            </lightning-button>
+                            <lightning-button variant="brand" label={nextLabel} title={nextLabel} onclick={handleNextClickForAccountRS} 
+                                class="slds-m-left_x-small">
+                            </lightning-button>
+                            
+                        </template>                        
+
+                        <template if:true={isRgReparenting}>
+                            <div class="slds-m-around_small">
+                                <p class="slds-text-align_left "> Selected Accounts for Reparenting</p>
+                                <lightning-pill-container items={pillItems} onitemremove={handlePillItemRemove}></lightning-pill-container>
+                            </div>
+                            
+                            <lightning-button label={clearSelectionLabel} title={clearSelectionLabel} onclick={handleClearSelectionForAccountRS} 
+                                class="slds-m-left_x-small">
+                            </lightning-button>
+
+                            <lightning-button label={Back} title={Back} icon-name="utility:back" 
+                                data-name="cancel" variant="Neutral" onclick={handleBackClick} class="slds-m-left_x-small">
+                            </lightning-button>
+
+                            <lightning-button variant="brand" label={submitLabel} title={submitLabel} onclick={handleSubmitClickForReparenting} 
+                                class="slds-m-left_x-small">
+                            </lightning-button>
+                        </template>
+                    </div>
+                    
+                </lightning-accordion-section>
+            </template>
+            <!-- SECTION : STEP 3.2: ULTIMATE PARENT (RS) ENTITY DETAILS : END -->
+            
+            <!--SECTION : STEP 3.3: FUNCTIONAL GROUP (RG) ENTITY DETAILS: START -->
+            <template if:true={showFunctionalGroupEntityDetailsStep}>
+                <lightning-accordion-section name="functionalGroupRGEntitySection" label={functionalGroupEntityDetailsStep}>
+                    <lightning-layout pull-to-boundary="medium" multiple-rows>
+                    
+                        <lightning-layout-item size="12" flexibility="auto" padding="around-small">
+                            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error accountSelectionInfo" role="alert" style="text-align: left !important;">
+                                <span class="slds-assistive-text">Info</span>
+                                <span class="slds-icon_container slds-icon-utility-info slds-m-right_x-small" title="Description of icon when needed">
+                                    <lightning-icon icon-name="utility:info" variant="inverse" size="xx-small"></lightning-icon>
+                                </span>
+                                <h2>
+                                    {functionalGroupRGEntitySelectionLabel}
+                                </h2>
+                                <br/>
+                            </div>
+                        </lightning-layout-item>
+                    
+                        <lightning-layout-item size="6" flexibility="auto" padding="around-small">
+                            <lightning-input
+                                type="search"
+                                label={functionalGroupRGEntityNameLabel}
+                                name="inputtedAccountRGName"
+                                value={inputtedAccountRGName}
+                                onchange={handleInputtedAccountRGName}
+                                is-loading={showAccountRGNameSearchingSpinner}>
+                            </lightning-input>
+
+                        </lightning-layout-item>
+                        
+                        <template if:true={isRmReparenting}>
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-small">
+                                <c-lookup-Lwc selection={accountSelection} errors={accountError} onsearch={handleAccountSearch} label="Search Ultimate Parent (RS) Account"
+                                    data-field="account" onselectionchange={handleAccountSelection}>
+                                </c-lookup-Lwc>
+        
+                            </lightning-layout-item>
+                        </template>
+
+                        <lightning-layout-item size="12" flexibility="auto" padding="around-small">
+                            
+                            <!-- Account RG Records -->
+                            <div style="height: 200px;">
+                                <lightning-datatable
+                                        column-widths-mode="auto"
+                                        key-field="Id"
+                                        data={accountRGList}
+                                        columns={accountRGColumns}
+                                        max-row-selection="1"
+                                        selected-rows={selectedAccountRGRecords}
+                                        onrowselection={getSelectedAccountRGRecord}
+                                        >
+                                </lightning-datatable>
+                            </div>
+                            
+                        </lightning-layout-item>
+
+                            
+                    </lightning-layout>
+
+                    <!-- Buttons -->
+                    <div class="slds-text-align_right">
+                        <template if:true={isCreateProspectRequest}>
+                            <div class="slds-text-align_right">
+                                <template if:true={showClearSelectionForAccountRG}>
+                                    <lightning-button label={clearSelectionLabel} title={clearSelectionLabel} onclick={handleClearSelectionForAccountRG} 
+                                        class="slds-m-left_x-small">
+                                    </lightning-button>
+                                </template>
+                                <lightning-button label={previousLabel} title={previousLabel} onclick={handlePreviousClickForAccountRG} 
+                                        class="slds-m-left_x-small">
+                                </lightning-button>
+                                <lightning-button variant="brand" label={submitLabel} title={submitLabel} onclick={handleSubmitClick} 
+                                        class="slds-m-left_x-small">
+                                </lightning-button>
+                            </div>
+                        </template>
+    
+                        <template if:true={isRmReparenting}>
+                            <div class="slds-text-align_right slds-m-around_xxx-small">
+                                <div class="slds-m-around_small">
+                                    <p class="slds-text-align_left "> Selected Accounts for Reparenting</p>
+                                    <lightning-pill-container items={pillItems} onitemremove={handlePillItemRemove}></lightning-pill-container>
+                                </div>
+                                <lightning-button label={clearSelectionLabel} title={clearSelectionLabel} onclick={handleClearSelectionForAccountRS} 
+                                    class="slds-m-left_x-small">
+                                </lightning-button>
+    
+                                <lightning-button label={Back} title={Back} icon-name="utility:back" 
+                                    data-name="cancel" variant="Neutral" onclick={handleBackClick} class="slds-m-left_x-small">
+                                </lightning-button>
+    
+                                <lightning-button variant="brand" label={submitLabel} title={submitLabel} onclick={handleSubmitClickForReparenting} 
+                                    class="slds-m-left_x-small">
+                                </lightning-button>
+                            
+                            </div>
+                        </template>
+                    </div>
+                
+                </lightning-accordion-section>
+            </template>
+            <!--SECTION : STEP 3.3: FUNCTIONAL GROUP (RG) ENTITY DETAILS: END --> 
+    
+                
+            
+    </lightning-accordion> 
+
+            
+</template>

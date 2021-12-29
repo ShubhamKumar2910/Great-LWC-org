@@ -1,0 +1,501 @@
+<aura:component controller="CoverageBulkUploadController" implements="lightning:isUrlAddressable,force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:hasSObjectName" access="global">
+    <!-- Page require -->
+    <ltng:require styles="/resource/sldsicons"/>  
+    <ltng:require scripts="{!$Resource.CVGBulkJQueryMinJS}"  afterScriptsLoaded="{!c.jqueryMinLoaded}"/>
+    <ltng:require scripts="{!$Resource.CVGBulkJSZip}"  afterScriptsLoaded="{!c.jsZipLoaded}"/>
+    <ltng:require scripts="{!$Resource.CVGParseCSV}"  afterScriptsLoaded="{!c.papaParseLoaded}"/>
+    <ltng:require scripts="{!$Resource.csvtojson}"  afterScriptsLoaded="{!c.csvtojsonLoaded}"/>
+
+    <!-- Handler -->
+    <aura:handler event="c:TablePaginatorEvent" action="{!c.pageChange}"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" /> 
+    
+    <!-- Attributes -->
+    <aura:attribute name="downloadTemplateId" type="String" />
+    <aura:attribute name="downloadCoverageWithoutProductTemplateId" type="String" />
+    <aura:attribute name="JSONString" type="String" />
+    <aura:attribute name="guid" type="String" />
+    <aura:attribute name="ErrorList" type="BulkUploaderCoverageWrapper" access="global"/>
+    <aura:attribute name="fNumber" type="integer" default="1"/>
+    <aura:attribute name="TNumber" type="integer" default="0"/>
+    <aura:attribute name="index" type="integer" default="0"/>
+    <aura:attribute name="pageSize" type="integer" default="15"/>
+    <aura:attribute name="isCommentAccessible" type="Boolean" default="false" />
+	<aura:attribute name="rgDeleteList" type="RG_Coverage_Request__c[]" access="global"/>
+    <aura:attribute name="rmDeleteList" type="Coverage_Access_Request__c[]" access="global"/>
+    
+    <aura:method name="showToast" action="{!c.showToast}"> 
+        <aura:attribute name="title" type="String"/> 
+        <aura:attribute name="type" type="String" default="success"/> 
+        <aura:attribute name="message" type="String"  default="This is test message."/>
+        <aura:attribute name="mode" type="String"  default="dismissible"/>
+        <aura:attribute name="key" type="String"/>
+    </aura:method>    
+    
+    <aura:attribute name="fromNumber" type="integer" default="0"/>
+    <aura:attribute name="ToNumber" type="integer" default="19"/>
+    <aura:attribute name="totalFailed" type="integer" default="0"/>
+    <aura:attribute name="totalCount" type="integer" default="0"/>
+    <aura:attribute name="totalWarning" type="integer" default="0"/>
+    <aura:attribute name="totalSuccess" type="integer" default="0"/>
+    <aura:attribute name="alertDiv" type="string"/>
+    <aura:attribute name="errorMessageApex" type="string" default="N"/>
+    <aura:attribute name="csvString" type="string" default=""/>
+    <aura:attribute name="displayErrorList" type="CoverageWrapper[]" access="global"/>
+    <aura:attribute name="successList" type="Coverage_Temp__c[]" access="global"/>
+    
+    <!-- aura methods-->
+    <aura:method name="showSpinner" action="{!c.showSpinner}" /> 
+    <aura:method name="hideSpinner" action="{!c.hideSpinner}" /> 
+    <aura:method name="showResult" action="{!c.showResult}" /> 
+    <aura:method name="hideResult" action="{!c.hideResult}" />
+    <aura:method name="showMain" action="{!c.showMain}" /> 
+    <aura:method name="hideMain" action="{!c.hideMain}" />
+    <aura:method name="showValidateButton" action="{!c.showValidateButton}" /> 
+    <aura:method name="hideValidateButton" action="{!c.hideValidateButton}" />
+    <aura:method name="showActionButtons" action="{!c.showActionButtons}" /> 
+    <aura:method name="hideActionButtons" action="{!c.hideActionButtons}" />
+    <aura:method name="OnNext" action="{!c.OnNext}" />
+    <aura:method name="OnPrev" action="{!c.OnPrev}" />
+    <aura:method name="showAlert" action="{!c.showAlert}"> 
+        <aura:attribute name="type" type="String" default="success"/> 
+        <aura:attribute name="text" type="String"  default="This is test message."/>
+    </aura:method>
+    <aura:method name="showPossibleValues" action="{!c.showPossibleValues}"> 
+        <aura:attribute name="recordtype" type="String"/> 
+        <aura:attribute name="fieldName" type="String"/>
+    </aura:method>
+    
+    <aura:method name="hideAlert" action="{!c.hideAlert}"> 
+   
+    </aura:method>
+    
+    <!-- 0. SLDS Spinner -->
+    <div aura:id="spinnerblock" class="slds-spinner_container slds-hide">
+        <div class="slds-spinner--brand slds-spinner slds-spinner--large" aria-hidden="false" role="alert">
+            <div class="slds-spinner__dot-a"></div>
+            <div class="slds-spinner__dot-b"></div>
+        </div>
+    </div>    
+    
+    <aura:dependency resource="markup://force:showToast" type="EVENT" /> 
+
+    <!-- SLDS UI -->
+    <!-- 1. Main Wrapper -->
+    <div aura:id="mainBlock" class="slds-section slds-is-open">
+        <div aria-hidden="false" class="slds-section__content">
+            <div>
+                {!v.alertDiv}
+            </div>
+            <!-- 1.1. File Help and Input -->
+            <div aura:id="mainInput" >
+                <!--<h3 class="slds-section__title slds-theme_info"> class="slds-section slds-is-open"
+                    <span class="slds-truncate slds-p-horizontal_small" title="Coverages Bulk Upload">Coverage Bulk Upload</span>
+                </h3>-->
+                <div aria-hidden="false" class="slds-section__content">
+                    <div class="slds-form slds-form_stacked">
+                        <!-- File Input -->
+                        <div class="slds-form-element">
+                            <span class="slds-form-element__label" id="file-selector-id">&nbsp;Attachment</span>
+                            <div class="slds-form-element__control">
+                                <div class="slds-file-selector slds-file-selector_files">
+                                    <div class="slds-file-selector__dropzone">
+                                        <input type="file" onchange="{! c.loadFile }" aura:id="file-upload-input-01" class="slds-file-selector__input slds-assistive-text" accept=".csv" id="file-upload-input-01" aria-describedby="file-selector-id"/>
+                                        <label class="slds-file-selector__body" for="file-upload-input-01">
+                                            <span class="slds-file-selector__button slds-button slds-button_neutral">
+                                                  <lightning:icon iconName="utility:upload"
+                                                                        size="xx-small"
+                                                                  class="slds-button__icon slds-button__icon_left"/>
+                                                      {!$Label.c.Coverage_File_Upload}
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <button aura:id="validateButton" onclick="{!c.OnValidate}" class="slds-button slds-button_brand slds-hide">{!$Label.c.Coverage_Validate_Button}</button>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+
+
+                        <!-- Help Instructions -->
+                        <div class="slds-form-element">
+                            <div class="slds-form-element__control">
+                                <div class="slds-box slds-theme--shade slds-theme--alert-texture ">
+                                    
+                                    <lightning:layout multipleRows="true">
+                                        <lightning:layoutItem padding="around-small" size="12">
+                                                <lightning:layout>
+                                                    <lightning:layoutItem padding="horizontal-small" size="6">
+                                                            <strong>File requirements</strong> <br/>
+                                                            <label>Upload accepts file only in csv format.</label>
+                                                            <br/>
+                                                            <br/>
+                                                            <label>Download csv template files using below links : </label>
+                                                            <ul class="slds-list_dotted">
+                                                                <li><a style="color:blue;" href="{!v.downloadCoverageWithoutProductTemplateId}" download="true">Without Product</a></li>
+                                                                <li><a style="color:blue;" href="{!v.downloadTemplateId}" download="true">With Product</a></li>
+                                                            </ul>
+                                                            <br/>
+                                                            
+                                                            
+                                                    </lightning:layoutItem>
+                                                    <lightning:layoutItem padding="horizontal-small" size="6">
+                                                            <strong>Additional Guidance</strong> <br/>
+                                                            <ul class="slds-list_dotted">
+                                                                <li>Although you are welcome to have 100+ RG account records in your csv template please limit to no more than 100 record <u>if you encounter processing timeouts while loading the csv</u></li>
+                                                                <li>Please upload requests for a particular salesperson in one single file. Distributing requests for a particular salesperson in different files could result in processing issues</li>
+                                                            </ul>
+                                                    </lightning:layoutItem>
+                                                </lightning:layout>
+                                        </lightning:layoutItem>
+
+
+                                        <lightning:layoutItem padding="horizontal-small" size="12">
+                                            <lightning:layout>
+                                                    <lightning:layoutItem padding="horizontal-small" size="6">
+                                                            <strong>Mandatory Fields</strong> <br/>
+                                                            <label><label style="color:red;">*</label>clientRGKey</label><br/>
+                                                            <label><label style="color:red;">*</label>salesCode</label><br/>
+                                                            <label><label style="color:red;">*</label>role</label><br/>
+                                                            <label><label style="color:red;">*</label>action</label><br/>
+                                                            <br/>
+
+                                                            <strong>Product Specifications</strong> <br/>
+                                                            <label><label style="color:red;">*</label>product mandatory only for <b>Equity</b></label><br/>
+                                                            <label><label style="color:red;">*</label>productGroup, productRegion and productName are mandatory while associating a product</label>
+                                                        </lightning:layoutItem>
+                                                    <lightning:layoutItem padding="horizontal-small" size="6">
+                                                            <strong>Field formats</strong> <br/>
+                                                            <label>fromDate: 'mm/dd/yyyy' (example : '2/21/2016')</label>
+                                                            <br/>
+                                                            <br/>
+
+                                                            <strong>Possible valid values</strong> <br/>
+                                                            <ul class="slds-list_dotted">
+                                                                <li>productGroup                       - Click <a style="color:blue;" onclick="{!c.showProductGroup}">here</a> for possible values.<br/></li>
+                                                                <li>productRegion                       - Click <a style="color:blue;" onclick="{!c.showProductRegions}">here</a> for possible values.<br/></li>
+                                                                <li>productName                      - Click <a style="color:blue;" onclick="{!c.showProductNames}">here</a> for possible values.<br/></li>
+                                                                <li>role                       - Click <a style="color:blue;" onclick="{!c.showRoles}">here</a> for possible values.<br/></li>
+                                                                <!-- Commented for JIRA 3698 <li>{!$Label.c.BulkuploadNFPEType}</li><br/>-->
+                                                                <li>action - Add / Delete<br/></li>
+                                                                <li>includeRestrictedAccounts - For including restricted accounts please specify <b> Yes/Y Or leave blank</b>. Anything else will be considered as not including restricted.</li>
+                                                                <li>attest - For attesting please specify <b>Yes/Y</b>. Anything else will be considered as not attested.</li>
+                                                            </ul>
+                                                    </lightning:layoutItem>
+                                            </lightning:layout>
+                                        </lightning:layoutItem> 
+                                   </lightning:layout>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- JSON Out Text -->
+                        <div class="slds-form-element">
+                            <div id="out" style="color:red;">
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+            <!-- 1.2. Results -->
+            <div aura:id="mainResult" class="slds-section slds-is-open slds-hide">
+                <!-- Data table-->
+                <table class="slds-table slds-table_bordered slds-table_resizable-cols slds-no-row-hover slds-table_fixed-layout" role="grid">
+                        <aura:if isTrue="{!v.displayErrorList.length > 0}">
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th class="slds-is-sortable slds-table_resizable-cols slds-text-title_caps"
+                                        scope="col" width="5%">
+                                        <a href="javascript:void(0);" class="slds-th__action slds-text-link_reset not-active" tabindex="0">
+                                            <span class="slds-assistive-text">Sort </span>
+                                            <span class="slds-truncate" title="{!$Label.c.Coverage_Row_No}">{!$Label.c.Coverage_Row_No}</span>
+                                              <!--<div class="slds-icon_container">
+                                              <c:svgIcon svgPath="/resource/sldsicons/utility-sprite/svg/symbols.svg#arrowdown" class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon">
+                                                </c:svgIcon>
+                                            </div>-->
+                                            <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                        </a>
+                                    </th>
+                                    <th class="slds-is-sortable slds-table_resizable-cols slds-text-title_caps"
+                                        scope="col" width="20%">
+                                        <a href="javascript:void(0);" class="slds-th__action slds-text-link_reset not-active" tabindex="0">
+                                            <span class="slds-assistive-text">Sort </span>
+                                            <span class="slds-truncate" title="{!$Label.c.CVGTOOL_LABEL_ACCOUNT}">{!$Label.c.CVGTOOL_LABEL_ACCOUNT}</span>
+                                            <!--<div class="slds-icon_container">
+                                                <c:svgIcon svgPath="/resource/sldsicons/utility-sprite/svg/symbols.svg#arrowdown" class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon">
+                                                </c:svgIcon>
+                                            </div>-->
+                                            <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                        </a>
+                                    </th>
+                                    <th class="slds-is-sortable slds-table_resizable-cols slds-text-title_caps"
+                                        scope="col">
+                                        <a href="javascript:void(0);" class="slds-th__action slds-text-link_reset not-active" tabindex="2">
+                                            <span class="slds-assistive-text">Sort </span>
+                                            <span class="slds-truncate" title="{!$Label.c.RequestedFor}">{!$Label.c.RequestedFor}</span>
+                                            <!--<div class="slds-icon_container">
+                                                <c:svgIcon svgPath="/resource/sldsicons/utility-sprite/svg/symbols.svg#arrowdown" class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon">
+                                                </c:svgIcon>
+                                            </div>-->
+                                            <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                        </a>
+                                    </th>
+                                    <th class="slds-is-sortable slds-table_resizable-cols slds-text-title_caps"
+                                        scope="col">
+                                        <a href="javascript:void(0);" class="slds-th__action slds-text-link_reset not-active" tabindex="3">
+                                            <span class="slds-assistive-text">Sort </span>
+                                            <span class="slds-truncate" title="{!$Label.c.Coverage_Product_Group}">{!$Label.c.Coverage_Product_Group}</span>
+                                            <!--<div class="slds-icon_container">
+                                                <c:svgIcon svgPath="/resource/sldsicons/utility-sprite/svg/symbols.svg#arrowdown" class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon">
+                                                </c:svgIcon>
+                                            </div>-->
+                                            <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                        </a>
+                                    </th>
+                                    <th class="slds-is-sortable slds-table_resizable-cols slds-text-title_caps"
+                                        scope="col">
+                                        <a href="javascript:void(0);" class="slds-th__action slds-text-link_reset not-active" tabindex="4">
+                                            <span class="slds-assistive-text">Sort </span>
+                                            <span class="slds-truncate" title="{!$Label.c.Coverage_Product_Region}">{!$Label.c.Coverage_Product_Region}</span>
+                                            <!--<div class="slds-icon_container">
+                                               <c:svgIcon svgPath="/resource/sldsicons/utility-sprite/svg/symbols.svg#arrowdown" class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon">
+                                                </c:svgIcon>
+                                            </div>-->
+                                            <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                        </a>
+                                    </th>
+                                    <th class="slds-is-sortable slds-table_resizable-cols slds-text-title_caps"
+                                        scope="col">
+                                        <a href="javascript:void(0);" class="slds-th__action slds-text-link_reset not-active" tabindex="5">
+                                            <span class="slds-assistive-text">Sort </span>
+                                            <span class="slds-truncate" title="{!$Label.c.Coverage_Product_Name}">{!$Label.c.Coverage_Product_Name}</span>
+                                            <!--<div class="slds-icon_container">
+                                               <c:svgIcon svgPath="/resource/sldsicons/utility-sprite/svg/symbols.svg#arrowdown" class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon">
+                                                </c:svgIcon>
+                                            </div>-->
+                                            <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                        </a>
+                                    </th>
+                                    <th class="slds-is-sortable slds-table_resizable-cols slds-text-title_caps"
+                                        scope="col">
+                                        <a href="javascript:void(0);" class="slds-th__action slds-text-link_reset not-active" tabindex="6">
+                                            <span class="slds-assistive-text">Sort </span>
+                                            <span class="slds-truncate" title="{!$Label.c.Coverage_Role}">{!$Label.c.Coverage_Role}</span>
+                                            <!--<div class="slds-icon_container">
+                                               <c:svgIcon svgPath="/resource/sldsicons/utility-sprite/svg/symbols.svg#arrowdown" class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon">
+                                                </c:svgIcon>
+                                            </div>-->
+                                            <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                        </a>
+                                    </th>
+                                    <th class="slds-is-sortable slds-table_resizable-cols slds-text-title_caps"
+                                        scope="col">
+                                        <a href="javascript:void(0);" class="slds-th__action slds-text-link_reset not-active" tabindex="7">
+                                            <span class="slds-assistive-text">Sort </span>
+                                            <span class="slds-truncate" title="{!$Label.c.Coverage_Action}">{!$Label.c.Coverage_Action}</span>
+                                            <!--<div class="slds-icon_container">
+                                                <c:svgIcon svgPath="/resource/sldsicons/utility-sprite/svg/symbols.svg#arrowdown" class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon">
+                                                </c:svgIcon>
+                                            </div>-->
+                                            <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                        </a>
+                                    </th>
+                                    <th class="slds-is-sortable slds-table_resizable-cols slds-text-title_caps"
+                                        scope="col">
+                                        <a href="javascript:void(0);" class="slds-th__action slds-text-link_reset not-active" tabindex="8">
+                                            <span class="slds-assistive-text">Sort </span>
+                                            <span class="slds-truncate" title="{!$Label.c.Coverage_From_Date}">{!$Label.c.Coverage_From_Date}</span>
+                                            <!--<div class="slds-icon_container">
+                                               <c:svgIcon svgPath="/resource/sldsicons/utility-sprite/svg/symbols.svg#arrowdown" class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon">
+                                                </c:svgIcon>
+                                            </div>-->
+                                            <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                        </a>
+                                    </th>
+                                    <th class="slds-is-sortable slds-table_resizable-cols slds-text-title_caps"
+                                    scope="col">
+                                    <a href="javascript:void(0);" class="slds-th__action slds-text-link_reset not-active" tabindex="8">
+                                        <span class="slds-assistive-text">Sort </span>
+                                        <span class="slds-truncate" title="{!$Label.c.Coverage_Include_Restricted_Accounts}">{!$Label.c.Coverage_Include_Restricted_Accounts}</span>
+                                        <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                    </a>
+                                </th>
+                                <th class="slds-is-sortable slds-table_resizable-cols slds-text-title_caps"
+                                scope="col">
+                                <a href="javascript:void(0);" class="slds-th__action slds-text-link_reset not-active" tabindex="8">
+                                    <span class="slds-assistive-text">Sort </span>
+                                    <span class="slds-truncate" title="Attest">Attest</span>
+                                    <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                </a>
+                                </th>
+                                    <aura:renderIf isTrue="{!equals(v.isCommentAccessible,true)}">
+                                        <th class="slds-is-sortable slds-table_resizable-cols slds-text-title_caps"
+                                            scope="col">
+                                            <a href="javascript:void(0);" class="slds-th__action slds-text-link_reset not-active" tabindex="8">
+                                                <span class="slds-assistive-text">Sort </span>
+                                                <span class="slds-truncate" title="{!$Label.c.CVGTOOL_Comment}">{!$Label.c.CVGTOOL_Comment}</span>
+                                                <!--<div class="slds-icon_container">
+                                               <c:svgIcon svgPath="/resource/sldsicons/utility-sprite/svg/symbols.svg#arrowdown" class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon">
+                                                </c:svgIcon>
+                                            </div>-->
+                                                <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                            </a>
+                                        </th>
+                                    </aura:renderIf>
+                                    <th class="slds-is-sortable slds-table_resizable-cols slds-text-title_caps"
+                                        scope="col">
+                                        <a href="javascript:void(0);" class="slds-th__action slds-text-link_reset not-active" tabindex="9">
+                                            <span class="slds-assistive-text">Sort </span>
+                                            <span class="slds-truncate" title="{!$Label.c.Coverage_Validation_Status}">{!$Label.c.Coverage_Validation_Status}</span>
+                                            <!--<div class="slds-icon_container">
+                                                <c:svgIcon svgPath="/resource/sldsicons/utility-sprite/svg/symbols.svg#arrowdown" class="slds-icon slds-icon_x-small slds-icon-text-default slds-is-sortable__icon">
+                                                </c:svgIcon>
+                                            </div>-->
+                                            <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                        </a>
+                                    </th>
+                                    
+                                    
+                                </tr>
+                                <!--<tr class="slds-line-height_reset">
+                                    <th class="slds-is-sortable slds-table_resizable-cols slds-text-title_caps slds-th__action slds-text-link_reset"
+                                        scope="col">RG KEY</th>
+                                    <th class="slds-text-title_caps"
+                                        scope="col">RM KEY</th>
+                                    <th class="slds-text-title_caps"
+                                        scope="col">SALES CODE</th>
+                                    <th class="slds-text-title_caps"
+                                        scope="col"><span class="slds-truncate">PRODUCT GROUP</span></th>
+                                    <th class="slds-text-title_caps"
+                                        scope="col"><span class="slds-truncate">PRODUCT REGION</span></th>
+                                    <th class="slds-text-title_caps"
+                                        scope="col"><span class="slds-truncate">PRODUCT NAME</span></th>
+                                    <th class="slds-text-title_caps"
+                                        scope="col">ROLE</th>
+                                    <th class="slds-text-title_caps"
+                                        scope="col">ACTION</th>
+                                    <th class="slds-text-title_caps"
+                                        scope="col">FROM DATE</th>
+                                    <th class="slds-text-title_caps"
+                                        scope="col">STATUS</th>
+                                </tr>-->
+                            </thead>
+                            <tbody>
+                                <aura:iteration var="row" items="{!v.displayErrorList}" indexVar="i">
+                                    <tr class="slds-hint-parent">
+                                        <td role="gridcell"  data-label="rowNumber" width="5%">
+                                            <div class="slds-truncate" title="{!row.rowNumber}">{!row.rowNumber}</div>       
+                                        </td>
+                                        <td role="gridcell"  data-label="clientName" width="15%">
+                                            <div class="slds-truncate" title="{!row.clientName}">{!row.clientName}</div>       
+                                        </td>                                   
+                                        <td role="gridcell" data-label="salesPerson">
+                                            <div class="slds-truncate" title="{!row.salesPerson}">{!row.salesPerson}</div>
+                                        </td>                                        
+                                        <td role="gridcell" data-label="productGroup">
+                                            <div class="slds-truncate" title="{!row.productGroup}">{!row.productGroup}</div>
+                                        </td>
+                                        <td role="gridcell" data-label="productRegion">
+                                            <div class="slds-truncate" title="{!row.productRegion}">{!row.productRegion}</div>
+                                        </td>
+                                        <td role="gridcell" data-label="productName">
+                                            <div class="slds-truncate" title="{!row.productName}">{!row.productName}</div>
+                                        </td>
+                                        <td role="gridcell" data-label="role">
+                                            <div class="slds-truncate" title="{!row.role}">{!row.role}</div>
+                                        </td>
+                                        <td role="gridcell" data-label="action">
+                                            <div class="slds-truncate" title="{!row.action}">{!row.action}</div>
+                                        </td>
+                                        <td role="gridcell" data-label="fromDate">
+                                            <div class="slds-truncate" title="{!row.fromDate}">{!row.fromDate}</div>
+                                        </td>
+                                        <td role="gridcell" data-label="fromDate">
+                                            <div class="slds-truncate" title="{!row.includeRestrictedAccounts}">{!row.includeRestrictedAccounts}</div>
+                                        </td>
+                                        <td role="gridcell" data-label="isAttested">
+                                            <div class="slds-truncate" title="{!row.isAttested}">{!row.isAttested}</div>
+                                        </td>
+                                        <aura:renderIf isTrue="{!equals(v.isCommentAccessible,true)}">
+                                            
+                                            <td role="gridcell" data-label="UserComments">
+                                                <div class="slds-truncate" title="{!row.Comments}">{!row.Comments}</div>
+                                            </td>
+                                        </aura:renderIf>
+                                        <aura:if isTrue="{!equals(row.errorType,'error')}">
+                                            <td role="gridcell" class="error" data-label="errorMessage">
+                                                <div class="slds-truncate" title="{!row.errorMessage}">{!row.errorMessage}</div>
+                                            </td>
+                                        </aura:if>
+                                       
+                                        <aura:if isTrue="{!equals(row.errorType,'warning')}">
+                                            <td role="gridcell" class="warning" data-label="errorMessage">
+                                                <div class="slds-truncate" title="{!row.errorMessage}">{!row.errorMessage}</div>
+                                            </td>
+                                        </aura:if>
+                                       
+                                        <aura:if isTrue="{!equals(row.errorType,'success')}">
+                                            <td role="gridcell" class="success" data-label="errorMessage">
+                                                <div class="slds-truncate" title="{!row.errorMessage}">{!row.errorMessage}</div>
+                                            </td>
+                                        </aura:if>
+                                       
+                                        <!--<td role="gridcell" data-label="errorMessage">
+                                            <div class="slds-truncate" title="{!row.errorMessage}">{!row.errorMessage}</div>
+                                        </td>-->
+                                         
+                                        <!--<th scope="row" data-label="RMKey" >{!row.clientKey}</th>
+                                                <td role="gridcell" data-label="SALESCODE">{!row.salesCode}</td>
+                                                <td role="gridcell" data-label="PRODGROUP">{!row.productGroup}</td>
+                                                <td role="gridcell" data-label="PRODREGION">{!row.productRegion}</td>
+                                                <td role="gridcell" data-label="PRODNAME">{!row.productName}</td>
+                                                <td role="gridcell" data-label="ROLE">{!row.role}</td>
+                                                <td role="gridcell" data-label="ACTION">{!row.action}</td>
+                                                <td role="gridcell" data-label="FROMDATE">{!row.fromDate}</td>
+                                                <td role="gridcell" class="{!row.errorType == 'error'?'error':'success'}" data-label="ERROR">{!row.errorMessage}</td>-->
+                                    </tr>  
+                                </aura:iteration>
+                            </tbody>
+                        </aura:if>
+                    </table>
+                <div style="text-align:right;">
+                    <c:TablePaginator fromNumber="{!v.fNumber}" ToNumber="{!v.TNumber}" total="{!v.totalCount}"/>
+                </div>
+            </div>
+            
+            <!-- 1.3. Buttons -->
+            <div aura:id="mainButtons" class="slds-section slds-is-open slds-hide" style="margin:-49px 0px 10px 0px">
+                <div aria-hidden="false" class="slds-section__content">
+                    <button onclick="{!c.refresh}" class="slds-button slds-button_brand">{!$Label.c.Coverage_Back_Button}</button>
+                    
+                    <aura:if isTrue="{!greaterthan(v.ErrorList.totalFailed,0)}">
+                        <button onclick="{!c.downloadCSV}"  class="slds-button slds-button_destructive">{!$Label.c.Coverage_Export_Button} ({!v.totalFailed})</button>
+                    </aura:if>
+                    <aura:if aura:id="partialBtn" isTrue="{!and(greaterthan(v.totalSuccess,0),lessthan(v.totalSuccess,v.totalCount))}">
+                        <button onclick="{!c.submitData}" class="slds-button slds-button_success">{!$Label.c.Coverage_Partial_Button} ({!v.totalSuccess})</button>
+                    </aura:if>
+                    <aura:if aura:id="SuccessBtn" isTrue="{!and(equals(v.totalSuccess,v.totalCount),greaterthan(v.totalSuccess,0))}">
+                        <button onclick="{!c.submitData}" class="slds-button slds-button_success">{!$Label.c.Coverage_Submit_Button} ({!v.totalSuccess})</button>
+                    </aura:if>
+                    
+                    
+                    
+                </div>
+                <div>
+                    <br/>
+                    <div class = "legendClass success" /><label class="legendLabels">{!$Label.c.Coverage_Success_Legend}</label>
+                    <div class = "legendClass error" /><label class="legendLabels">{!$Label.c.Coverage_Error_Legend}</label>
+                    <div class = "legendClass warning" /><label class="legendLabels">{!$Label.c.Coverage_Info_Legend}</label>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</aura:component>

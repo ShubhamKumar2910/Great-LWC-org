@@ -1,0 +1,76 @@
+<template>
+    <lightning-card>
+        <div class="slds-var-p-around_medium slds-grid slds-grid_vertical">
+            
+            <div  class="slds-col slds-p-vertical_x-small">
+                <div class="slds-grid">
+                    <div class="slds-medium-size_3-of-5">
+                        <lightning-textarea name="emailAddresses" label="Email Address" placeholder="Email Addresses..."></lightning-textarea>
+                    </div>
+                    <div class="slds-m-left_x-large">
+                        <lightning-combobox
+                            name="batchSizeCombobox"
+                            label={batchSizeLabel}
+                            value={batchSize}
+                            options={options}
+                            onchange={handleChange}>
+                        </lightning-combobox>    
+                    </div>
+                </div>    
+            </div>
+
+            <div class="slds-col slds-p-vertical_x-small slds-medium-size_3-of-5">
+                <c-lookup-Lwc errors={rgAccountError} onsearch={handleSearch} label={rgAccountLabel} placeholder={searchAccPlaceholder}
+                    data-field="rgAccount">
+                </c-lookup-Lwc>    
+            </div>
+
+            <div class="slds-col slds-p-vertical_x-small slds-medium-size_3-of-5">
+                <c-lookup-Lwc errors={rmAccountError} onsearch={handleSearch} label={rmAccountLabel} placeholder={searchAccPlaceholder}
+                   data-field="rmAccount">
+                </c-lookup-Lwc>     
+            </div>
+
+            <div  class="slds-col slds-p-vertical_x-small">
+                <div class="slds-grid">
+                    <div class="slds-medium-size_3-of-5">
+                        <c-lookup-Lwc errors={accountError} onsearch={handleSearch} onclick={handleSearch} label={accountLabel} placeholder={searchAccPlaceholder}
+                            data-field="account">
+                        </c-lookup-Lwc>
+                    </div>
+                    <div class="slds-m-left_x-large">
+                        <lightning-combobox
+                            name="operationCombobox"
+                            label={podOperationLabel}
+                            value={podOperation}
+                            options={operationOptions}
+                            onchange={handleOperationChange}>
+                        </lightning-combobox>    
+                    </div>
+                </div>    
+            </div>
+
+            <div class="slds-col slds-p-vertical_small">
+                <lightning-button variant="brand" label="Submit" title="Submit request" onclick={handleSubmit} class="slds-m-left_x-small"></lightning-button>
+            </div>
+
+            <div if:true={Spinner} class="slds-spinner_inline">
+                <lightning-spinner variant="brand" 
+                                   alternative-text="Loading Cases"     
+                                   size="medium">
+                </lightning-spinner>
+            </div>
+
+            <div  if:false={Spinner} class="slds-col slds-m-bottom_xx-large" style="height:400px; overflow: hidden;" data-field="datatable">
+                <lightning-datatable
+                    key-field="contactEmail"
+                    data={data}
+                    columns={columns}
+                    hide-checkbox-column
+                >
+                </lightning-datatable>
+            </div>
+
+        </div>
+    </lightning-card>
+</template>

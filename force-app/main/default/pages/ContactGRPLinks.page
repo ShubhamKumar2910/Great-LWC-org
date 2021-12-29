@@ -1,0 +1,45 @@
+<apex:page standardController="Contact" extensions="ContactGRPLinksController" >
+    <apex:includeScript value="/support/console/29.0/integration.js"/>
+    
+    <script type="text/javascript">
+        function resendGRPIDAndPassword()
+        {
+            var coverageURL = '{!urlCoverage}';
+            window.open(coverageURL,"_blank","width=350,height=50,location=no,menubar=no,scrollbars=no,status=no,toolbar=no,titlebar=no,resizable=no");
+        }
+        
+        function openGRPResearchSubscriptions()
+        {
+            var grpResearchSubUrl = '{!grpResearchSubUrl }';
+            window.open(grpResearchSubUrl ,"_blank");
+        }
+        
+            
+    </script>
+    
+    <style type="text/css">
+        .column1 {
+            width: 26.1%;
+            text-align:center;
+            font-family: Arial,Helvetica,sans-serif;
+            font-size: 90%;
+            color: #000;
+        }
+    </style>
+
+    <apex:panelGrid columns="1" columnClasses="column1" rendered="{!Contact.GRP_Access__c && ($Profile.Name != 'Nomura - Compliance')}">
+    
+    
+        <a onclick="resendGRPIDAndPassword();" href="javascript:;" style="padding-right:20px;" >
+            Resend GRP ID and Password
+        </a>
+        
+        <a onclick="openGRPResearchSubscriptions();" href="javascript:;">
+            GRP Research Subscriptions
+        </a>
+        
+        
+    </apex:panelGrid>
+    
+     
+</apex:page>

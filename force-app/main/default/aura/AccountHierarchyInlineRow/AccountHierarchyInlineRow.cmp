@@ -1,0 +1,36 @@
+<aura:component >
+    <aura:attribute name="pos" type="ObjectStructureMap" />
+    <aura:attribute name="expandedFlag" type="boolean" default="true" />
+    <aura:attribute name="expandedClass" type="string" default="slds-is-expanded" />
+    <aura:attribute name="expandedSiblingGroup" type="string" default="true" />
+    <aura:attribute name="buttonClass" type="string" />
+    <aura:attribute name="nameStyle" type="string" default="" />
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    
+    <aura:registerEvent name="inlineAccountHierarchyRowEvent" type="c:AccountHierarchyInlineRowEvent"/>
+    <aura:handler event="c:AccountHierarchyInlineRowEvent" action="{!c.handleInlineAccountHierarchyRowEvent}"/>
+    
+    <li id="{!v.pos.nodeId}" role="treeitem" aria-level="{!v.pos.level}" class="{!v.expandedClass}">
+        <div class="slds-tree__item ">
+            <button onclick="{!c.expandContractRow}" data-nodeId="{!v.pos.nodeId}" class="{!v.buttonClass}">
+                <aura:if isTrue="{!v.expandedFlag}">
+                    <lightning:icon iconName="utility:chevrondown" size="x-small"/>
+                    <aura:set attribute="else">
+                        <lightning:icon iconName="utility:chevronright" size="x-small"/>
+                    </aura:set>
+                </aura:if> 
+                <span class="slds-assistive-text">{!$Label.c.Toggle_Text}</span>
+            </button>
+            <div class="slds-grid" style="cursor:default;">
+                <div class="slds-col">
+                    <a onclick="{!c.navigateToRecord}" data-recordId="{!v.pos.account.Id}" tabindex="-1" role="presentation" class="slds-p-horizontal--medium slds-truncate" style="{!v.nameStyle + 'color:#0070d2;'}">
+                        {!v.pos.account.Name}&nbsp;{!v.pos.account.Local_Company_Name__c}&nbsp;({!v.pos.account.RDM_Org_ID__c})&nbsp;{!v.pos.account.BillingCountry} &nbsp;<aura:if isTrue="{!v.pos.account.Active__c}"><aura:set attribute="else"><b> - INACTIVE</b></aura:set></aura:if>
+                    </a>
+                </div>
+                <div class="slds-col slds-p-horizontal--small slds-text-body--small slds-text-color--weak slds-truncate" style="{!v.nameStyle}">{!v.pos.account.Type}</div>
+                <div class="slds-col slds-p-horizontal--small slds-text-body--small slds-text-color--weak slds-truncate" style="{!v.nameStyle}">{!v.pos.account.Industry}</div>
+                <div class="slds-col slds-p-horizontal--small slds-text-body--small slds-text-color--weak slds-truncate" style="{!v.nameStyle}">{!v.pos.account.Site}</div>
+            </div>                                                                                                                                                                                        
+        </div>
+    </li>
+</aura:component>

@@ -1,0 +1,18 @@
+<aura:component implements="lightning:isUrlAddressable,force:appHostable" access="global">
+
+    <aura:attribute type="String" name="recordId"/>
+    <aura:attribute type="String" name="objectApiName"/>
+    
+    <!--
+        Workaround to clear cached filters on LWC component = Current Date & Time
+        trigger 
+    -->
+    <aura:attribute type="String" name="now" /> 
+
+    <aura:attribute name="pageReference" type="Object"/>
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+
+    <c:activityFinder recordIdParam="{!v.recordId}" objectApiNameParam="{!v.objectApiName}" nowParam="{!v.now}" />
+
+</aura:component>

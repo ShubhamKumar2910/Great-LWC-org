@@ -1,0 +1,123 @@
+<template>
+    <!--Spinner-->
+    <lightning-spinner alternative-text="Loading" size="large" variant="brand" class="slds-hide" data-field="spinner">
+    </lightning-spinner>
+    
+    <!--Filter Panel-->
+    <div class="slds-box slds-theme_default" style="float: right; width: 300px;height:1050px; margin-bottom:50px; margin-left:10px;">
+        <div class="slds-m-bottom_x-small">
+            <lightning-button label={applyBtnLabel} title={applyBtnLabel} icon-name="utility:check" variant="brand" onclick={handleApply}>
+            </lightning-button>
+            <lightning-button label={clearBtnLabel} title={clearBtnLabel} icon-name="utility:undo" variant="neutral" onclick={handleClear}
+                class="slds-m-left_xx-small">
+            </lightning-button>
+        </div>
+        <div>
+            <lightning-radio-group type="button" label={groupByLabel} name="groupBySelection" value={cvgGroupByValue}
+                class="slds-m-bottom_x-small" options={cvgGroupByOptions} onchange={handleGroupByChange}>
+            </lightning-radio-group>
+        </div>
+        <template if:true={isCvgGroupByPOD}>
+            <div>
+                <c-lookup-Lwc errors={rgAccountError} onsearch={handleSearch} label={rgAccountLabel} placeholder={searchAccPlaceholder}
+                data-field="rgAccount" is-multi-entry="true">
+                </c-lookup-Lwc>
+            </div>
+            <div>
+                <c-lookup-Lwc errors={rmAccountError} onsearch={handleSearch} label={rmAccountLabel} placeholder={searchAccPlaceholder}
+                data-field="rmAccount" is-multi-entry="true">
+                </c-lookup-Lwc>
+            </div>
+        </template>
+        <div>
+            <c-lookup-Lwc errors={accountError} onsearch={handleSearch} onclick={handleSearch} label={accountLabel} placeholder={searchAccPlaceholder}
+                data-field="account" is-multi-entry="true">
+            </c-lookup-Lwc>
+        </div>
+        <div>
+            <c-lookup-Lwc id="salesperson_lookup" errors={salespersonError} onsearch={handleSearch} label={salespersonLabel}
+                placeholder={searchSalesPersonPlaceholder} data-field="salesperson" is-multi-entry="true" help-text={showSalespersonHelpText}
+                help-text-msg={salespersonHelpTextMsg} show-title-with-subtitle=true>
+            </c-lookup-Lwc>
+        </div>
+        <div>
+            <lightning-input type="date" label={startDateLabel} value={coverageStartDate} onchange={handleStartDateChange}>
+            </lightning-input>
+        </div>
+        <template if:true={showProducts}>
+            <template if:false={isEQUser}>
+                <br/>
+                <div>
+                    <label class="slds-form-element__label">{showProductsLabel}</label>
+                    <lightning-input type="toggle" label={productLabel} name="productCB" variant="label-hidden" message-toggle-active=""
+                        message-toggle-inactive="" onchange={toggleProductVisibility} checked={showAllProductFields}
+                        class="slds-m-bottom_small" disabled={disableProductToggle}>
+                    </lightning-input>
+                </div>
+            </template>
+            <template if:true={showAllProductFields}>
+                <div>
+                    <lightning-combobox label={productGroupLabel} value={productGroupValue} placeholder={pleaseSelectPlaceholder}
+                        options={productGroupValues} onchange={fetchProductRegionValue}>
+                    </lightning-combobox>
+                </div>
+                <div>
+                    <lightning-combobox label={productRegionLabel} value={productRegionValue} placeholder={pleaseSelectPlaceholder}
+                        options={productRegionValues} disabled={disableProductRegionList} onchange={fetchProductValue}>
+                    </lightning-combobox>
+                </div>
+                <div>
+                    <c-multi-select-picklist displaypicklist={showAllProductFields} picklistlabel={productLabel} values={productValues} disabled={disableProductList}>
+                    </c-multi-select-picklist>
+                </div>
+            </template>
+        </template>
+        <div>
+            <lightning-combobox label={roleLabel} value={roleValue} placeholder={pleaseSelectPlaceholder}
+                options={roleValues} onchange={handleRoleChange}>
+            </lightning-combobox>
+        </div>
+        <template if:false={isCvgGroupByPOD}>
+            <template if:true={showAttestation}>
+                <div>
+                    <br />
+                    <lightning-input type="checkbox" label={attestPrimaryCvgLabel} name="attest_primary_coverage"
+                        checked={attestPrimaryCoverage_checkStatus} onchange={handleAttestPriCovChange}>
+                    </lightning-input>
+                </div>
+            </template>
+        </template>
+    </div>
+
+    <!--Header-->
+    <div style="overflow: hidden;">
+        <lightning-card variant="narrow" icon-name="standard:record_create">
+            <h1 slot="title">{addCvgLabel}</h1>
+            <div slot="actions">
+                <lightning-button label={cancelLabel} title={cancelLabel} icon-name="utility:close" variant="Neutral" onclick={handleCancel}>
+                </lightning-button>
+                <lightning-button label={removeLabel} title={removeLabel} icon-name="utility:delete" variant="destructive"
+                    disabled={removeBtnDisable} class="slds-m-left_xx-small" onclick={handleRemove}>
+                </lightning-button>
+                <lightning-button label={saveLabel} title={saveLabel} icon-name="utility:save" variant="brand" disabled={saveBtnDisable}
+                    class="slds-m-left_xx-small" onclick={handleSave}>
+                </lightning-button>
+            </div>
+        </lightning-card>
+    </div>
+
+    <!--Datatable-->
+    <div class="slds-m-bottom_xx-large" style="height:1000px; overflow: hidden;" data-field="datatable">
+        <lightning-datatable
+            key-field="id"
+            data={data}
+            columns={columns}
+            selected-rows={selectedRows}
+            sorted-by={sortBy}
+            sorted-direction={sortDirection}
+            onsort={doSorting}
+            onrowselection={getSelectedRowData}>
+        </lightning-datatable>
+    </div>
+    <div style="clear:both;"></div>
+</template>

@@ -1,0 +1,7 @@
+<aura:component controller="SubmitFinalOnbReqController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"
+                access="global">
+    <aura:attribute name="recordId" type="String" default=""/>
+    <aura:attribute name="campaignId" type="String" default=""/>
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+    <lightning:navigation aura:id="navService"/>
+</aura:component>

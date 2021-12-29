@@ -1,0 +1,23 @@
+<!--
+**	Author 		: Pravin Kundal
+**	Company 	: Nomura
+**	Description : The VF Page to capture the list of SCH Request IDs as  List button only
+**                support VF pages and not Lighting Components
+**                This VF page cptures the list of IDs and passes to the flow to add comments on SCH Requests  
+-->
+<apex:page standardController="SCH_Request__c" standardStylesheets="false" sidebar="false" docType="html-5.0"
+    action="{!initAddCommentAction}" recordSetVar="schReq" extensions="SchRequestCaptureSelIdsVFController" lightningStylesheets="true">
+    
+    <apex:slds />
+    <div class="slds-text-heading_medium slds-text-align_center">
+        <apex:outputText value="Update SCH Requests" />
+    </div>
+    <br/>
+    <flow:interview name="SCH_Request_Bulk_Update_Flow" finishLocation="{!finishLocation}" buttonLocation="bottom"
+            buttonStyle="background-color: #0070d2; color: #fff;">
+        <apex:param name="SchReqIdList" value="{!SelectedSchReqIDs}" />
+        <apex:param name="actionPerformed" value="{!bulkAction}" />
+        <apex:param name="listViewDevName" value="{!listViewDevName}" />
+    </flow:interview>
+    
+</apex:page>

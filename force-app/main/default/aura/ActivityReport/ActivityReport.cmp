@@ -1,0 +1,31 @@
+<aura:component controller="ActivityReportController"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global">
+    
+    <!-- Attributes -->
+    <aura:attribute name="recordId" type="Id" access="global"/>		
+    <aura:attribute name="reportId" type="String" />
+    <aura:attribute name="ContactReportName" type="String" default="All_Events_for_a_Contact"/>
+    <aura:attribute name="CIReportName" type="String" default="All_CI_Activities_with_Contacts_Report_Xix"/>
+    <aura:attribute name ="ActivityReportName" type="String" default ="New_Activities_with_Contacts_Report_q4i"/>
+    <aura:attribute name="isCapIntro" type="Boolean" default="False"/>
+    <aura:attribute name="whichCall" type="String" default="Contact"/>    
+    <aura:attribute name="reportAccessed" type="String"/>
+    <!-- Methods : Start -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+ 	<aura:method name="navigateToReport" action="{!c.navigateToReport}" />    
+    <!-- Methods : End -->
+    
+    <!-- Report Button -->
+    <aura:if isTrue="{!v.isCapIntro}">
+   
+    <lightning:button variant="brand" label="{!$Label.c.Export_All_CI_Report}" iconName="utility:open" iconposition="left" class="buttonClass" onclick="{!c.navigateToCIReport}"/>
+    <lightning:button variant="brand" label="{!$Label.c.Export_All_Call_Note_Report}" iconName="utility:open" iconposition="left" class="buttonClass" onclick="{!c.navigateToCIActivityReport}"/>
+    
+    <aura:set attribute="else">
+         <lightning:button variant="brand" label="{!$Label.c.Export_All_Event_Report}" iconName="utility:open" iconposition="left" class="buttonClass" onclick="{!c.navigateToReport}"/>
+    </aura:set>
+        </aura:if>
+    
+    
+</aura:component>

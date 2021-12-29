@@ -1,0 +1,134 @@
+<aura:component controller="LookupController" access="global"  implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction">
+    <ltng:require scripts="{!$Resource.LightningLookupJS}" afterScriptsLoaded="{!c.scriptsLoaded}"/>
+    <aura:attribute name="filterDeskCode" type="Boolean" default="false"/>
+    <aura:attribute name="accountCompany" type="string" default=""/>
+    <aura:attribute name="inputDisabled" type="Boolean" default="false"/>
+    <aura:attribute name="charLimit" type="Integer" default="4"   />
+    <aura:attribute name="showNomuraEmployee" type="Boolean" default="false"/>
+    <aura:attribute name="allRecords" type="Boolean" default="false"  />
+    <aura:attribute name="sObjectAPIName" type="String"  description="The API name of the SObject to search"/>
+    <aura:attribute name="label" type="String"  description="The label to assign to the lookup, eg: Account"/>
+    <aura:attribute name="pluralLabel" type="String"  description="The plural label to assign to the lookup, eg: Accounts"/>
+    <aura:attribute name="listIconSVGPath" type="String"/>
+    <aura:attribute name="listIconClass" type="String" default="slds-icon-custom-11" description="The SLDS class to use for the icon."/>
+    <aura:attribute name="searchString" type="String" description="The search string to find." />     
+    <aura:attribute name="matches" type="LookupControllerResult[]" description="The resulting matches returned by the Apex controller." />
+    <aura:attribute name="items" type="string[]"  />
+    <aura:attribute name="item" type="string"  />
+    <aura:attribute name="preSelectedIds" type="string[]" description="prepopulate selected values Ids"/>
+    <aura:attribute name="emails" type="string[]" />
+    <aura:attribute name="objectIds" type="string[]" />
+    <aura:attribute name="selmatches" type="LookupControllerResult[]" description="The resulting matches returned by the Apex controller." access="global"/>
+    <aura:attribute name="accountType" type="string[]" />
+    <aura:attribute name="placeholder" type="string" default=""/>
+    <aura:attribute name="tempplaceholder" type="string" default=""/>
+    <aura:attribute name="disabled" type="boolean" default="false"/>
+     <aura:attribute name="showRecentlyView" type="boolean" default="true"/>
+    <aura:attribute name="readonly" type="string" default="false"/>
+    <aura:attribute name="withSharing" type="Boolean" default="false"   access="global"/>
+	<aura:attribute name="uniqueCoverages" type="Boolean" default="false"   access="global"/>
+    <aura:attribute name="splitSalesCode" type="Boolean" default="true"   access="global"/>
+    <aura:attribute name="inactiveCoverages" type="Boolean" default="false"   access="global"/>
+    <aura:attribute name="singleLookupJSON" type="String" default="" access="global" />
+    <aura:attribute name="handleHideListOnMobile" type="Boolean" default="true" access="global" />
+    <aura:attribute name="includeInstinetContact" type="Boolean" default="false" access="global" />
+    <!-- JIRA SALES-2607  -->
+    <aura:attribute name="includeRGWithRMOnly" type="Boolean" default="false"  />
+    <aura:attribute name="showCoveredAccountDetails" type="Boolean" default="false"  />        
+    <aura:attribute name="accountId" type="String" default="null"  />
+    <aura:attribute name="displayInfo" type="Boolean" default="false"  />
+
+    <!-- Events -->
+    <aura:registerEvent name="updateLookupIdEvent" type="c:LookupUpdateEvent"/>    
+    <aura:registerEvent name="clearLookupIdEvent" type="c:LookupClearIdEvent"/>
+    <aura:registerEvent name="itemChange" type="c:LookupChangeItemEvent" />   
+    <aura:registerEvent name="onReset" type="c:LookupResetItemEvent" />   
+    <aura:method name="clearMethod" action="{!c.clear}" access="PUBLIC"/> 
+    <aura:method name="reset" action="{!c.reset}" access="PUBLIC"/> 
+    <aura:method name="doSearch" action="{!c.search}"/>
+    <aura:method name="callPreSelect" action="{!c.preSelectlookupValues}" access="PUBLIC"/>
+   
+    <div class="demo-only">
+        <div class="slds-form-element">
+            <label class="slds-form-element__label" for="lookup">{!v.label}</label>
+            <aura:if isTrue="{!v.displayInfo}">
+                <lightning:helptext iconName="utility:info" style="fill:black !important;" content="This filter will apply on Related To Opportunity and Client Attendees" size="x-small" class="slds-icon-text-default" />
+            </aura:if>
+            
+            <div class="slds-form-element__control">
+                <div class="slds-combobox_container slds-has-inline-listbox">
+                    <div aura:id="toggler" class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click" aria-expanded="false" aria-haspopup="listbox" role="combobox">
+                        <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                            
+                            <div aura:id="lookup-pill">
+                                <aura:renderIf isTrue="{!equals(v.readonly,'false')}">
+                                    <ul>
+                                        <aura:iteration items="{!v.items}" var="item" indexVar="i">
+                                            <li>
+                                                <button data-index="{!i}" data-value="{!item}" onclick="{!c.clear}" class="slds-button slds-button_icon slds-input__icon slds-input__icon_right" title="Remove selected option">
+                                                    <lightning:icon iconName="utility:close" class="slds-button__icon" size="x-small"/>
+                                                    <span class="slds-assistive-text">Remove selected option</span>
+                                                </button>
+                                            </li>
+                                        </aura:iteration>
+                                    </ul>
+                                </aura:renderIf>
+                            </div>
+                            
+                           	<div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+	                           	<ui:inputText aura:id="lookup" 
+	                                          value="{!v.searchString}" 
+	                                          class="slds-input slds-combobox__input" 
+	                                          updateOn="keyup"
+	                                          focus="{!c.getRecentlyViewed}"
+	                                          keyup="{!c.search}"
+	                                          blur="{!c.hideLookupList}"
+	                                          placeholder="{!v.placeholder}"
+	                                          disabled="{!v.disabled}"
+	                            />
+	                            <!-- Do Not show this button on Desktop to avoid any regression, this could be added later on
+	                            	 for Desktop, the logic to andle this button click on Desktop is already handled-->
+	                            <aura:if isTrue="{!$Browser.formFactor == 'PHONE'}">
+	                            	<lightning:buttonIcon onclick="{!c.onClickClose}" iconName="utility:close"  size="medium"  variant="bare" alternativeText="Close" 
+	                            		class="{! if(v.disabled eq true, 'slds-hide', 'slds-show') + 
+	                            			' slds-button slds-button_icon slds-input__icon slds-input__icon_right closeButton'}"/>
+                       			</aura:if>
+	                        </div>
+                        </div>
+                        
+                        <div  role="listbox">
+                            <ul aura:id="lookuplist-items" class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid" role="presentation">
+                                <aura:iteration items="{!v.matches}" var="match" indexVar="j">
+                                    <li role="presentation" class="slds-listbox__item">
+                                        <a id="{!globalId + '_id_' + match.SObjectId}" data-label="{!match.emailAddress}" data-index="{!j}"   role="option" onclick="{!c.select}">
+                                            <span id="listbox-option-unique-id-01" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                <span id="listbox-option-unique-id-01" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                    <span class="slds-media__figure">
+                                                        <span class="slds-icon_container slds-icon-standard-account" title="Description of icon when needed">
+                                                            <lightning:icon iconName="{!v.listIconSVGPath}" class="{!'slds-icon ' + v.listIconClass + ' slds-icon--small'}" size="small"/>                                                            
+                                                        </span>
+                                                    </span>
+                                                    <aura:if isTrue="{!v.sObjectAPIName == 'User'}" >
+                                                    	<span style="padding:4px;">{!match.SObjectLabel} [{!match.emailAddress}]</span>
+                                                    	<aura:set attribute="else" >
+                                                            <span class="slds-media__body">
+                                                        	<span class="slds-listbox__option-text slds-listbox__option-text_entity my-classname">{!match.SObjectLabel}</span>
+                                                            <aura:if isTrue="{!v.sObjectAPIName == 'Contact'}" ><!--JIRA SALES-3050-->
+                                                                <span class="slds-listbox__option-meta slds-listbox__option-meta_entity"> [{!match.metaEntity}]</span>
+                                                            </aura:if>
+                                                            </span>                                                           
+                                                        </aura:set>
+                                                    </aura:if>                                                    
+                                                </span>
+                                            </span>
+                                        </a>    
+                                    </li>
+                                </aura:iteration>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</aura:component>

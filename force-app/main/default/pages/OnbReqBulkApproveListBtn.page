@@ -1,0 +1,23 @@
+<!--
+**	Author 		: Manmeet Singh Sahani
+**	Company 	: Nomura
+**	Description : The VF Page to capture the list of Onboarding Request IDs as List button only
+**                support VF pages and not Lighting Components
+**                This VF page captures the list of IDs and passes to the controller and calls below mentioned flow
+-->
+<apex:page standardController="Onboarding_Request__c" standardStylesheets="false" sidebar="false" docType="html-5.0"
+        action="{!initializeApproveAction}" recordSetVar="OnbReq" extensions="OnbReqCaptureIdsVFController" lightningStylesheets="true">
+    
+        <apex:slds />
+        <div class="slds-text-heading_medium slds-text-align_center">
+            <apex:outputText value="Update Client Onboarding Requests" />
+        </div>
+        <br/>
+    
+        <flow:interview name="Update_Client_Pre_Onboarding_Request" finishLocation="{!finishLocation}" buttonLocation="bottom">
+            <apex:param name="OnbReqIdList" value="{!selectedOnbReqIds}" />
+            <apex:param name="actionPerformed" value="{!bulkAction}" />
+            <apex:param name="source" value="{!source}" />
+        </flow:interview>
+
+</apex:page>

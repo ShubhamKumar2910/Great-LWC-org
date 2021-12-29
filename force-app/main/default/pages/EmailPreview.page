@@ -1,0 +1,202 @@
+<apex:page standardController="Campaign" lightningStylesheets="true" extensions="EmailPreviewController" action="{!initEmailPreview}">
+    <!-- For Service Console -->
+    <apex:includeScript value="/support/console/20.0/integration.js"/>
+    <script type="text/javascript">
+        function setTabTitle() {
+            //Set the current tabs title
+            sforce.console.setTabTitle('{!Campaign.Name}');
+        }
+        var pageLoad = window.onload;
+        window.onload = function() {
+            if (pageLoad) {
+                pageLoad();
+            }
+            setTabTitle();
+        }
+    </script>
+    <style type="text/css">
+        td {
+            vertical-align:top;
+        }
+    </style>
+
+    <style type="text/css">
+html, address,
+blockquote,
+body, dd, div,
+dl, dt, fieldset, form,
+frame, frameset,
+h1, h2, h3, h4,
+h5, h6, noframes,
+ol, p, ul, center,
+dir, hr, menu, pre   { display: block; unicode-bidi: embed }
+li              { display: list-item }
+head            { display: none }
+table           { display: table }
+tr              { display: table-row }
+thead           { display: table-header-group }
+tbody           { display: table-row-group }
+tfoot           { display: table-footer-group }
+col             { display: table-column }
+colgroup        { display: table-column-group }
+td, th          { display: table-cell }
+caption         { display: table-caption }
+th              { font-weight: bolder; text-align: center }
+caption         { text-align: center }
+body            { margin: 8px }
+h1              { font-size: 2em; margin: .67em 0 }
+h2              { font-size: 1.5em; margin: .75em 0 }
+h3              { font-size: 1.17em; margin: .83em 0 }
+h4, p,
+blockquote, ul,
+fieldset, form,
+ol, dl, dir,
+menu            { margin: 1.12em 0 }
+h5              { font-size: .83em; margin: 1.5em 0 }
+h6              { font-size: .75em; margin: 1.67em 0 }
+h1, h2, h3, h4,
+h5, h6, b,
+strong          { font-weight: bolder }
+blockquote      { margin-left: 40px; margin-right: 40px }
+i, cite, em,
+var, address    { font-style: italic }
+pre, tt, code,
+kbd, samp       { font-family: monospace }
+pre             { white-space: pre }
+button, textarea,
+input, select   { display: inline-block }
+big             { font-size: 1.17em }
+small, sub, sup { font-size: .83em }
+sub             { vertical-align: sub }
+sup             { vertical-align: super }
+table           { border-spacing: 2px; }
+thead, tbody,
+tfoot           { vertical-align: middle }
+td              { vertical-align: top }
+th, tr          { vertical-align: inherit }
+s, strike, del  { text-decoration: line-through }
+hr              { border: 1px inset }
+ol, ul, dir,
+menu, dd        { margin-left: 40px }
+ol              { list-style-type: decimal }
+ol ul, ul ol,
+ul ul, ol ol    { margin-top: 0; margin-bottom: 0 }
+u, ins          { text-decoration: underline }
+br:before       { content: "\A"; white-space: pre-line }
+center          { text-align: center }
+:link, :visited { text-decoration: underline }
+:focus          { outline: thin dotted invert }
+ 
+/* Begin bidirectionality settings (do not change) */
+BDO[DIR="ltr"]  { direction: ltr; unicode-bidi: bidi-override }
+BDO[DIR="rtl"]  { direction: rtl; unicode-bidi: bidi-override }
+ 
+*[DIR="ltr"]    { direction: ltr; unicode-bidi: embed }
+*[DIR="rtl"]    { direction: rtl; unicode-bidi: embed }
+ 
+@media print {
+  h1            { page-break-before: always }
+  h1, h2, h3,
+  h4, h5, h6    { page-break-after: avoid }
+  ul, ol, dl    { page-break-before: avoid }
+}
+    </style>
+
+
+    <apex:form >
+        <apex:pageBlock title="{!$Label.EmailPreview}" >
+            <apex:outputText style="color: red; font-weight: bold; font-size: medium" escape="false" value="{!$Label.MassEmailAttachmentWarning}" rendered="{!EmailAttachments.size > 0 && CanBeChanged}"></apex:outputText>
+            <apex:pageMessages />
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!previewToSelf}" value="{!$Label.PreviewToSelf}" rendered="{!(!CanCopyReceiverBeEdited)}"/>
+                <apex:commandButton action="{!goBackToPreviousPage}" value="{!$Label.Back}"/>
+                <!-- <apex:commandButton action="{!saveOnly}" value="{!$Label.SaveOnly}" rendered="{!CanBeChanged}"/> -->
+                <apex:commandButton action="{!goBackToCampaign}" value="{!$Label.Cancel}" rendered="{!CanBeChanged}"/>
+                <apex:commandButton action="{!registerToSend}" value="{!$Label.RegisterToSend}" rendered="{!CanBeChanged && !CanCopyReceiverBeEdited}" onclick="if(!window.confirm('{!$Label.Confirmation_Before_Sending}')){return false;}" />
+              <!-- SALES-2490 -->
+              <br/>
+              <br/>
+              <div align="right" draggable="false" >
+                <apex:outputText style="font-weight:800" >{!$Label.Receiver}</apex:outputText>
+                <apex:outputText style="small" rendered="{!(!CanCopyReceiverBeEdited)}">{!PreviewReceiverDispName}</apex:outputText>
+                <apex:selectList value="{!PreviewReceiverId}" rendered="{!CanCopyReceiverBeEdited}" size="1">
+                  <apex:selectOptions value="{!PreviewReceiversSelectOptions}"/>
+                </apex:selectList>  
+                <apex:commandLink action="{!editCopyReceiver}" rendered="{!(!CanCopyReceiverBeEdited)}" value="{!$Label.EditCopyReceiver}"/>
+                <apex:commandLink action="{!confirmCopyReceiver}" rendered="{!CanCopyReceiverBeEdited}" value="OK"/>
+              </div>
+            </apex:pageBlockButtons>
+            <apex:panelGrid columns="2">
+                <apex:pageBlockSection columns="1">
+                    <apex:outputPanel >
+                        <apex:commandButton action="{!goToEditSalutationForEmailPreview}" value="{!$Label.EditSalutation}" rendered="{!CanBeChanged}" />
+                        <apex:commandButton action="{!editCampaignMembers}" value="{!$Label.EditRecipientsAfterSaving}" rendered="{!CanBeChanged}"/>
+                    </apex:outputPanel>
+                    
+                    <apex:panelGrid columns="2" width="100%">
+                        <apex:outputPanel >
+                            <div style="width:100px">
+                                <apex:outputLabel value="{!firstMemberIndex}-{!lastMemberIndex} / {!numberOfMembers}" />
+                            </div>
+                        </apex:outputPanel>
+                        <apex:outputPanel style="float:right;" >
+                            <apex:repeat value="{!memberPageNumberList}" var="num">
+                                <apex:commandLink value="{!num}" rendered="{!num != memberCurrentPageNumber}" action="{!updateCurrentMembers}" >
+                                    <apex:param value="{!num}" name="clickedPageNumber" assignTo="{!memberCurrentPageNumber}" />
+                                </apex:commandLink>
+                                <apex:outputLabel value="{!num}" rendered="{!num == memberCurrentPageNumber}" />
+                                <apex:outputLabel value=" | " rendered="{!num != memberLastPageNumber}" />
+                            </apex:repeat>
+                        </apex:outputPanel>
+                    </apex:panelGrid>
+                    
+                    <apex:selectList value="{!MemberId}" size="30" style="font-size: 8pt;">
+                        <apex:actionSupport event="onchange" action="{!updatePreviewBody}"/>
+                        <apex:selectOptions value="{!MemberSelectOptions}"/>
+                    </apex:selectList>
+                </apex:pageBlockSection>
+    
+                <apex:pageBlockSection columns="1">
+                    <apex:outputText label="{!$Label.Sender}" value="{!PreviewSender}" style="font-size: medium" />
+                    <!--
+                    <apex:outputText label="{!$Label.CC}" value="{!CCName}" />
+                    <apex:outputText label="{!$Label.BCC}" value="{!BCCName}" />
+                    -->
+                    <apex:outputText value="{!campaign.Subject__c}" label="{!$Label.Subject}" style="font-size: medium" />
+                    
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText style="font-weight:800" >{!$Label.EmailBody}</apex:outputText>
+                        <apex:outputPanel layout="block" style="overflow:auto;width:750px;height:500px" >
+                            <apex:outputText label="{!$Label.EmailBody}" value="{!PreviewBody}" escape="false"/>
+                        </apex:OutputPanel>
+                    </apex:pageBlockSectionItem>
+                    
+
+                    <!-- <apex:pageBlockTable value="{!EmailAttachments}" var="item" >
+                        <apex:column value="{!item.name}" headerValue="{!$Label.Attachments}"/>
+                    </apex:pageBlockTable>  -->
+                    
+                    <apex:pageBlockTable value="{!strAllFiles}" var="item" >
+                        <apex:column value="{!item}" headerValue="{!$Label.Attachments}"/>
+                    </apex:pageBlockTable>
+                    
+                    <!--
+                    <apex:panelGrid columns="2" width="100%">
+                        <apex:outputPanel >
+                            <apex:commandButton action="{!goBackToPreviousPage}" value="{!$Label.Back}"/>
+                            <apex:commandButton action="{!saveOnly}" value="{!$Label.SaveOnly}" rendered="{!CanBeChanged}"/>
+                            <apex:commandButton action="{!previewToSelf}" value="{!$Label.PreviewToSelf}"/>
+                            <apex:commandButton action="{!goBackToCampaign}" value="{!$Label.Cancel}" rendered="{!CanBeChanged}"/>
+                        </apex:outputPanel>
+                        <apex:outputPanel >
+                            <div align="right">
+                                <apex:commandButton action="{!registerToSend}" value="{!$Label.RegisterToSend}" rendered="{!CanBeChanged}"/>
+                            </div>
+                        </apex:outputPanel>
+                    </apex:panelGrid>
+                    -->
+                </apex:pageBlockSection>
+            </apex:panelGrid>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

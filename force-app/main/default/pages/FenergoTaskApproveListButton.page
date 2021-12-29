@@ -1,0 +1,14 @@
+<apex:page standardController="Fenergo_Task__c" action="{!setApproveAction}" recordSetVar="fenTasks"
+           standardStylesheets="false" sidebar="false" docType="html-5.0" extensions="FenergoTasksListButtonController" lightningStylesheets="true">
+    
+    <apex:slds />
+    <div class="slds-text-heading_medium slds-text-align_center">
+        <apex:outputText value="Fenergo Task Approval" />
+    </div>
+    <br/>
+    
+    <flow:interview name="Fenergo_Task_Approval" finishLocation="{!finishLocation}" buttonLocation="bottom">
+        <apex:param name="fenergoTaskIds" value="{!selectedFenTaskIds}" />
+        <apex:param name="actionType" value="{!actionName}" />
+    </flow:interview>
+</apex:page>

@@ -1,0 +1,71 @@
+<template>
+    <lightning-card>
+        <template if:false={fenergoStagesExist}>
+            <div class="slds-text-title_caps slds-text-color_weak slds-text-align_center slds-m-around_medium" style="font-size: 14px;">No Fenergo Tasks Found For This Case</div>
+        </template>
+        <template if:true={fenergoStagesExist}>
+            <lightning-tabset>
+                <template for:each={fenergoData} for:item="fenergoStage">
+                    <lightning-tab key={fenergoStage.Id} label={fenergoStage.StageName__c}>
+                        <div class="slds-m-left_small"><div class="slds-text-title_caps">Stage Status: {fenergoStage.StageStatus__c}</div></div>
+                        <lightning-card icon-name="custom:custom29">
+                            <h2 slot="title" style="font-weight: bold;">
+                                <span class="slds-card__header-title slds-truncate slds-m-right--xx-small" title="Fenergo Tasks">Fenergo Tasks </span>
+                                <span class="slds-card__header-title slds-shrink-none slds-m-right--xx-small"> 
+                                    <template if:true={fenergoStage.Fenergo_Tasks__r}>
+                                        ({fenergoStage.Fenergo_Tasks__r.length})
+                                    </template>
+                                    <template if:false={fenergoStage.Fenergo_Tasks__r}>
+                                        (0)
+                                    </template>
+                                </span>   
+                            </h2>
+                            <template if:true={fenergoStage.displayButtons}>
+                                <lightning-button label="Approve" slot="actions" icon-name="utility:like" value="Approve" onclick={displayModal} disabled={isDisabled}></lightning-button>
+                                <lightning-button label="Refer" slot="actions" icon-name="utility:forward_up" value="Refer" onclick={displayModal} disabled={isDisabled}></lightning-button>
+                                <lightning-button label="Cancel" slot="actions" icon-name="utility:close" value="Cancel" onclick={displayModal} disabled={isDisabled}></lightning-button>
+                            </template>
+                            <div slot="footer"></div>
+                            <p class="slds-p-horizontal_small"> 
+                                <template if:true={fenergoStage.Fenergo_Tasks__r}>        
+                                    <lightning-datatable
+                                        key-field="id"
+                                        data={fenergoStage.Fenergo_Tasks__r}
+                                        columns={fenergoTaskColumns}
+                                        max-row-selection=1
+                                        class="fenergoTaskDataTable"
+                                        onrowselection={checkIfAlreadyActioned}
+                                        show-row-number-column
+                                        hide-checkbox-column={fenergoStage.hideCheckbox}>
+                                    </lightning-datatable>
+                                </template>
+                                <template if:false={fenergoStage.Fenergo_Tasks__r}>
+                                    <div class="slds-text-title_caps slds-text-align_center">No Fenergo Tasks Found</div>
+                                </template>
+                            </p>
+                        </lightning-card>
+                    </lightning-tab>
+                </template>
+            </lightning-tabset>
+        </template>
+    </lightning-card>
+    <template if:true={displayCommentsModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+            <div class="slds-modal__container">
+              <header class="slds-modal__header">
+                <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Comments</h2>
+              </header>
+              <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                <p>        
+                    <lightning-textarea name="Comment" required value="" placeholder="type here..." label="Enter your comments" maxlength="1000" message-when-too-long="A maximum of 250 characters are allowed." message-when-value-missing="Comment cannot be empty." class='fenergoCommentArea'></lightning-textarea>
+                </p>
+              </div>
+              <footer class="slds-modal__footer">
+                <button class="slds-button slds-button_neutral" onclick={closeModal}>Cancel</button>
+                <button class="slds-button slds-button_brand" onclick={saveComment}>Save</button>
+              </footer>
+            </div>
+          </section>
+          <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

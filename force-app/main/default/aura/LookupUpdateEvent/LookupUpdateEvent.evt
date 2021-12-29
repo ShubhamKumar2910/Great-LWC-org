@@ -1,0 +1,7 @@
+<aura:event type="APPLICATION" description="Event template">
+    <aura:attribute name="sObjectId" type="Id"  description="Id of selected object"/>
+	<aura:attribute name="Name" type="string"  description="label of selected object"/>
+	<aura:attribute name="objectAPIName" type="string"  description="name of selected object"/>
+    <aura:attribute name="Email" type="string"  description="label of selected object"/>
+   	<aura:attribute name="action" type="string" default="add"  description="name of selected object"/>
+</aura:event>

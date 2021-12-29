@@ -1,0 +1,8 @@
+<design:component >
+	<design:attribute name="object" label="Object"  default="" description="SObject API name"/>
+	<design:attribute name="numberOfFieldsPerColumn" label="Number of fields per column"  min="1"/>
+	<design:attribute name="numberOfColumns" label="Number of columns" min="1"/>
+	<design:attribute name="apiFieldNames" default="" label="Api Field Names"/>
+	<design:attribute name="title" label="Section Label" />
+	<design:attribute name="titleIcon" label="Section Icon" />
+</design:component>

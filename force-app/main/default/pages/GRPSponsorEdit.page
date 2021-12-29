@@ -1,0 +1,71 @@
+<apex:page ></apex:page>
+<!-- SHIELD - START : 
+<apex:page standardController="Contact" extensions="GRPSponsorController" id="page" >
+    <script type="text/javascript">
+        function setTabTitle() {
+            //Set the current tabs title
+            sforce.console.setTabTitle('{!contact.Name}');
+        }
+        var pageLoad = window.onload;
+        window.onload = function() {
+            if (pageLoad) {
+                pageLoad();
+            }
+            setTabTitle();
+        }
+        
+        function noenter(e){
+           if(window.event){
+               key = window.event.keyCode; //IE
+           }
+           else{
+               key = e.which; //firefox
+           }
+           if(key == 13) {
+               var ele=document.getElementById('page:form:pageblock:pageblocksection:searchbutton');
+               ele.click();
+               return false;
+           }
+           else{
+               return true;
+           }
+        }
+            
+    </script>
+
+    <apex:form id="form">
+        <!- - NO GRP ACCESS - ->
+        <apex:pageBlock title="{!$Label.Change_Sponsor}" rendered="{!!contact.GRP_Access__c}">
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!cancel}" value="{!$Label.OK}"/>
+            </apex:pageBlockButtons>
+            <apex:outputText >{!$Label.No_GRP_access}</apex:outputText>
+        </apex:pageBlock>
+
+        <!- - HAS GRP ACCESS - ->
+        <apex:pageBlock id="pageblock" title="{!$Label.Change_Sponsor}" rendered="{!contact.GRP_Access__c}">
+             <apex:pageMessages />
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!save}" value="{!$Label.Save}" />
+                <apex:commandButton action="{!cancel}" value="{!$Label.Cancel}"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection id="pageblocksection" columns="1">
+                <apex:outputPanel >
+                    <apex:inputText value="{!whereClause}" onkeypress="return noenter();" />
+                    <apex:commandButton value="Search" action="{!filterAvailableOptions}" id="searchbutton" />
+                </apex:outputPanel>
+                
+                <apex:selectList value="{!chosenId}" multiselect="false" size="10">
+                    <apex:selectOptions value="{!availableUsers}"/>
+                    <apex:actionSupport event="onclick" action="{!applySponsor}" /> 
+                </apex:selectList>
+                
+                <p/>
+                
+                <apex:inputText value="{!contact.Sponsor_Email_Text__c}" style="width:300px" />
+                <apex:inputText value="{!contact.Sales_Sponsor__c}" style="width:300px" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
+SHIELD - END :  -->

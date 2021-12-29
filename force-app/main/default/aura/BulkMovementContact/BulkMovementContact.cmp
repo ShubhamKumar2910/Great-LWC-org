@@ -1,0 +1,534 @@
+<aura:component controller="BulkMovementContactController"
+    implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,lightning:isUrlAddressable"
+    access="global">
+
+<ltng:require scripts="{!$Resource.CVGParseCSV}"  afterScriptsLoaded="{!c.papaParseLoaded}"/>
+<ltng:require scripts="{!$Resource.csvtojson}"  afterScriptsLoaded="{!c.csvtojsonLoaded}"/>    
+
+<aura:dependency resource="markup://c:ModalDialog"/> 
+
+<!-- Attributes : Start -->
+<aura:attribute name="progressSteps" type="List" />
+<aura:attribute name="currentProgressStep" type="String" />
+<aura:attribute name="relatedToRGAccount" type="String" />
+<aura:attribute name="addressOptions" type="List" />
+<aura:attribute name="accountRMQuery" type="String" default="" />
+<aura:attribute name="transferBy" type="String" default="RM_ACCOUNT" />
+<aura:attribute name="contactPIChangeDisabler" type="Boolean" default="true" />
+<aura:attribute name="uploadFileDisabler" type="Boolean" default="true" />
+<aura:attribute name="availableOptionsList" type="List" default="[]" description="Available Options" />
+<aura:attribute name="selectedAvailableOptionsList" type="List" default="[]" description="Selected Available Options" />
+<aura:attribute name="transferReasonList" type="List" default="[]" />
+<aura:attribute name="transferReason" type="String" />
+<aura:attribute name="movementUnderSameRG" type="Boolean" default="false" />
+<aura:attribute name="movementUnderSameRM" type="Boolean" default="false" />
+<!-- <aura:attribute name="accountRegionDifferent" type="Boolean" default="false" /> -->
+<aura:attribute name="isExceptionalAccount" type="Boolean" default="false" />
+
+<aura:attribute name="campaignRecordId" type="String" />
+
+<aura:attribute name="sourceDataPresent" type="Boolean" default="false" />
+<aura:attribute name="sourceRMAccountArr" type="String[]" />
+<aura:attribute name="sourceContactArr" type="String[]" />
+<aura:attribute name="destinationRGAccountId" type="String" />
+<aura:attribute name="destinationRMAccountId" type="String" />
+<aura:attribute name="showJobInfoDetails" type="Boolean" default="true" />
+
+<aura:attribute name="changedContactPIDataPresentInCampaign" type="Boolean" default="false" />
+<aura:attribute name="fileValidationErrors" type="Boolean" default="false" />
+<aura:attribute name="fileValidationErrorData" type="List" default="[]" />
+<aura:attribute name="uploadContactErrorRows" type="Object"/>
+<aura:attribute name="uploadContactErrorColumns" type="List"/>
+<aura:attribute name="uploadContactErrorTableHeight" type="String" />
+
+<aura:attribute name="validationPassed" type="Boolean" default="false" />
+
+<aura:attribute name="contactDataJSONString" type="String" />
+
+<aura:attribute name="sourceContactData" type="GenericInterface" />
+
+<aura:attribute name="previousJobList" type="GenericInterface" />
+<aura:attribute name="bulkMovementJobStatusRows" type="Object"/>
+<aura:attribute name="bulkMovementJobStatusColumns" type="List"/>
+<aura:attribute name="bulkMovementJobStatusTableHeight" type="String" />
+
+<aura:attribute name="bulkMovementContactInfoText" type="Boolean" default="true" />
+
+<aura:attribute name="loggedInUserLanguage" type="String" />
+<aura:attribute name="recordErrorForUserView" type="String" />
+<aura:attribute name="userViewRecord" type="Object" />
+<aura:attribute name="simpleUserViewRecord" type="Object" />
+    
+<!-- Attributes : End -->
+
+<!-- Default Private Constants : Start -->
+
+<aura:attribute name="transferByRMAccount" type="String" default="RM_ACCOUNT" access="private" />
+<aura:attribute name="transferByContact" type="String" default="CONTACT" access="private" />
+
+<!-- Default Private Constants : End -->
+
+<!-- Methods : Start -->
+<aura:handler name="init" value="{!this}" action="{!c.doInit}"/> 
+<aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+<aura:method name="reInit" action="{!c.reInit}" /> 
+<aura:method name="navigateToHomepage" action="{!c.navigateToHomepage}" /> 
+<aura:method name="performValidationForAccountData" action="{!c.performValidationForAccountData}" /> 
+<aura:method name="performValidationForActivityMovementAndReason" action="{!c.performValidationForActivityMovementAndReason}" />
+<aura:method name="preStep2Tasks" action="{!c.preStep2Tasks}" />
+<aura:method name="preStep3Tasks" action="{!c.preStep3Tasks}" />
+<aura:method name="preFinalStepTasks" action="{!c.preFinalStepTasks}" />
+<aura:method name="showMessage" action="{!c.showMessage}">
+    <aura:attribute name="title" type="String"/> 
+    <aura:attribute name="message" type="String"/> 
+    <aura:attribute name="type" type="String"/> 
+</aura:method>
+
+<!-- Methods : End -->
+
+<!-- Lightning Navigation -->
+<lightning:navigation aura:id="navigationService" />
+
+<force:recordData aura:id="userRecordLoader"
+        recordId="{!$SObjectType.CurrentUser.Id}"
+		fields="Id, Name, User_Language__c"
+        targetRecord="{!v.userViewRecord}"
+        targetFields="{!v.simpleUserViewRecord}"
+        targetError="{!v.recordErrorForUserView}"
+        mode="VIEW"
+        recordUpdated="{!c.handleRecordUpdated}"              
+/>
+    
+<!-- Display Lightning Data Service errors for Account View Record --> 
+<aura:if isTrue="{!not(empty(v.recordErrorForUserView))}"> 
+    <div class="recordError"> 
+        <ui:message title="Error" severity="error" closable="true"> 
+            {!v.recordErrorForUserView} 
+        </ui:message> 
+    </div> 
+</aura:if> 
+
+<!-- Markup -->
+<lightning:spinner aura:id="spinner" variant="brand" class="slds-hide" />
+
+<div style="pointer-events: none;">
+    <lightning:progressIndicator currentStep="{!v.currentProgressStep}" type="path" variant="base">
+        <aura:iteration items="{!v.progressSteps}" var="step">
+            <lightning:progressStep label="{!step.label}" value="{!step.value}"/>
+        </aura:iteration>
+    </lightning:progressIndicator>
+</div>
+
+<br/>
+
+<!-- Step 1 : Start -->
+<div aura:id="contactMovementStep1" class="{!v.currentProgressStep == 'step1' ? 'slds-show' : 'slds-hide'}">
+    
+    <!-- Row 1 -->
+    <div class="slds-grid slds-p-around_x-small">
+        
+        <span class="slds-col slds-grid slds-size_6-of-12">
+            <span style="width: 99%" class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="stacked-input-id-01">{!$Label.c.Move_By}:</label>
+                <div class="slds-form-element__control" for="stacked-input-id-02"> 
+                    <lightning:buttonGroup >
+                        <lightning:button aura:id="transferByRMAccountBtnId" label="{!$Label.c.RMAccount}" name="{#v.transferByRMAccount}" onclick="{!c.handleTransferByClick}"
+                                        iconName="{! if(v.transferBy eq v.transferByRMAccount, 'utility:check', 'utility:add')}" 
+                                        variant="{! if(v.transferBy eq v.transferByRMAccount, 'success', 'neutral')}" />
+
+                        <lightning:button aura:id="transferByContactBtnId" label="{!$Label.c.Contact}" name="{#v.transferByContact}" onclick="{!c.handleTransferByClick}"
+                                iconName="{! if(v.transferBy eq v.transferByContact, 'utility:check', 'utility:add')}" 
+                                variant="{! if(v.transferBy eq v.transferByContact, 'success', 'neutral')}" />	                                                      
+                    </lightning:buttonGroup>
+                </div>
+            </span>
+        </span> 
+
+        <span class="slds-col slds-grid slds-size_1-of-12">
+            &nbsp;
+        </span>
+        
+        <span class="slds-col slds-grid slds-size_5-of-12">
+            <span style="width: 99%">
+                <!-- Showing only Active RG Accounts excluding above selected RG Accounts -->
+                <c:SingleLookup aura:id="lookupDestinationRGAccount"
+                    allRecords="false"
+                    sObjectAPIName="Account"
+                    accountType="RG_Account"
+                    charLimit="2"
+                    withSharing="true"
+                    label="{!$Label.c.Bulk_Movement_Contact_New_RG_Account}"
+                    listIconSVGPath="standard:account"
+                    listIconClass="slds-icon-standard-account"
+                    placeholder="Search Account"
+                    includeRGWithRMOnly ="true"
+                    itemChange="{!c.handleDestinationRGAccountChange}"
+                    onReset="{!c.handleRMComboboxReset}"  />                   
+            </span>
+        </span>
+
+    </div>
+
+    <!-- Row 2 -->
+    <div class="slds-grid slds-p-around_x-small">
+        <span class="slds-col slds-grid slds-size_6-of-12">
+            <span style="width: 99%">
+                <span class="{!v.transferBy eq v.transferByRMAccount ? 'slds-show' : 'slds-hide'}">
+                    <!-- Showing both active and inactive accounts -->
+                    <c:Lookup aura:id="lookupRMAccount"   
+                        allRecords="true" 
+                        sObjectAPIName="Account"
+                        accountType="RM_Account"
+                        charLimit="2" 
+                        withSharing="true"
+                        label="{!$Label.c.Bulk_Movement_Contact_Search_RM_Account}" 
+                        listIconSVGPath="standard:account" 
+                        listIconClass="slds-icon-standard-account" 
+                        itemChange="{!c.handleSourceRMAccountDataChange}" />
+
+                </span>
+
+                <span class="{!v.transferBy eq v.transferByContact ? 'slds-show' : 'slds-hide'}">
+                    <!-- Showing both active and inactive contacts -->
+                    <c:Lookup aura:id="lookupContact"   
+                        allRecords="false" 
+                        sObjectAPIName="Contact" 
+                        charLimit="2" 
+                        withSharing="true"
+                        label="{!$Label.c.Bulk_Movement_Contact_Search}" 
+                        listIconSVGPath="standard:contact" 
+                        listIconClass="slds-icon-standard-contact"
+                        showMetadata="true"
+                        itemChange="{!c.handleSourceContactDataChange}" />
+
+                </span>
+
+            </span>    
+        </span>
+
+        <span class="slds-col slds-grid slds-size_1-of-12">
+            <span class="slds-p-left_medium">
+                <label class="slds-form-element__label">&nbsp;</label>
+                <div>
+                    <lightning:icon iconName="standard:output" alternativeText="Transfer To" />
+                </div>
+            </span>
+        </span>
+
+        <span class="slds-col slds-grid slds-size_5-of-12">
+            <span style="width: 99%">
+                <!-- Showing only Active RM Accounts -->
+                <c:Combobox aura:id="comboboxDestinationRMAccount"
+                    selectedEvent ="{!c.handleDestinationRMAccountChange}"
+                    clearIdEvent = "{!c.clearDestinationRMAccount}"
+                    query="{!v.accountRMQuery}"
+                    label="{!$Label.c.Bulk_Movement_Contact_New_RM_Account}"
+                    placeholder="Search Address"
+                    sObjectAPIName="Account"
+                    recordId="{!v.relatedToRGAccount}" 
+                    withSharing="true" />
+            </span>
+        </span>
+    </div>
+    
+
+</div>
+<!-- Step 1 : End -->
+
+<!-- Step 2 : Start -->
+<div aura:id="contactMovementStep2" class="{!v.currentProgressStep == 'step2' ? 'slds-show' : 'slds-hide'}">
+    <!-- Row 1 -->
+    <div class="slds-grid slds-p-around_x-small">
+        <span class="slds-col slds-grid slds-size_3-of-12">    
+            <lightning:input type="toggle" name="contactPIChangeToggle" aura:id="contactPIChangeToggle" 
+                    label="{!$Label.c.Bulk_Movement_Contact_PI_Change}" 
+                    messageToggleActive="{!$Label.c.Yes_Label}" messageToggleInactive="{!$Label.c.No_Label}" 
+                    onchange="{!c.handleToggleForContactPIChange}"/>
+        </span>
+
+        <span class="slds-col slds-grid slds-size_3-of-12">    
+            <span>
+                <lightning:button aura:id="sourceDataDownloader" 
+                    name="sourceDataDownloader"
+                    label="{!$Label.c.Export_Contact_Data}" 
+                    onclick="{!c.downloadSourceContactDetails}"
+                    disabled="{!v.contactPIChangeDisabler}"
+                    iconName="utility:download"
+                    variant="brand" />
+            </span>    
+        </span>
+
+        <span class="slds-col slds-grid slds-size_2-of-12">
+            <span class="slds-p-left_medium">
+                <div>
+                    <lightning:icon iconName="standard:output"  />
+                </div>
+            </span>
+        </span>
+
+        <span class="slds-col slds-grid slds-size_3-of-12">
+            <div class="slds-file-selector slds-file-selector_files">
+                <div class="slds-file-selector__dropzone">
+                    <lightning:input type="file" 
+                        name="fileUploadInputContactData"
+                        onchange="{!c.handleUpload}" 
+                        disabled="{!v.uploadFileDisabler}"
+                        label="{!$Label.c.Coverage_File_Upload}" 
+                        multiple="false" 
+                        accept=".csv"  
+                     />
+                </div>
+            </div>
+        </span>
+       
+    </div>
+
+    <!-- Row 3 -->
+    <div class="slds-grid slds-p-around_x-small">
+        <div class="{!v.fileValidationErrors == true ? 'slds-col slds-grid slds-size_12-of-12 slds-show' : 'slds-hide'}"> 
+            
+            <div class="slds-m-top_xx-small slds-m-bottom_xx-small" style="cursor: pointer; background-color: rgb(91, 100, 138); padding:6px; color: #FFF;">
+                <section class="slds-clearfix">
+                    <div class="slds-float_left ">
+                        <lightning:icon iconName="utility:table" size="x-small" variant="inverse" />
+                    </div>
+                    <div class="slds-m-left--large">{!$Label.c.Upload_File_Error_Records}</div>
+                </section>
+            </div>
+
+            <div class="slds-table_bordered tableStyle"  style="{!'height:' + v.uploadContactErrorTableHeight + 'px'}" aura:id="uploadContactErrorTableDiv">
+                <lightning:datatable aura:id="uploadContactErrorTableId"
+                    columns="{!v.uploadContactErrorColumns}" 
+                    data="{!v.uploadContactErrorRows}" 
+                    keyField="id"  
+                    minColumnWidth="400"                                 
+                    maxColumnWidth="600"
+                    showRowNumberColumn="false"
+                    hideCheckboxColumn="true">
+                </lightning:datatable>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- Step 2 : End -->
+
+<!-- Step 3 : Start -->
+<div aura:id="contactMovementStep3" class="{!v.currentProgressStep == 'step3' ? 'slds-show' : 'slds-hide'}">
+    <!-- Row 1 -->
+    <div class="slds-grid slds-p-around_x-small">
+        
+        <span class="slds-col slds-size_5-of-12">   
+            <span style="width: 96%">
+                <lightning:combobox aura:id="transferReason"
+                    name="transferReason" 
+                    label="{!$Label.c.Bulk_Movement_Contact_Movement_Reason}" 
+                    options="{!v.transferReasonList}" 
+                    required="true"
+                    onchange="{!c.handleTransferReasonChange}" />
+            </span>    
+        </span>
+
+        <span class="slds-col slds-size_1-of-12">   
+            &nbsp;
+        </span>
+        
+        <span class="{!v.movementUnderSameRG == false ? 'slds-col slds-grid slds-size_6-of-12 slds-show' : 'slds-hide'}">    
+            <span style="width: 96%">
+                <lightning:dualListbox aura:id="selectAvailableOptions"
+                                    name="selectAvailableOptions"
+                                    label="{!$Label.c.Bulk_Movement_Contact_Selection_Actions}"
+                                    sourceLabel="{!$Label.c.Available_Actions}"
+                                    selectedLabel="{!$Label.c.Selected_Actions}"
+                                    disableReordering="true"
+                                    options="{!v.availableOptionsList }"
+                                    value="{!v.selectedAvailableOptionsList}"
+                                    onchange="{!c.handleAvailableOptionsChange}"
+                                    size="3" />
+            </span> 
+        </span>
+        
+    </div>
+</div>
+<!-- Step 3 : End -->
+
+
+
+<br/>
+<div style="float: right;" class="slds-p-right_small">
+    <lightning:button aura:id="previousButton" label="{!$Label.c.Cancel}" iconName="utility:close" onclick="{!c.handlePreviousButtonClick}" variant="neutral"/>
+    <lightning:button aura:id="nextButton" label="{!$Label.c.Next}" iconName="utility:forward" onclick="{!c.handleNextButtonClick}" variant="brand"/>
+ </div>
+
+ <br/>
+ 
+ <!-- Job Info Details -->
+ <div aura:id="contactMovementJobInfoDetails" class="{!v.showJobInfoDetails == true ? 'slds-show' : 'slds-hide'}">
+    <div class="slds-grid slds-p-around_x-small">
+        <span style="width: 99%">
+        <div class="{!not(empty(v.previousJobList))? 'slds-col slds-grid slds-size_12-of-12 slds-show' : 'slds-hide'}"> 
+            
+            <div class="slds-m-top_xx-small slds-m-bottom_xx-small" style="cursor: pointer; background-color: rgb(91, 100, 138); padding:6px; color: #FFF;">
+                <section class="slds-clearfix">
+                    <div class="slds-float_left ">
+                        <lightning:icon iconName="utility:table" size="x-small" variant="inverse" />
+                    </div>
+                    <div class="slds-m-left--large">{!$Label.c.Bulk_Movement_Contact_Job_Status}</div>
+                </section>
+            </div>
+
+            <div class="slds-table_bordered tableStyle"  style="{!'height:' + v.bulkMovementJobStatusTableHeight + 'px'}" aura:id="bulkMovementJobStatusTableDiv">
+                    <lightning:datatable aura:id="bulkMovementJobStatusTableId"
+                        columns="{!v.bulkMovementJobStatusColumns}" 
+                        data="{!v.bulkMovementJobStatusRows}" 
+                        keyField="id"  
+                        minColumnWidth="200"                                 
+                        maxColumnWidth="300"
+                        showRowNumberColumn="false"
+                        hideCheckboxColumn="true">
+                    </lightning:datatable>
+            </div>
+        </div>
+        </span>
+    </div>
+ </div>
+
+ <br/>
+ <!-- Help Text -->
+ <div aura:id="bulkMovementContactInfoText"  class="{!v.bulkMovementContactInfoText == true ? 'slds-show' : 'slds-hide'}" style="font-size: 12px;">
+ 
+    <div class="{!v.loggedInUserLanguage != 'Japanese' ? 'slds-show' : 'slds-hide'}">
+        <lightning:card title="Points To Be Noted:" iconName="utility:info" class="slds-box slds-theme_shade slds-theme_alert-texture">
+        <p class="slds-p-horizontal_small">
+            <ul class="slds-list_dotted">
+                <li>Movement can be performed either at RM Account or individual Contact level.</li>
+                <li>Only Contacts of Accounts which are accessible to the user can be moved.</li>
+                <li>If Contact's PII needs to be updated, users will need to export the data, make necessary changes and upload in Change Contact's PII Step.</li>
+                <li style="color: red;">Please do not remove/tamper the Id column and its values in the exported excel and retain the column Header Content and Ids as is while uploading the file.</li>
+                <li>Currently only Email Address of the contact can be updated in case of PII updates. Updates to Contact's Email will apply to both Primary Email and Research Email.</li>
+                <li>Contact's Related Information will be moved overnight and will be available under the new destination RM on the next day (e.g. Activities, Contact Interests, etc).</li>
+            </ul>
+
+            <br/>
+            
+            <b>Movement Reason choice:</b>
+            <br/>
+            
+            <p class="slds-p-horizontal_small">
+            Contact Moved Organisation
+            <ul class="slds-list_dotted">
+                <li>Use this reason when contact has left a firm and joined another. Use this reason only when contact is moving to a new RG Account.</li>
+                <li>Old contact will be deactivated and a new contact will be created in the system if contact is moving to a new RG account.</li>
+                <li>You cannot move historic activities of old contact to the new RG account.</li>
+            </ul>
+            </p>
+
+            <br/>
+
+            <p class="slds-p-horizontal_small">
+            Account Merger and Acquisition
+            <ul class="slds-list_dotted">
+                <li>Use this reason when you want to move the contacts due to merger of 2 accounts. Use this reason only if account merger is happening between two different RGs.</li>
+                <li>You can choose to move historic activities to a new RG account.</li>
+                <li>If you choose not to move historic activities then old contact will be deactivated and a new contact will be created in the system if contact is moving to a new RG account. </li>
+            </ul>
+            </p>
+
+            <br/>
+
+            <p class="slds-p-horizontal_small">
+            Contact Data Correction
+            <ul class="slds-list_dotted">
+                <li>Use this reason when you want to move the contacts as it was associated to an incorrect account.</li>
+                <li>You will have to move historic activities along with the contact to the corrected account.</li>
+            </ul>
+            </p>
+
+            <br/>
+
+            <p class="slds-p-horizontal_small">
+            Contact Internal Movement
+            <ul class="slds-list_dotted">
+                <li>Use this reason when you want to move the contacts within the same RG account.</li>
+                <li>You will have to move historic activities along with the contact to the new account.</li>
+            </ul>
+            </p>
+                
+        </p>
+        </lightning:card>
+    </div>
+
+    <div class="{!v.loggedInUserLanguage == 'Japanese' ? 'slds-show' : 'slds-hide'}">
+            <lightning:card title="注意点：" iconName="utility:info" class="slds-box slds-theme_shade slds-theme_alert-texture">
+            <p class="slds-p-horizontal_small">
+                <ul class="slds-list_dotted">
+                    <li>移動は、RMアカウントかコンタクトレベルで実行できます。</li>
+                    <li>ユーザがアクセスできるアカウントのコンタクトのみを移動できます。</li>
+                    <li>コンタクトの個人情報を更新する場合、ユーザはデータをエクスポートし、必要な変更を加えて、コンタクトの個人情報変更ステップでアップロードする必要があります。</li>
+                    <li style="color: red;">エクスポートされたExcelのID列とその値を消したり変更したりしないでください。また、アップロード時にはヘッダーの値とIDは変更しないでください。</li>
+                    <li>個人情報の更新時はメールアドレスのみ変更できます。メールアドレスの更新はプライマリーメールとリサーチメールの両方に適用されます。</li>
+                    <li>コンタクトの関連情報（アクティビティ、コンタクトの関心領域など）は、翌日に新しいRMで利用できるようになります。</li>
+                </ul>
+    
+                <br/>
+                
+                <b>移動理由の選択：</b>
+                <br/>
+                
+                <p class="slds-p-horizontal_small">
+                コンタクトの所属会社（RG）の変更
+                <ul class="slds-list_dotted">
+                    <li>コンタクトが別の会社に移動した場合に指定します。この選択肢は、コンタクトが新しいRGアカウントに移動する時のみに使用してください。</li>
+                    <li>コンタクトが新しいRGアカウントに移動する場合、古いコンタクトは無効化され、新しいコンタクトがシステムに作成されます。</li>
+                    <li>古いコンタクトのアクティビティ履歴は新しいRGアカウントには移動できません。</li>
+                </ul>
+                </p>
+    
+                <br/>
+    
+                <p class="slds-p-horizontal_small">
+                会社の合併と買収
+                <ul class="slds-list_dotted">
+                    <li>2つのアカウントの統合によりコンタクトを移動する場合に指定します。この選択肢は、2つの異なるRG間でアカウントの統合が行われている場合に使用してください。</li>
+                    <li>アクティビティ履歴を新しいRGアカウントに移動するかどうかを指定できます。</li>
+                    <li>アクティビティ履歴を移動しないを選択した場合、古いコンタクトは無効化され、システムに新しいコンタクトが作成されます。 </li>
+                </ul>
+                </p>
+    
+                <br/>
+    
+                <p class="slds-p-horizontal_small">
+                コンタクトデータの修正
+                <ul class="slds-list_dotted">
+                    <li>コンタクトが間違ったアカウントに関連づけられていた場合に指定します。</li>
+                    <li>コンタクトと共に過去のアクティビティを正しいアカウントに移動する必要があります。</li>
+                </ul>
+                </p>
+    
+                <br/>
+    
+                <p class="slds-p-horizontal_small">
+                同じRGアカウント内の移動
+                <ul class="slds-list_dotted">
+                    <li>同じRGアカウント内でコンタクトを移動する場合に指定します。</li>
+                    <li>必ずコンタクト関連のアクティビティ履歴を新しいアカウントに移動してください。</li>
+                </ul>
+                </p>
+                    
+            </p>
+            </lightning:card>
+        </div>
+
+
+</div>
+ 
+
+
+<!-- Modal Window -->
+<div aura:id="modalDialogPlaceHolder">
+</div>
+<!--  Modal Window -->
+    
+
+
+</aura:component>

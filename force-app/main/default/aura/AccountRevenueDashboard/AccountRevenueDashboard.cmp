@@ -1,0 +1,23 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId" controller="AccountRevenueDashboardController">
+    <aura:attribute name="dashboardName" type="String"/>
+    <aura:attribute name="showDashboard" type="Boolean"/>
+    <aura:attribute name="dashboardFilter" type="String"/>
+    <aura:attribute name="dashboardHeight" type="Integer"/>
+    <aura:attribute name="accountRecord" type="Object"/>
+    <aura:attribute name="sdkError" type="Object"/>
+    <wave:sdk aura:id="sdk"/>
+    <force:recordData aura:id="recordLoader" recordId="{!v.recordId}" fields="RDM_Org_ID__c" targetFields="{!v.accountRecord}" targetError="{!v.recordLoadError}" recordUpdated="{!c.handleRecordUpdatedProfile}"/>
+    <aura:renderIf isTrue="{!v.showDashboard}">
+        <wave:waveDashboard developerName="{!v.dashboardName}" filter="{!v.dashboardFilter}" height="{!v.dashboardHeight}" showTitle="false" showHeader="false" openLinksInNewWindow="false" hideOnError="true"/>
+    <aura:set attribute="else">
+        <div class="c-container">
+            <lightning:layout>
+                <lightning:layoutItem padding="around-small">
+                    <p>You are not authorized to view Sales Revenue drill downs</p>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </div>
+    </aura:set>
+    </aura:renderIf>
+
+</aura:component>

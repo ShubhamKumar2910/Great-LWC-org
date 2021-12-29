@@ -1,0 +1,23 @@
+.dropdown-bg
+{
+    background-color: rgba(27, 82, 151, 0.0); 
+    border-color: rgba(27, 82, 151, 0.0);
+}
+
+.default-cursor
+{
+    cursor: default;
+    pointer-events: none;
+}
+
+.button-text
+{
+    justify-content:left; 
+    white-space: nowrap;
+}
+
+.header-text
+{
+    text-align:left;
+    font-weight: bold;
+}

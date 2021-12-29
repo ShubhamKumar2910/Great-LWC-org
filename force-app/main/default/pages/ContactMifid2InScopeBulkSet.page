@@ -1,0 +1,23 @@
+<apex:page id="pg" standardcontroller="Account" extensions="ContactMifid2InScopeBulkSetController" tabStyle="Contact" sidebar="false">
+
+    <apex:slds />
+    
+
+
+<apex:includeScript value="/support/console/40.0/integration.js"/>
+<apex:includeScript value="/lightning/lightning.out.js"/>
+   <div id="lightning"/>
+    <div id="inputLookup"/>
+    <script>
+        $Lightning.use("c:Mifid2InScopeBulkUpdateApp", function() {
+          $Lightning.createComponent("c:Mifid2InScopeBulkUpdate",
+          { label : "" },
+          "lightning",
+          function(cmp) {
+            
+          });
+        });
+    
+    </script>
+
+</apex:page>

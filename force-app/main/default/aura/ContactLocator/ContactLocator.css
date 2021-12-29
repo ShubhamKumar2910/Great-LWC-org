@@ -1,0 +1,12 @@
+.THIS.toggle {
+    display: none;
+}
+.THIS .slds-badge {
+    vertical-align : middle;
+}
+.THIS .buttonClassStyle {
+    white-space : nowrap !important;
+    line-height : 1.25rem !important;
+    padding-left : 0.25rem !important;
+    padding-right : 0.25rem !important;
+}

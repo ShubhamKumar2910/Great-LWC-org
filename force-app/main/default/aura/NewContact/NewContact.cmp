@@ -1,0 +1,548 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:actionOverride"
+                access="global"
+                controller="NewContactController">
+    
+    <aura:attribute name="recordId" type="String" default=""/>
+    <aura:attribute name="hasErrors" type="Boolean" default="false" />
+    <aura:attribute name="showMifid" type="Boolean" default="false" />
+    <aura:attribute name="disableSaveButton" type="Boolean" default="false" />
+    <aura:attribute name="mifidCheckboxDisabled" type="Boolean" default="false" />
+    <aura:attribute name="errorMessages" type="String[]" />
+    <aura:attribute name="contact" type="Contact" default="{ 'sobjectType': 'Contact' }"/>
+    <aura:attribute name="selectedSalesCommentary" type="String" />
+    <aura:attribute name="selectedServiceType" type="String" default=""/>
+    <aura:attribute name="selectedSubscriptions" type="String[]" />
+    <aura:attribute name="selectedLanguage" type="String" default=""/>
+    <aura:attribute name="selectedRegion" type="String" default="" />
+    <aura:attribute name="selectedInvestorType" type="String" default="" />
+    <aura:attribute name="selectedAccount" type="String[]" />
+    <aura:attribute name="AmericaInvestorOptions" type="List" />
+    <aura:attribute name="AEJInvestorOptions" type="List" />
+    <aura:attribute name="EMEAInvestorOptions" type="List" />
+    <aura:attribute name="JapanInvestorOptions" type="List" />
+    <aura:attribute name="relatedToAccount" type="String"/>
+    <aura:attribute name="relatedToAccountSelected" type="String[]"/>
+    <aura:attribute name="addressOptions" type="List" />
+    <aura:attribute name="selectedAddress" type="String" default=""/>
+    <aura:attribute name="selectedPodAddress" type="String" default=""/>
+    <aura:attribute name="addressQuery" type="String" default=""/>
+    <aura:attribute name="productSubscriptions" type="Object[]" default="[]"/>
+    <aura:attribute name="origin" type="String" default=""/>
+    <aura:attribute name="cloneFrom" type="String" default=""/>
+    <aura:attribute name="selectedLookupId" type="STRING" access="global"/>
+    <aura:attribute name="readonly" type="string" default="false" 
+                    description="Indicates that the contact is openend in Edit mode and Address Account should be read only"/>
+    <aura:attribute name="editContId" type="String" default=""
+                    description="Contact Id of the Contact to be edited."/>
+    <aura:attribute name="deriveMiFIDIIEntFromRMAccMsg" type="String" default=""/>
+    
+    <!--Label-->
+    <aura:attribute name="contactInfoLabel" type="String" default="{!$Label.c.Contact_Information}" />
+    <aura:attribute name="accountLabel" type="String" default="{!$Label.c.Account_Required}" />
+    <aura:attribute name="accAddLabel" type="String" default="{!$Label.c.Address_Required}" />
+    <aura:attribute name="salutationLabel" type="String" default="{!$Label.c.Salutation_Required}" />
+    <aura:attribute name="firstNameLabel" type="String" default="{!$Label.c.FirstName_Required}" />
+    <aura:attribute name="lastNameLabel" type="String" default="{!$Label.c.LastName_Required}" />
+    <aura:attribute name="roleLabel" type="String" default="{!$Label.c.Role}" />
+    <aura:attribute name="functionalTitleLabel" type="String" default="{!$Label.c.Functional_Title}" />
+    <aura:attribute name="localLanguageInfoLabel" type="String" default="{!$Label.c.Local_Name_Information}" />
+    <aura:attribute name="localLastNameLabel" type="String" default="{!$Label.c.Local_Langauge_LastName}" />
+    <aura:attribute name="localFirstNameLabel" type="String" default="{!$Label.c.Local_Langauge_FirstName}" />
+    <aura:attribute name="primaryEmailLabel" type="String" default="{!$Label.c.Primary_Email}" />
+    <aura:attribute name="researchEmailLabel" type="String" default="{!$Label.c.ResearchEmail}" />
+    <aura:attribute name="phoneLabel" type="String" default="{!$Label.c.Phone}" />
+    <aura:attribute name="keyPersonLabel" type="String" default="{!$Label.c.Key_Person}" />
+    <aura:attribute name="mifidBulkUpdateLabel" type="String" default="{!$Label.c.MiFID_II_Bulk_Update_In_Scope}" />
+    <aura:attribute name="qdiiOathLabel" type="String" default="{!$Label.c.QDII_Oath_Label}" />
+    <aura:attribute name="grpAccessLabel" type="String" default="{!$Label.c.GRP_Access}" />
+    <aura:attribute name="mifidProductSubcLabel" type="String" default="{!$Label.c.MiFID_II_Product_Subscriptions}" />
+    <aura:attribute name="mifidSalesCommentaryAllowedLabel" type="String" default="{!$Label.c.MiFID_II_Sales_Commentary_Allowed}" />
+    <aura:attribute name="serviceTypeLabel" type="String" default="{!$Label.c.Service_Type}" />
+    <aura:attribute name="regionLabel" type="String" default="{!$Label.c.Region}" />
+    <aura:attribute name="investorTypeLabel" type="String" default="{!$Label.c.Investor_Type}" />
+    <aura:attribute name="preferredLanguageLabel" type="String" default="{!$Label.c.Preferred_Language}" />
+    <aura:attribute name="salesPersonSponsorLabel" type="String" default="{!$Label.c.Sales_Person_Lookup_For_Sponsor}" />
+    <aura:attribute name="sponsorEmailLabel" type="String" default="{!$Label.c.Sponsor_Email}" />
+    <aura:attribute name="sponsorLabel" type="String" default="{!$Label.c.Sponsor}" />
+    <aura:attribute name="saveButtonLabel" type="String" default="{!$Label.c.Save}" />
+    <aura:attribute name="cancelButtonLabel" type="String" default="{!$Label.c.Cancel}" />
+    <aura:attribute name="qdiiAccessLabel" type="String" default="{!$Label.c.QDII_Access}" />
+    <aura:attribute name="podAccountLabel" type="String" default="{!$Label.c.POD_Account}" />
+
+    <!--Added for JIRA SALES-3521-->
+    <aura:attribute name="avaliableposition" type="String[]" default=""/>
+    <aura:attribute name="selectedPosition" type="String" default=""/>
+    <!--EVENTS HANDELED-->
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+    <aura:handler name="change" value="{!v.contact.MiFIDII_in_Scope__c}" action="{!c.handleMiFIDIIToggle}"/>
+    
+    <!--LIGHTNING NAVIGATION-->
+    <lightning:navigation aura:id="navigationService" />
+    
+    <lightning:spinner aura:id="pageSpinner" variant="brand" size="large" class="slds-hide"/>
+    <aura:if isTrue="{!$Browser.formFactor == 'DESKTOP'}">
+        <!--Added width for JIRA SALES-3006-->
+        <div class="slds-form slds-form_compound" style="padding: 1%; margin: 1%; width:98%;">            
+            <fieldset class="slds-form-element">
+                <div class="slds-form-element__group">
+                    <div class="slds-form-element__row">
+                        <div class="slds-form-element slds-size_2-of-2">
+                            <h3 class="slds-section__title slds-theme_shade">
+                                <span class="slds-truncate slds-p-horizontal_small" title="Section Title">
+                                    <ui:outputText value="{!v.contactInfoLabel}" />
+                                </span>
+                            </h3>
+                            <!-- Error Messages -->
+                            <aura:if isTrue="{!v.hasErrors}">
+                                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" role="alert" style="height:50px;">
+                                    <lightning:icon iconName="utility:warning" variant="warning" class="slds-icon slds-icon_x-small inlineTable errorMessagePadding"/>
+                                    <div id="errors" style="">
+                                        <aura:iteration items="{!v.errorMessages}" var="item">
+                                            <ui:outputText value="{!item.message}" class="blockDisplay"/>
+                                        </aura:iteration>
+                                    </div>
+                                    <lightning:buttonIcon iconName="utility:close" variant="bare" onclick="{!c.closeErrorMessages}"/>
+                                </div>
+                                <aura:set attribute="else">
+                                    <div></div>
+                                </aura:set>
+                            </aura:if> 
+                        </div>
+                    </div>
+                    <div class="slds-form-element__row">
+                        <div class="slds-form-element slds-size_1-of-2">
+                            <div style="margin-left:.5em;">
+                                <c:SingleLookup aura:id="newcontact-account"   
+                                                allRecords="false" 
+                                                sObjectAPIName="Account"
+                                                accountType="RG_Account" 
+                                                charLimit="2"  
+                                                label="{!v.accountLabel}" 
+                                                listIconSVGPath="standard:account" 
+                                                listIconClass="slds-icon-standard-account" 
+                                                itemChange="{!c.contactAccountchanged}" 
+                                                placeholder="Search Accounts" 
+                                                preSelectedIds="{!v.selectedAccount}"
+                                                onReset="{!c.OnReset}"
+                                                readonly="{!v.readonly}"
+                                                includeRGWithRMOnly ="true">
+                                </c:SingleLookup>
+                            </div>
+                            <div style="margin-left:.5em;">
+                                
+                                <c:Combobox aura:id="addressCombobox"  selectedEvent="{!c.addressChanged}" 
+                                            clearIdEvent="{!c.addressCleared}" label="{!v.accAddLabel}" placeholder="Search Addresses" query="{!v.addressQuery}" sObjectAPIName="Account" recordId="{!v.relatedToAccount}"/>
+                                
+                                
+                                
+                            </div>
+                            <div style="margin-left:.5em;">
+                                
+                                <c:Combobox aura:id="podAddressCombobox"  selectedEvent="{!c.podAddressChanged}" isPodAccount="true"
+                                            clearIdEvent="{!c.podAddressCleared}" label="{!v.podAccountLabel}" placeholder="Search POD Account" query="{!v.addressQuery}" sObjectAPIName="Account" recordId="{!v.relatedToAccount}"/>
+                                
+                            </div>
+                            <div style="margin-left:.5em;">
+                                <lightning:select name="selectItem" label="{!v.salutationLabel}" value="{!v.contact.Salutation}" required="true">
+                                    <option value="">--None--</option>
+                                    <option value="Mr.">Mr.</option>
+                                    <option value="Mrs.">Mrs.</option>
+                                    <option value="Ms.">Ms.</option>
+                                    <option value="Miss">Miss</option>
+                                    <option value="M.">M.</option>
+                                    <option value="Dr.">Dr.</option>
+                                    <option value="Prof.">Prof.</option>
+                                    <option value="Sr">Sr</option>
+                                    <option value="Sra">Sra</option>
+                                    <option value="Srta">Srta</option>
+                                    <option value="Herr">Herr</option>
+                                    <option value="Frau">Frau</option>
+                                    <option value="Monsieur">Monsieur</option>
+                                    <option value="Madame">Madame</option>
+                                    <option value="Mademoiselle">Mademoiselle</option>
+                                    <option value="Signore">Signore</option>
+                                    <option value="Signora">Signora</option>
+                                    <option value="Hon.">Hon.</option>
+                                </lightning:select>
+                            </div>                            
+                            <div class="slds-form-element" style="">
+                                <lightning:input aura:id="FirstName" name="FirstName" label="{!v.firstNameLabel}" value="{!v.contact.FirstName}" required="true" class="marginLeftPadding"/>
+                                <lightning:input aura:id="LastName" name="LastName" label="{!v.lastNameLabel}"
+                                                 value="{!v.contact.LastName}" required="true" />
+                                <div style="margin-left:.5em;"> <!--Added for JIRA SALES-3521-->
+                                    <lightning:select class="" name="positionlist" label="{!v.roleLabel}" aura:id="Position" onchange="{!c.positionvalueChanged}" value="{!v.selectedPosition}"> <!--Update label for JIRA Sales-3654-->
+                                        <option value="">--None--</option>
+                                        <aura:iteration items="{!v.avaliableposition}" var="item">
+                                        <aura:if isTrue="{!item == v.selectedPosition}">
+                                            <option value="{!item}" selected="true">{!item}</option>
+                                            <aura:set attribute="else">
+                                            <option value="{!item}">{!item}</option> 
+                                            </aura:set>
+                                        </aura:if>
+                                        </aura:iteration> 
+                                    </lightning:select>       
+                                </div>
+                                <div style="margin-left:.5em;"><lightning:input aura:id="Title" name="Title" label="{!v.functionalTitleLabel}"
+                                                 value="{!v.contact.Title}" /></div> <!--Update label for JIRA Sales-3654-->
+                                <br/>
+                                <!-- Local Name Information --> 
+                                <h3 class="slds-section__title slds-theme_shade marginLeftPadding" >
+                                    <div class="slds-float-left " style="cursor: pointer;" onclick="{!c.toggleShowHide}">
+                                        <lightning:icon class="slds-show" aura:id="openDescSecId" iconName="utility:add" size="x-small"/>
+                                        <lightning:icon class="slds-hide" aura:id="closeDescSecId" iconName="utility:dash" size="x-small"/>
+                                    </div>
+                                    <span class="slds-truncate slds-p-horizontal_small">
+                                        <ui:outputText value="{!v.localLanguageInfoLabel}" />
+                                    </span>
+                                </h3>
+                                <br/>
+                                <div class="slds-hide " aura:id="localNames">
+                                    <br/>
+                                    <lightning:input aura:id="LocalLastName" name="LastName" label="{!v.localLastNameLabel}" value="{!v.contact.Local_Language_Last_Name__c}" class="marginLeftPadding"/>
+                                    <lightning:input aura:id="LocalFirstName" name="FirstName" label="{!v.localFirstNameLabel}" value="{!v.contact.Local_Language_First_Name__c}" class="marginLeftPadding"/>
+                                    <br/>
+                                </div>
+                                
+                                <lightning:input aura:id="Email" name="Email" label="{!v.primaryEmailLabel}" 
+                                                 value="{!v.contact.Email}" required="true" class="marginLeftPadding"/>
+                                <lightning:input aura:id="Email" name="Email" label="{!v.researchEmailLabel}" 
+                                                 value="{!v.contact.Research_Email__c}"/>
+                                
+                                <lightning:input aura:id="Phone" name="Phone" label="{!v.phoneLabel}"
+                                                 value="{!v.contact.Phone}" type="tel" pattern="['+']([^A-Za-z][0-9\-().,\s]{7,64}$)" messageWhenPatternMismatch="Use one of these number formats: +44 20 7102 1264, +44-20-7102-1264, +1 (212) 456-7890."/>
+                                <lightning:input aura:id="KeyPerson" name="KeyPerson" label="{!v.keyPersonLabel}" checked="{!v.contact.Key_Person__c}" type="checkbox" />
+                                
+                                <!--<aura:if isTrue="{!v.showMifid}"> -->
+                                <lightning:input aura:id="MifidInScope" name="MifidInScope" label="{!v.mifidBulkUpdateLabel+' '+v.deriveMiFIDIIEntFromRMAccMsg}" type="checkbox" checked="{!v.contact.MiFIDII_in_Scope__c}" disabled="{!v.mifidCheckboxDisabled}"/>
+                                <lightning:input aura:id="QDIIAccess" name="QDIIAccess" label="{!v.qdiiOathLabel}" 
+                                                 type="checkbox" checked="{!v.contact.QDII__c}" class="noWrapCls" />
+                                <lightning:input aura:id="GRPAccess" name="GRPAccess" label="{!v.grpAccessLabel}" 
+                                                 type="checkbox" checked="{!v.contact.GRP_Access__c}" onchange="{!c.grpAccessChanged}"/>
+                            </div>
+                            
+                        </div> 
+                        
+                        <div class="slds-form-element slds-size_1-of-2">
+                            <aura:if isTrue="{!v.contact.MiFIDII_in_Scope__c == true}">
+                                <div class="slds-form-element">
+                                    <!--<label class="slds-form-element__label" for="my-multi-select">MiFID-II Product Subscriptions (Please hold down SHIFT to select multiple items)</label>-->
+                                    <div class="slds-form-element__control">
+                                        <c:SelectMultiple aura:id="my-multi-select" setLabelName="{!v.mifidProductSubcLabel+' '}" options="{!v.productSubscriptions}" selectChange="{!c.handleSelectChangeEvent}" selectedItems="{!v.selectedSubscriptions}" disabled="{!v.mifidCheckboxDisabled}" />
+                                    </div>
+                                </div>
+                                <lightning:select aura:id="salesCommentary" name="selectItem" label="{!v.mifidSalesCommentaryAllowedLabel}" onchange="{!c.onSalesCommentaryChange}" value="{!v.selectedSalesCommentary}" disabled="{!v.mifidCheckboxDisabled}">
+                                    <aura:if isTrue="{!v.contact.MiFIDII_in_Scope__c == false}">
+                                        <option value="--None--">--None--</option>
+                                        <aura:set attribute="else">
+                                            <option value="Allowed">Allowed</option>
+                                            <option value="Not Allowed">Not Allowed</option>
+                                        </aura:set>
+                                    </aura:if> 
+                                </lightning:select> 
+                                <lightning:select aura:id="serviceType" name="serviceType" label="{!v.serviceTypeLabel}" onchange="{!c.serviceTypeChanged}" value="{!v.selectedServiceType}" disabled="{!v.mifidCheckboxDisabled}">
+                                    <aura:if isTrue="{!v.contact.MiFIDII_in_Scope__c == false}">
+                                        <option value="No Change">--None--</option>
+                                        <aura:set attribute="else">
+                                            <option value="No Change">Please select</option>
+                                            <option value="Full Service">Full Service</option>
+                                            <option value="Report Only">Report Only</option>
+                                            <option value="FI Full Service / EQ Report Only">FI Full Service / EQ Report Only</option>
+                                            <option value="EQ Full Service / FI Report Only">EQ Full Service / FI Report Only</option>
+                                        </aura:set>
+                                    </aura:if>  
+                                </lightning:select>
+                                <br/>
+                                <aura:set attribute="else">
+                                    <div></div>
+                                </aura:set>
+                            </aura:if>
+
+                            <aura:if isTrue="{!v.contact.GRP_Access__c == TRUE}">
+                                <lightning:select aura:id="region" name="selectItemregion" label="{!v.regionLabel}" onchange="{!c.regionChanged}" value="{!v.selectedRegion}" required="true">
+                                    <option value="--None--" selected="true">--Please Select--</option>
+                                    <option value="Americas">Americas</option>
+                                    <option value="AEJ">AEJ</option>
+                                    <option value="EMEA">EMEA</option>
+                                    <option value="Japan">Japan</option>
+                                </lightning:select>
+                                <br/>
+                                <lightning:select aura:id="investor" name="selectIteminvestor" label="{!v.investorTypeLabel}" onchange="{!c.investorTypeChanged}" value="{!v.selectedInvestorType}" disabled="{!v.selectedRegion == '--None--'}" required="true">
+                                    <aura:if isTrue="{!v.selectedRegion == 'Americas'}">
+                                        <aura:iteration items="{!v.AmericaInvestorOptions}" var="item">
+                                            <option text="{!item.label}" value="{!item.value}" selected="{!item.selected}"/>
+                                        </aura:iteration>
+                                    </aura:if>
+                                    <aura:if isTrue="{!v.selectedRegion == 'AEJ'}">
+                                        <aura:iteration items="{!v.AEJInvestorOptions}" var="item">
+                                            <option text="{!item.label}" value="{!item.value}" selected="{!item.selected}"/>
+                                        </aura:iteration>
+                                    </aura:if>
+                                    <aura:if isTrue="{!v.selectedRegion == 'EMEA'}">
+                                        <aura:iteration items="{!v.EMEAInvestorOptions}" var="item">
+                                            <option text="{!item.label}" value="{!item.value}" selected="{!item.selected}"/>
+                                        </aura:iteration>
+                                    </aura:if>
+                                    <aura:if isTrue="{!v.selectedRegion == 'Japan'}">
+                                        <aura:iteration items="{!v.JapanInvestorOptions}" var="item">
+                                            <option text="{!item.label}" value="{!item.value}" selected="{!item.selected}"/>
+                                        </aura:iteration>
+                                    </aura:if>
+                                </lightning:select>
+                                
+                                <br/>   
+                                <lightning:select aura:id="language" name="selectLanguage" 
+                                                  label="{!v.preferredLanguageLabel}" onchange="{!c.preferredLanguageChanged}" 
+                                                  value="{!v.selectedLanguage}" required="true">
+                                    <option value="No Change">--Please Select--</option>
+                                    <option value="English">English</option>
+                                    <option value="Japanese">Japanese</option>
+                                </lightning:select>
+                                
+                                
+                                <c:SingleLookup aura:id="lookup-contact" allRecords="true" sObjectAPIName="User" 
+                                                charLimit="2" label="{!v.salesPersonSponsorLabel}" pluralLabel="Sales Persons"
+                                                showNomuraEmployee="true" listIconSVGPath="standard:contact" 
+                                                listIconClass="slds-icon-standard-contact" itemChange="{!c.doApplySponsor}" />
+                                
+                                <lightning:input value="{!v.contact.Sponsor_Email_Text__c}"
+                                                 type="Email" label="{!v.sponsorEmailLabel}" name="sponsorEmail" required="true" />
+                                <br/>
+                                <lightning:input value="{!v.contact.Sales_Sponsor__c}"
+                                                 type="String" label="{!v.sponsorLabel}"  name="sponsor" required="true"/> 
+                                
+                                <aura:set attribute="else">
+                                    <div></div>
+                                </aura:set>
+                            </aura:if>
+                        </div>
+                        
+                    </div>
+                    <div class="slds-form-element__row">
+                        <div class="slds-form-element slds-size_1-of-2">
+                            <lightning:button label="{!v.saveButtonLabel}" name="desktopSave" onclick="{!c.save}" variant="brand" disabled="{!v.disableSaveButton}"/>
+                            <lightning:button label="{!v.cancelButtonLabel}" onclick="{!c.cancel}" variant="neutral"/>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <!--MOBILE or TAB-->
+        <aura:set attribute="else">
+            <ui:scrollerWrapper class="scrollerSize">
+                <lightning:layout multipleRows="true">      
+                    <lightning:layoutItem padding="around-small" size="12">
+                        <h3 class="slds-section__title slds-theme_shade">
+                            <span class="slds-truncate slds-p-horizontal_small">
+                                <ui:outputText value="{!v.contactInfoLabel}" />
+                            </span>
+                        </h3>
+                        <!-- Error Messages -->
+                        <aura:if isTrue="{!v.hasErrors}">
+                            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" role="alert" style="height:50px;">
+                                <lightning:icon iconName="utility:warning" variant="warning" class="slds-icon slds-icon_x-small inlineTable errorMessagePadding"/>
+                                <div id="errors" style="">
+                                    <aura:iteration items="{!v.errorMessages}" var="item">
+                                        <ui:outputText value="{!item.message}" class="blockDisplay"/>
+                                    </aura:iteration>
+                                </div>
+                                <lightning:buttonIcon iconName="utility:close" variant="bare" onclick="{!c.closeErrorMessages}"/>
+                            </div>
+                            <aura:set attribute="else">
+                                <div></div>
+                            </aura:set>
+                        </aura:if> 
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="12" padding="around_xx-small" class="marginLeftPaddingMobile">
+                        <c:SingleLookup aura:id="newcontact-account"   
+                                        allRecords="false" 
+                                        sObjectAPIName="Account"
+                                        accountType="RG_Account" 
+                                        charLimit="2"  
+                                        label="{!v.accountLabel}" 
+                                        listIconSVGPath="standard:account" 
+                                        listIconClass="slds-icon-standard-account" 
+                                        itemChange="{!c.contactAccountchanged}" 
+                                        placeholder="Search Accounts" 
+                                        preSelectedIds="{!v.selectedAccount}"
+                                        onReset="{!c.OnReset}"
+                                        readonly="{!v.readonly}"
+                                        includeRGWithRMOnly ="true">
+                        </c:SingleLookup>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="12" padding="around_xx-small" class="marginLeftPaddingMobile">
+                        <c:Combobox aura:id="addressCombobox" selectedEvent="{!c.addressChanged}" 
+                                    label="{!v.accAddLabel}" placeholder="Search Addresses" query="{!v.addressQuery}" clearIdEvent="{!c.addressCleared}" sObjectAPIName="Account" recordId="{!v.relatedToAccount}"/>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="12" padding="around_xx-small" class="marginLeftPaddingMobile">
+                        <lightning:select name="selectItem" label="{!v.salutationLabel}" value="{!v.contact.Salutation}" required="true">
+                            <option value="">--None--</option>
+                            <option value="Mr.">Mr.</option>
+                            <option value="Mrs.">Mrs.</option>
+                            <option value="Ms.">Ms.</option>
+                            <option value="Miss">Miss</option>
+                            <option value="M.">M.</option>
+                            <option value="Dr.">Dr.</option>
+                            <option value="Prof.">Prof.</option>
+                            <option value="Sr">Sr</option>
+                            <option value="Sra">Sra</option>
+                            <option value="Srta">Srta</option>
+                            <option value="Herr">Herr</option>
+                            <option value="Frau">Frau</option>
+                            <option value="Monsieur">Monsieur</option>
+                            <option value="Madame">Madame</option>
+                            <option value="Mademoiselle">Mademoiselle</option>
+                            <option value="Signore">Signore</option>
+                            <option value="Signora">Signora</option>
+                            <option value="Hon.">Hon.</option>
+                        </lightning:select>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="12" padding="around_xx-small">
+                        <lightning:input aura:id="FirstName" name="FirstName" label="{!v.firstNameLabel}" value="{!v.contact.FirstName}" required="true" class="marginLeftPadding"/>
+                        
+                        <lightning:input aura:id="LastName" name="LastName" label="{!v.lastNameLabel}"
+                                         value="{!v.contact.LastName}" required="true" class="marginLeftPadding"/>
+                        <br/>
+                        
+                        <!-- Local Name Information -->
+                        <h3 class="slds-section__title slds-theme_shade marginLeftPadding" >
+                            <div class="slds-float-left " style="cursor: pointer;" onclick="{!c.toggleShowHide}">
+                                <lightning:icon class="slds-show" aura:id="articleOne" iconName="utility:add" size="x-small"/>
+                                <lightning:icon class="slds-hide" aura:id="articleOne" iconName="utility:dash" size="x-small"/>
+                            </div>
+                            <span class="slds-truncate slds-p-horizontal_small">
+                                <ui:outputText value="{!v.localLanguageInfoLabel}" />
+                            </span>
+                        </h3>
+                        <br/>
+                        <div class="slds-hide " aura:id="localNames">
+                            <br/>
+                            <lightning:input aura:id="LocalLastName" name="LastName" label="{!v.localLastNameLabel}" value="{!v.contact.Local_Language_Last_Name__c}" class="marginLeftPadding"/>
+                            <lightning:input aura:id="LocalFirstName" name="FirstName" label="{!v.localFirstNameLabel}" value="{!v.contact.Local_Language_First_Name__c}" class="marginLeftPadding"/>
+                            <br/>
+                        </div>
+                        
+                        <lightning:input aura:id="Email" name="Email" label="{!v.primaryEmailLabel}" 
+                                         value="{!v.contact.Email}" required="true" class="marginLeftPadding"/>
+                        
+                        <lightning:input aura:id="Email" name="Email" label="{!v.researchEmailLabel}" 
+                                         value="{!v.contact.Research_Email__c}" required="false" class="marginLeftPadding" />
+                        
+                        <lightning:input aura:id="Phone" name="Phone" label="{!v.phoneLabel}"
+                                         value="{!v.contact.Phone}" class="marginLeftPadding" type="tel" pattern="['+']([^A-Za-z][0-9\-().,\s]{7,64}$)" messageWhenPatternMismatch="Use one of these number formats: +44 20 7102 1264, +44-20-7102-1264, +1 (212) 456-7890."/>
+                        
+                        <lightning:input aura:id="KeyPerson" name="KeyPerson" label="{!v.keyPersonLabel}" checked="{!v.contact.Key_Person__c}" type="checkbox" class="marginLeftPadding"/>
+                        
+                        <lightning:input aura:id="MifidInScope" name="MifidInScope" label="{!v.mifidBulkUpdateLabel+' '+v.deriveMiFIDIIEntFromRMAccMsg}" type="checkbox" checked="{!v.contact.MiFIDII_in_Scope__c}" disabled="{!v.mifidCheckboxDisabled}" class="marginLeftPadding"/>
+                        
+                         <aura:if isTrue="{!v.contact.MiFIDII_in_Scope__c == true}">
+                             <br/>
+                                <div class="slds-form-element">
+                                    <!--<label class="slds-form-element__label" for="my-multi-select">MiFID-II Product Subscriptions (Please hold down SHIFT to select multiple items)</label>-->
+                                    <div class="slds-form-element__control marginLeftPaddingMobile">
+                                        <c:SelectMultiple aura:id="my-multi-select" setLabelName="{!v.mifidProductSubcLabel+' '}" options="{!v.productSubscriptions}" selectChange="{!c.handleSelectChangeEvent}" selectedItems="{!v.selectedSubscriptions}" disabled="{!v.mifidCheckboxDisabled}" />
+                                    </div>
+                                </div>
+                                <lightning:select aura:id="salesCommentary" name="selectItem" label="{!v.mifidSalesCommentaryAllowedLabel}" onchange="{!c.onSalesCommentaryChange}" value="{!v.selectedSalesCommentary}" disabled="{!v.mifidCheckboxDisabled}"  class="marginLeftPaddingMobile">
+                                    <aura:if isTrue="{!v.contact.MiFIDII_in_Scope__c == false}">
+                                        <option value="--None--">--None--</option>
+                                        <aura:set attribute="else">
+                                            <option value="Allowed">Allowed</option>
+                                            <option value="Not Allowed">Not Allowed</option>
+                                        </aura:set>
+                                    </aura:if> 
+                                </lightning:select> 
+                                <lightning:select aura:id="serviceType" name="serviceType" label="{!v.serviceTypeLabel}" onchange="{!c.serviceTypeChanged}" value="{!v.selectedServiceType}" disabled="{!v.mifidCheckboxDisabled}"  class="marginLeftPaddingMobile">
+                                    <aura:if isTrue="{!v.contact.MiFIDII_in_Scope__c == false}">
+                                        <option value="No Change">--None--</option>
+                                        <aura:set attribute="else">
+                                            <option value="No Change">Please select</option>
+                                            <option value="Full Service">Full Service</option>
+                                            <option value="Report Only">Report Only</option>
+                                            <option value="FI Full Service / EQ Report Only">FI Full Service / EQ Report Only</option>
+                                            <option value="EQ Full Service / FI Report Only">EQ Full Service / FI Report Only</option>
+                                        </aura:set>
+                                    </aura:if>  
+                                </lightning:select>
+                                <br/>
+                                <aura:set attribute="else">
+                                    <div></div>
+                                </aura:set>
+                            </aura:if>
+                        
+                        <lightning:input aura:id="QDIIAccess" name="QDIIAccess" label="{!v.qdiiAccessLabel}" 
+                                                 type="checkbox" checked="{!v.contact.QDII__c}" />
+                        <lightning:input aura:id="GRPAccess" name="GRPAccess" label="{!v.grpAccessLabel}" 
+                                                 type="checkbox" checked="{!v.contact.GRP_Access__c}" onchange="{!c.grpAccessChanged}" class="marginLeftPadding"/>                  
+
+                            <aura:if isTrue="{!v.contact.GRP_Access__c == TRUE}">
+                                <br/>
+                                <lightning:select aura:id="region" name="selectItemregion" label="{!v.regionLabel}" onchange="{!c.regionChanged}" value="{!v.selectedRegion}" required="true"  class="marginLeftPaddingMobile">
+                                    <option value="--None--" selected="true">--Please Select--</option>
+                                    <option value="Americas">Americas</option>
+                                    <option value="AEJ">AEJ</option>
+                                    <option value="EMEA">EMEA</option>
+                                    <option value="Japan">Japan</option>
+                                </lightning:select>
+                                <br/>
+                                <lightning:select aura:id="investor" name="selectIteminvestor" label="{!v.investorTypeLabel}" onchange="{!c.investorTypeChanged}" value="{!v.selectedInvestorType}" disabled="{!v.selectedRegion == '--None--'}" required="true"  class="marginLeftPaddingMobile">
+                                    <aura:if isTrue="{!v.selectedRegion == 'Americas'}">
+                                        <aura:iteration items="{!v.AmericaInvestorOptions}" var="item">
+                                            <option text="{!item.label}" value="{!item.value}" selected="{!item.selected}"/>
+                                        </aura:iteration>
+                                    </aura:if>
+                                    <aura:if isTrue="{!v.selectedRegion == 'AEJ'}">
+                                        <aura:iteration items="{!v.AEJInvestorOptions}" var="item">
+                                            <option text="{!item.label}" value="{!item.value}" selected="{!item.selected}"/>
+                                        </aura:iteration>
+                                    </aura:if>
+                                    <aura:if isTrue="{!v.selectedRegion == 'EMEA'}">
+                                        <aura:iteration items="{!v.EMEAInvestorOptions}" var="item">
+                                            <option text="{!item.label}" value="{!item.value}" selected="{!item.selected}"/>
+                                        </aura:iteration>
+                                    </aura:if>
+                                    <aura:if isTrue="{!v.selectedRegion == 'Japan'}">
+                                        <aura:iteration items="{!v.JapanInvestorOptions}" var="item">
+                                            <option text="{!item.label}" value="{!item.value}" selected="{!item.selected}"/>
+                                        </aura:iteration>
+                                    </aura:if>
+                                </lightning:select>
+                                
+                                <br/>   
+                                <lightning:select aura:id="language" name="selectLanguage" 
+                                                  label="{!v.preferredLanguageLabel}" onchange="{!c.preferredLanguageChanged}" 
+                                                  value="{!v.selectedLanguage}" required="true"  class="marginLeftPaddingMobile">
+                                    <option value="No Change">--Please Select--</option>
+                                    <option value="English">English</option>
+                                    <option value="Japanese">Japanese</option>
+                                </lightning:select>
+                                <br/> 
+                                <lightning:layoutItem size="12" padding="around_xx-small" class="marginLeftPaddingMobile">
+                                    <c:SingleLookup aura:id="lookup-contact" allRecords="true" sObjectAPIName="User" 
+                                                    charLimit="2" label="{!v.salesPersonSponsorLabel}" pluralLabel="Sales Persons"
+                                                    showNomuraEmployee="true" listIconSVGPath="standard:contact" 
+                                                    listIconClass="slds-icon-standard-contact" itemChange="{!c.doApplySponsor}"/>
+                                </lightning:layoutItem>
+                                <br/> 
+                                <lightning:input value="{!v.contact.Sponsor_Email_Text__c}"
+                                                 type="Email" label="{!v.sponsorEmailLabel}" name="sponsorEmail" required="true" class="marginLeftPadding"/>
+                                <br/>
+                                <lightning:input value="{!v.contact.Sales_Sponsor__c}"
+                                                 type="String" label="{!v.sponsorLabel}"  name="sponsor" required="true" class="marginLeftPadding"/> 
+                                
+                                <aura:set attribute="else">
+                                    <div></div>
+                                </aura:set>
+                            </aura:if>
+                        
+                        
+                    </lightning:layoutItem>
+                    
+                    <lightning:layoutItem size="8" padding="around-small" >
+                        <lightning:button label="{!v.saveButtonLabel}" name="mobileSave" onclick="{!c.save}" variant="brand" disabled="{!v.disableSaveButton}"/>
+                        <lightning:button label="{!v.cancelButtonLabel}" onclick="{!c.cancel}" variant="neutral"/>
+                    </lightning:layoutItem>
+                </lightning:layout>  
+            </ui:scrollerWrapper>
+        </aura:set>
+    </aura:if> 
+</aura:component>

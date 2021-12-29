@@ -1,0 +1,5 @@
+<apex:component controller="CmpApprovalURLCtrl" access="global" >
+    <apex:attribute name="objID" description="obj ID" type="Id" assignTo="{!ApprovalID}"/>
+    <apex:attribute name="objUserID" description="obj User ID" type="Id" assignTo="{!ActorId}"/>
+    <a href="{!urlStr}">Approve/Reject</a>
+</apex:component>

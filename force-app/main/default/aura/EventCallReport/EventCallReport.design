@@ -1,0 +1,8 @@
+<design:component >
+	<design:attribute name="subject" label="Subject"  default=""/>
+	<design:attribute name="ExistingClientAttendees" datasource="" default=""/>
+	<design:attribute name="ClientAttendees" datasource="" default=""/>
+	<design:attribute name="InternalInvitees" datasource="" default=""/>
+	<design:attribute name="recordId" default="" />
+	<design:attribute name="relatedToId" default="" />
+</design:component>

@@ -1,0 +1,81 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes" controller="ETradingEnablementContactController">
+    <aura:attribute name="display" type="Boolean" default="false"/>
+    <aura:attribute name="initialised" type="Boolean" default="false"/>
+    
+    <aura:attribute name="contact" type="Contact" default="{ 'sobjectType': 'Contact' }"/>
+    <aura:attribute name="salutationOptions" type="String[]"/>
+    <aura:attribute name="hasErrors" type="Boolean" default="false" />
+	<aura:attribute name="errorMessages" type="String[]" />
+	
+	<aura:attribute name="relatedToAccount" type="String"/>
+    <aura:attribute name="selectedAddress" type="String" default=""/>
+    <aura:attribute name="addressQuery" type="String" default=""/>
+	
+    <aura:method name="open" action="{!c.open}"/>
+    
+    <aura:registerEvent name="newContact" type="c:ETradingEnablementContactEvent"/>
+    
+    <lightning:spinner aura:id="spinner" variant="brand" size="large" class="slds-hide"/>
+
+	<aura:if isTrue="{!v.display}">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-docked-composer__header slds-grid slds-shrink-none" aria-live="assertive">
+	                <div class="slds-media slds-media_center slds-no-space">
+	                    <div class="slds-media__figure slds-m-right_x-small">
+	                    </div>
+	                    <div class="slds-media__body">
+	                        <h2 class="slds-truncate" id="modal-heading-id-1" title="Header">New Contact</h2>
+	                    </div>
+	                </div>
+	                <div class="slds-col_bump-left slds-shrink-none">
+	                    <lightning:buttonIcon iconName="utility:close" variant="bare" onclick="{!c.close}"/>
+	                </div>
+				</header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    
+                    <c:SingleLookup aura:id="newcontact-account"   
+                                    allRecords="false" 
+                                    sObjectAPIName="Account"
+                                    accountType="RG_Account" 
+                                    charLimit="2"  
+                                    label="* Account " 
+                                    listIconSVGPath="standard:account" 
+                                    listIconClass="slds-icon-standard-account"
+                                    itemChange="{!c.accountChanged}" 
+                                    placeholder="Search Accounts" 
+                                    onReset="{!c.resetAccount}"
+                                    />
+                                    
+                    <div style="margin-left:.5em;">
+						<c:Combobox aura:id="addressCombobox" selectedEvent="{!c.addressChanged}" label="* Address" placeholder="Search Addresses" query="{!v.addressQuery}" sObjectAPIName="Account" recordId="{!v.relatedToAccount}" preSelectedId="{!v.selectedAddress}" clearIdEvent="{!c.addressCleared}"/>
+					</div> 			
+					
+					<lightning:select aura:id="salutations" name="selectItem" label="Salutation" value="{!v.contact.Salutation}" required="true">
+						<aura:iteration items="{!v.salutationOptions}" var="salutation">
+                			<option value="{!salutation.value}" text="{!salutation.label}"></option>
+            			</aura:iteration>
+                    </lightning:select>
+					
+	                <lightning:input aura:id="FirstName" name="FirstName" label="First Name" 
+	                                 value="{!v.contact.FirstName}" required="true" class="marginLeftPadding"/>
+	                <lightning:input aura:id="LastName" name="LastName" label="Last Name"
+	                                 value="{!v.contact.LastName}" required="true" class="marginLeftPadding"/>
+	                
+	                <lightning:input aura:id="Email" name="Email" label="Primary Email" 
+	                                 value="{!v.contact.Email}" required="true" class="marginLeftPadding"/>
+	                <lightning:input aura:id="Email" name="Email" label="Research Email" 
+	                                 value="{!v.contact.Research_Email__c}" required="false" class="marginLeftPadding"/>
+	                
+	                <lightning:input aura:id="Phone" name="Phone" label="Phone"
+	                                 value="{!v.contact.Phone}" class="marginLeftPadding"/>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning:button label="{!$Label.c.CVGTOOL_CANCEL}" onclick="{!c.close}" class="slds-button slds-button_neutral"/>
+                    <lightning:button label="{!$Label.c.Event_Custom_Save}" onclick="{!c.save}" class="slds-button slds-button_brand"/>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+</aura:component>
